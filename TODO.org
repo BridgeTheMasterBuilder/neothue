@@ -1,0 +1,7 @@
+* Features [/]
+ - [ ] Pattern matching 
+ - [ ] Thue compiler
+
+* Bugs [/]
+
+* Misc [/]
