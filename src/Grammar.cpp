@@ -24,8 +24,10 @@
  ***************/
 Grammar::Grammar(const application_order order, const bool debug) : order(order), debug(debug)
 {
-  std::random_device rd;
-  rng.seed(rd());
+  if (order == application_order::NONDETERMINISTIC) {
+    std::random_device rd;
+    rng.seed(rd());
+  }
 }
 
 /**************************
