@@ -123,7 +123,6 @@ Options parse_command_line_options(int argc, char* argv[])
         order = application_order::RIGHT_TO_LEFT;
         break;
       default:
-        std::cerr << "Unrecognized option: " << c << '\n';
         break;
     }
   }
