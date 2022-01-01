@@ -23,9 +23,9 @@
 /**************************
  * PUBLIC MEMBER FUNCTIONS *
  **************************/
-std::pair<Grammar, std::string> Parser::parse(const application_order order, const bool debug)
+std::pair<Grammar, std::string> Parser::parse(const application_order order, const bool classic, const bool debug)
 {
-  Grammar grammar(order, debug);
+  Grammar grammar(order, classic, debug);
 
   while (!finished_parsing()) {
     try {

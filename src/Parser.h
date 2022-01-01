@@ -31,8 +31,9 @@ public:
   { }
 
   // PUBLIC MEMBER FUNCTIONS
-  std::pair<Grammar, std::string> parse(const application_order order = application_order::NONDETERMINISTIC,
-                                        const bool              debug = false);
+  std::pair<Grammar, std::string> parse(const application_order order   = application_order::NONDETERMINISTIC,
+                                        const bool              classic = false,
+                                        const bool              debug   = false);
 
   // EXCEPTIONS
   struct Bad_sentence {

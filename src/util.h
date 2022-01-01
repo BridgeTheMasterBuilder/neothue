@@ -34,7 +34,7 @@ void        erase_empty_production(std::string& source_code, const std::size_t i
 void        escape_quotes(std::string& source_code);
 std::string file_as_string(const std::string_view filename);
 bool        finished_preprocessing(std::string& source_code, const std::size_t index) noexcept;
-void        maybe_erase_empty_production(std::string& source_code, const std::size_t index);
+bool        maybe_erase_empty_production(std::string& source_code, const std::size_t index);
 Options     parse_command_line_options(int argc, char* argv[]);
 void        preprocess(std::string& source_code);
 std::size_t quote_initial_state(std::string& source_code, std::size_t index);

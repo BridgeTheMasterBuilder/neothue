@@ -18,11 +18,13 @@
 
 #include "Grammar.h"
 #include <iostream>
+#include <unistd.h>
 
 /***************
  * CONSTRUCTORS *
  ***************/
-Grammar::Grammar(const application_order order, const bool debug) : order(order), debug(debug)
+Grammar::Grammar(const application_order order, const bool classic, const bool debug)
+    : order(order), classic(classic), debug(debug)
 {
   if (order == application_order::NONDETERMINISTIC) {
     std::random_device rd;
@@ -58,26 +60,28 @@ void Grammar::apply_productions(std::string& initial_state)
       if (debug) std::cout << initial_state << '\n';
     }
 
-    const size_t index_of_input = match(":::", initial_state);
+    if (!classic) {
+      const size_t index_of_input = match(":::", initial_state);
 
-    if (index_of_input != std::string::npos) {
-      match_found = true;
+      if (index_of_input != std::string::npos) {
+        match_found = true;
 
-      std::string input;
-      std::getline(std::cin, input);
-      if (!std::cin.eof()) input += '\n';
+        std::string input;
+        std::getline(std::cin, input);
+        if (!std::cin.eof()) input += '\n';
 
-      initial_state.replace(index_of_input, 3, input);
-    }
+        initial_state.replace(index_of_input, 3, input);
+      }
 
-    const size_t index_of_output = match('~', initial_state);
+      const size_t index_of_output = match('~', initial_state);
 
-    if (index_of_output != std::string::npos) {
-      match_found = true;
+      if (index_of_output != std::string::npos) {
+        match_found = true;
 
-      std::cout << initial_state.substr(index_of_output + 1);
+        std::cout << initial_state.substr(index_of_output + 1);
 
-      initial_state.erase(index_of_output, 1);
+        initial_state.erase(index_of_output, 1);
+      }
     }
 
     if (!match_found) break;

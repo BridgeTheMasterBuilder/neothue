@@ -55,7 +55,7 @@ bool finished_preprocessing(std::string& source_code, const std::size_t index) n
 }
 
 // ...\n...::=...\n⍺... → ...\n⍺...
-void maybe_erase_empty_production(std::string& source_code, const std::size_t index)
+bool maybe_erase_empty_production(std::string& source_code, const std::size_t index)
 {
   // ...\n...::=...\n⍺... → ...\n...::=...\n⍺...
   //                 ^         ^
@@ -71,7 +71,11 @@ void maybe_erase_empty_production(std::string& source_code, const std::size_t in
 
   // ...\n...::=...\n⍺... → ...\n⍺...
   //    ~~~~~~~~~~~^           ^
-  if (source_code.find_first_not_of("\t\n\r :=", start) > end) source_code.erase(start, length);
+  if (source_code.find_first_not_of("\t\n\r :=", start) > end) {
+    source_code.erase(start, length);
+    return true;
+  }
+  else return false;
 }
 
 Options parse_command_line_options(int argc, char* argv[])
@@ -114,7 +118,6 @@ Options parse_command_line_options(int argc, char* argv[])
   }
 
   if (argv[optind]) filename = argv[optind];
-  else print_usage = true;
 
   return { classic, debug, filename, print_usage, order };
 }
@@ -219,10 +222,11 @@ void preprocess(std::string& source_code)
   escape_quotes(source_code);
 
   while (!finished_preprocessing(source_code, index)) {
+    if (maybe_erase_empty_production(source_code, index)) break;
+
     index = skip_blank_lines(source_code, index);
     index = quote_lhs(source_code, index);
     index = quote_rhs(source_code, index);
-    maybe_erase_empty_production(source_code, index);
   }
 
   index = skip_blank_lines(source_code, index);

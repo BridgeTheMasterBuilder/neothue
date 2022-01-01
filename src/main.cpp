@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
     Lexer  lexer(source_code, filename.data());
     Parser parser(lexer, filename.data(), source_code);
 
-    auto [grammar, initial_state] = parser.parse(order, debug);
+    auto [grammar, initial_state] = parser.parse(order, classic, debug);
 
     grammar.apply_productions(initial_state);
   }
