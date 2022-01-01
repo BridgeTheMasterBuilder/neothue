@@ -22,6 +22,8 @@
 #include "Token.hpp"
 #include "Grammar.h"
 #include "Lexer.h"
+#include "Pattern.h"
+#include <variant>
 
 class Parser {
 public:
@@ -59,9 +61,10 @@ private:
   void        synchronize() noexcept;
 
   // PARSERS
-  void        pattern();
-  void        separator() { expect(Token::Type::SEPARATOR); }
-  std::string string();
+  Pattern                            pattern();
+  std::variant<Pattern, std::string> pattern_or_string();
+  void                               separator() { expect(Token::Type::SEPARATOR); }
+  std::string                        string();
 
   // PRIVATE DATA
   const std::string_view       filename;

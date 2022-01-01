@@ -29,27 +29,25 @@ std::pair<Grammar, std::string> Parser::parse(const application_order order, con
 
   while (!finished_parsing()) {
     try {
-      std::string lhs;
-      std::string rhs;
-
       if (lexer.lookahead() == Token::Type::START_OF_PATTERN) {
-        // TODO define pattern-matching production
-        pattern();
-      }
-      else lhs = string();
+        const Pattern lhs = pattern();
+        separator();
+        const std::string rhs = string();
 
-      separator();
-
-      if (lexer.lookahead() == Token::Type::START_OF_PATTERN) {
-        pattern();
-
-        // grammar.add_production(lhs, pattern);
+        grammar.add_production(lhs, rhs);
       }
       else {
-        rhs = string();
-      }
+        const std::string lhs = string();
+        separator();
+        if (lexer.lookahead() == Token::Type::START_OF_PATTERN) {
+          const Pattern rhs = pattern();
 
-      grammar.add_production(lhs, rhs);
+          // define pattern
+        }
+        const std::string rhs = string();
+
+        grammar.add_production(lhs, rhs);
+      }
     }
     catch (const Bad_sentence& bs) {
       report_error(bs.token);
@@ -140,12 +138,14 @@ void Parser::synchronize() noexcept
 /**********
  * PARSERS *
  **********/
-void Parser::pattern()
+Pattern Parser::pattern()
 {
   while (lexer.lookahead() != Token::Type::END_OF_PATTERN)
     lexer.pop();
 
   lexer.pop();
+
+  return Pattern("");
 }
 
 std::string Parser::string()

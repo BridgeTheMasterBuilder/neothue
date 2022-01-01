@@ -19,14 +19,16 @@
 #ifndef GRAMMAR_H
 #define GRAMMAR_H
 
+#include "Pattern.h"
 #include "concepts.h"
 #include <random>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 
-using Production = std::pair<std::string, std::string>;
+using Production = std::pair<std::variant<Pattern, std::string>, std::string>;
 
 enum class application_order
 {
@@ -43,15 +45,28 @@ public:
           const bool              debug   = false);
 
   // PUBLIC MEMBER FUNCTIONS
-  void add_production(const std::string_view lhs, const std::string_view rhs);
+  void add_production(const std::variant<Pattern, std::string> lhs, const std::string_view rhs);
   void apply_productions(std::string& initial_state);
   void sort();
 
 private:
   // PRIVATE MEMBER FUNCTIONS
-  void apply_production(Production& production, std::string& string, const std::size_t index_of_match);
+  void apply_production(Production& production, std::string& string, const std::size_t start, const std::size_t end);
+  void apply_production(Production&        production,
+                        const Pattern&     lhs,
+                        const std::string& rhs,
+                        std::string&       string,
+                        const std::size_t  start,
+                        const std::size_t  end);
+  void apply_production(Production&        production,
+                        const std::string& lhs,
+                        const std::string& rhs,
+                        std::string&       string,
+                        const std::size_t  index_of_match,
+                        const std::size_t  _);
   template<typename T>
-  std::size_t match(const T lhs, const std::string_view string) requires(any_of<T, const char*, std::string_view, char>)
+  std::pair<std::size_t, std::size_t>
+  match(const T lhs, const std::string_view string) requires(any_of<T, const char*, std::string_view, char>)
   {
     using enum application_order;
 
@@ -61,11 +76,16 @@ private:
     else if (order == RIGHT_TO_LEFT) index_of_match = string.rfind(lhs);
     else index_of_match = (rng() < rng.max() / 2) ? string.find(lhs) : string.rfind(lhs);
 
-    return index_of_match;
+    return { index_of_match, -1 };
   }
-  std::size_t match(const std::string& lhs, const std::string_view string)
+  std::pair<std::size_t, std::size_t> match(const std::string& lhs, const std::string_view string)
   {
     return match<std::string_view>(lhs, string);
+  }
+  std::pair<std::size_t, std::size_t> match([[maybe_unused]] const Pattern&         lhs,
+                                            [[maybe_unused]] const std::string_view string)
+  {
+    return { 0, 0 };
   }
   void rewrite_production(Production& production, const std::string_view rhs);
   void shuffle();
