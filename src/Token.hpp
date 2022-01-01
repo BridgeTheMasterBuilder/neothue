@@ -25,11 +25,12 @@ struct Token {
   // ENUMS
   enum Type
   {
-    START,
-    STRING,
-    SEPARATOR,
     END,
-    NONE
+    END_OF_PATTERN,
+    PATTERN_SEPARATOR,
+    START_OF_PATTERN,
+    STRING,
+    SEPARATOR
   };
 
   // CONSTRUCTORS

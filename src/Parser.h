@@ -59,6 +59,7 @@ private:
   void        synchronize() noexcept;
 
   // PARSERS
+  void        pattern();
   void        separator() { expect(Token::Type::SEPARATOR); }
   std::string string();
 

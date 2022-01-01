@@ -29,9 +29,25 @@ std::pair<Grammar, std::string> Parser::parse(const application_order order, con
 
   while (!finished_parsing()) {
     try {
-      const std::string lhs = string();
+      std::string lhs;
+      std::string rhs;
+
+      if (lexer.lookahead() == Token::Type::START_OF_PATTERN) {
+        // TODO define pattern-matching production
+        pattern();
+      }
+      else lhs = string();
+
       separator();
-      const std::string rhs = string();
+
+      if (lexer.lookahead() == Token::Type::START_OF_PATTERN) {
+        pattern();
+
+        // grammar.add_production(lhs, pattern);
+      }
+      else {
+        rhs = string();
+      }
 
       grammar.add_production(lhs, rhs);
     }
@@ -81,7 +97,9 @@ std::size_t Parser::find_start_of_line(const int line_number) const noexcept
 
 bool Parser::finished_parsing() const noexcept
 {
-  return lexer.empty() || (lexer.lookahead() == Token::Type::STRING && lexer.lookaround() == Token::Type::END);
+  return lexer.empty()
+         || ((lexer.lookahead() == Token::Type::STRING || lexer.lookahead() == Token::Type::END_OF_PATTERN)
+             && lexer.lookaround() == Token::Type::END);
 }
 
 void Parser::report_error(const Token token)
@@ -108,17 +126,28 @@ void Parser::report_error(const Token token)
   synchronize();
 }
 
+// TODO is the synchronization correct?
 void Parser::synchronize() noexcept
 {
   Token::Type previous = Token::Type::STRING;
 
-  while (!lexer.empty() && !(previous == Token::Type::STRING && lexer.lookahead() == Token::Type::STRING))
+  while (!lexer.empty()
+         && !((previous == Token::Type::STRING || previous == Token::Type::END_OF_PATTERN)
+              && (lexer.lookahead() == Token::Type::STRING || lexer.lookahead() == Token::Type::START_OF_PATTERN)))
     previous = lexer.pop().type;
 }
 
 /**********
  * PARSERS *
  **********/
+void Parser::pattern()
+{
+  while (lexer.lookahead() != Token::Type::END_OF_PATTERN)
+    lexer.pop();
+
+  lexer.pop();
+}
+
 std::string Parser::string()
 {
   const Token& t = lexer.lookahead();
