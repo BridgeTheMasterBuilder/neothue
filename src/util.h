@@ -20,7 +20,6 @@
 #define UTIL_H
 
 #include "Grammar.h"
-#include <fstream>
 #include <getopt.h>
 #include <string>
 #include <string_view>

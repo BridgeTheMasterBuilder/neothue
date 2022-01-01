@@ -17,6 +17,7 @@
 */
 
 #include "util.h"
+#include <fstream>
 #include <iostream>
 #include <sstream>
 

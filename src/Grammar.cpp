@@ -18,7 +18,6 @@
 
 #include "Grammar.h"
 #include <iostream>
-#include <unistd.h>
 
 /***************
  * CONSTRUCTORS *

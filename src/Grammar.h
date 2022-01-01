@@ -38,7 +38,9 @@ enum class application_order
 class Grammar {
 public:
   // CONSTRUCTORS
-  Grammar(const application_order order = application_order::NONDETERMINISTIC, const bool classic = false, const bool debug = false);
+  Grammar(const application_order order   = application_order::NONDETERMINISTIC,
+          const bool              classic = false,
+          const bool              debug   = false);
 
   // PUBLIC MEMBER FUNCTIONS
   void add_production(const std::string_view lhs, const std::string_view rhs);
