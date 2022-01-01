@@ -39,27 +39,13 @@ void escape_quotes(std::string& source_code)
 
 std::string file_as_string(const std::string_view filename)
 {
-  if (!filename.empty()) {
-    const std::ifstream source_file(filename.data());
-    if (!source_file) throw File_not_found(filename.data());
+  const std::ifstream source_file(filename.data());
+  if (!source_file) throw File_not_found(filename.data());
 
-    std::stringstream buffer;
-    buffer << source_file.rdbuf();
+  std::stringstream buffer;
+  buffer << source_file.rdbuf();
 
-    return buffer.str();
-  }
-  else {
-    std::string buffer;
-
-    while (!std::cin.eof()) {
-      std::string temp;
-      std::cin >> temp;
-
-      buffer += temp + ' ';
-    }
-
-    return buffer;
-  }
+  return buffer.str();
 }
 
 // The standard doesn't say that this overload of std::string::find doesn't throw but AFAICT it never does
@@ -128,6 +114,7 @@ Options parse_command_line_options(int argc, char* argv[])
   }
 
   if (argv[optind]) filename = argv[optind];
+  else print_usage = true;
 
   return { classic, debug, filename, print_usage, order };
 }

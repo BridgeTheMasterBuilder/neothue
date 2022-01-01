@@ -37,10 +37,10 @@ meson test -C <build directory>
 
 # Running the interpreter
 ```
-thue [options] [file]
+thue [options] file
 ```
 
-If any arguments remain after processing command-line options, the first non-option argument is taken to be a filename and Thue source code is read from that file and the rest of the arguments are ignored. Otherwise Thue code is read from standard input.
+If any arguments remain after processing command-line options, the first non-option argument is taken to be a filename and Thue source code is read from that file and the rest of the arguments are ignored.
 
 **Note:** Options may come before or after the filename
 
