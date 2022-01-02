@@ -63,6 +63,7 @@ private:
   // PARSERS
   Pattern                            pattern();
   std::variant<Pattern, std::string> pattern_or_string();
+  void                               pattern_separator() { expect(Token::Type::PATTERN_SEPARATOR); }
   void                               separator() { expect(Token::Type::SEPARATOR); }
   std::string                        string();
 
