@@ -17,6 +17,8 @@
 */
 
 #include "Grammar.h"
+#include "util.h"
+#include <cstring>
 #include <iostream>
 
 /***************
@@ -57,6 +59,7 @@ void Grammar::apply_productions(std::string& initial_state)
       if (debug) std::cout << initial_state << '\n';
     }
 
+    // TODO abstract away into a function?
     if (!classic) {
       const auto [index_of_input, end_of_input] = match(":::", initial_state);
 
@@ -116,6 +119,7 @@ void Grammar::apply_production(Production&       production,
              lhs);
 }
 
+// TODO implement this
 void Grammar::apply_production([[maybe_unused]] Production&        production,
                                [[maybe_unused]] const Pattern&     lhs,
                                [[maybe_unused]] const std::string& rhs,
@@ -150,6 +154,39 @@ void Grammar::apply_production(Production&                        production,
 
     string.replace(index_of_match, lhs.size(), "");
   }
+}
+
+std::pair<std::size_t, std::size_t> Grammar::match(const char lhs, const std::string_view string)
+{
+  std::size_t index_of_match = locate(lhs, string);
+
+  return { index_of_match, index_of_match + 1 };
+}
+
+std::pair<std::size_t, std::size_t> Grammar::match(const char* lhs, const std::string_view string)
+{
+  std::size_t index_of_match = locate(lhs, string);
+
+  return { index_of_match, index_of_match + std::strlen(lhs) };
+}
+
+std::pair<std::size_t, std::size_t> Grammar::match(const std::string_view lhs, const std::string_view string)
+{
+  std::size_t index_of_match = locate(lhs, string);
+
+  return { index_of_match, index_of_match + lhs.size() };
+}
+
+std::pair<std::size_t, std::size_t> Grammar::match(const std::string& lhs, const std::string_view string)
+{
+  return match(std::string_view(lhs), string);
+}
+
+// TODO implement this
+std::pair<std::size_t, std::size_t> Grammar::match([[maybe_unused]] const Pattern&         lhs,
+                                                   [[maybe_unused]] const std::string_view string)
+{
+  return { std::string::npos, std::string::npos };
 }
 
 void Grammar::rewrite_production(Production& production, const std::string_view rhs) { production.second = rhs; }

@@ -100,6 +100,7 @@ bool Parser::finished_parsing() const noexcept
              && lexer.lookaround() == Token::Type::END);
 }
 
+// TODO better error handling
 void Parser::report_error(const Token token)
 {
   malformed = true;
