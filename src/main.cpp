@@ -27,7 +27,7 @@
 int main(int argc, char* argv[])
 {
   try {
-    const auto [classic, debug, filename, print_usage, order] = parse_command_line_options(argc, argv);
+    const auto [classic, debug, filename, preprocess_only, print_usage, order] = parse_command_line_options(argc, argv);
 
     if (print_usage) {
       usage();
@@ -36,7 +36,14 @@ int main(int argc, char* argv[])
 
     std::string source_code = file_as_string(filename);
 
-    if (classic) preprocess(source_code);
+    if (classic) {
+      preprocess(source_code);
+
+      if (preprocess_only) {
+        std::cout << source_code << '\n';
+        return EXIT_SUCCESS;
+      }
+    }
 
     Lexer  lexer(source_code, filename.data());
     Parser parser(lexer, filename.data(), source_code);

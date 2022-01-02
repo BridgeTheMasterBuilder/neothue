@@ -81,21 +81,23 @@ bool maybe_erase_empty_production(std::string& source_code, const std::size_t in
 
 Options parse_command_line_options(int argc, char* argv[])
 {
-  bool              classic     = false;
-  bool              debug       = false;
-  std::string_view  filename    = "";
-  bool              print_usage = false;
-  application_order order       = application_order::NONDETERMINISTIC;
+  bool              classic         = false;
+  bool              debug           = false;
+  std::string_view  filename        = "";
+  bool              preprocess_only = false;
+  bool              print_usage     = false;
+  application_order order           = application_order::NONDETERMINISTIC;
 
   const struct option options[] {
     { "classic", no_argument, 0, 'c' }, { "debug", no_argument, 0, 'd' }, { "help", no_argument, 0, 'h' },
-        { "left-to-right", no_argument, 0, 'l' }, { "right-to-left", no_argument, 0, 'r' }, { 0, 0, 0, 0 },
+        { "left-to-right", no_argument, 0, 'l' }, { "preprocess-only", no_argument, 0, 'p' },
+        { "right-to-left", no_argument, 0, 'r' }, { 0, 0, 0, 0 },
   };
 
   while (true) {
     int c;
 
-    if ((c = getopt_long(argc, argv, "cdhlr", options, NULL)) == -1) break;
+    if ((c = getopt_long(argc, argv, "cdhlpr", options, NULL)) == -1) break;
 
     switch (c) {
       case 'c':
@@ -110,6 +112,9 @@ Options parse_command_line_options(int argc, char* argv[])
       case 'l':
         order = application_order::LEFT_TO_RIGHT;
         break;
+      case 'p':
+        preprocess_only = true;
+        break;
       case 'r':
         order = application_order::RIGHT_TO_LEFT;
         break;
@@ -120,7 +125,7 @@ Options parse_command_line_options(int argc, char* argv[])
 
   if (argv[optind]) filename = argv[optind];
 
-  return { classic, debug, filename, print_usage, order };
+  return { classic, debug, filename, preprocess_only, print_usage, order };
 }
 
 // ⍺ → '⍺'

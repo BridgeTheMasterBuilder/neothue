@@ -26,7 +26,7 @@
 #include <tuple>
 
 // Alias
-using Options = std::tuple<bool, bool, std::string_view, bool, application_order>;
+using Options = std::tuple<bool, bool, std::string_view, bool, bool, application_order>;
 
 // Function prototypes
 void        erase_empty_production(std::string& source_code, const std::size_t index);
