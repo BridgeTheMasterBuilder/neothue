@@ -187,9 +187,33 @@ std::pair<std::size_t, std::size_t> Grammar::match(const std::string& lhs, const
 }
 
 // TODO implement this
-std::pair<std::size_t, std::size_t> Grammar::match([[maybe_unused]] const Pattern&         lhs,
-                                                   [[maybe_unused]] const std::string_view string)
+std::pair<std::size_t, std::size_t> Grammar::match(const Pattern& lhs, [[maybe_unused]] const std::string_view string)
 {
+  enum
+  {
+    CHARACTER,
+    STRING,
+    LITERAL
+  };
+
+  for (const auto& alternative : lhs.alternatives()) {
+    std::vector<std::pair<int, const Pattern::Literal&>>   literals;
+    std::vector<std::pair<int, const Pattern::Character&>> characters;
+    std::vector<std::pair<int, const Pattern::String&>>    strings;
+
+    for (int index = 0; const auto& constituent : alternative) {
+      if (constituent.index() == CHARACTER) characters.emplace_back(index++, std::get<CHARACTER>(constituent));
+      else if (constituent.index() == STRING) strings.emplace_back(index++, std::get<STRING>(constituent));
+      else literals.emplace_back(index++, std::get<LITERAL>(constituent));
+    }
+
+    for (const auto& [index, literal] : literals)
+      std::cout << "Literal " << literal.value << " which appears in position " << index << " in the pattern.\n";
+    for (const auto& [index, character] : characters)
+      std::cout << "Character " << character.value << " which appears in position " << index << " in the pattern.\n";
+    for (const auto& [index, string] : strings)
+      std::cout << "String " << string.value << " which appears in position " << index << " in the pattern.\n";
+  }
   return { std::string::npos, std::string::npos };
 }
 
