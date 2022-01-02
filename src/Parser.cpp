@@ -141,12 +141,25 @@ void Parser::synchronize() noexcept
  **********/
 Pattern Parser::pattern()
 {
-  while (lexer.lookahead() != Token::Type::END_OF_PATTERN)
-    lexer.pop();
+  Pattern pattern;
 
   lexer.pop();
 
-  return Pattern("");
+  while (!lexer.empty()) {
+    pattern.add_alternative(string());
+    if (lexer.lookahead() == Token::Type::END_OF_PATTERN) break;
+    expect(Token::Type::PATTERN_SEPARATOR);
+  }
+
+  lexer.pop();
+
+  for (const auto& alternative : pattern.alternatives()) {
+    for (const auto& constituent : alternative) {
+      std::visit([](const auto arg) { std::cout << arg.value << '\n'; }, constituent);
+    }
+  }
+
+  return pattern;
 }
 
 std::string Parser::string()
