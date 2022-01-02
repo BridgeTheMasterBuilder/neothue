@@ -59,30 +59,7 @@ void Grammar::apply_productions(std::string& initial_state)
       if (debug) std::cout << initial_state << '\n';
     }
 
-    // TODO abstract away into a function?
-    if (!classic) {
-      const auto [index_of_input, end_of_input] = match(":::", initial_state);
-
-      if (index_of_input != std::string::npos) {
-        match_found = true;
-
-        std::string input;
-        std::getline(std::cin, input);
-        if (!std::cin.eof()) input += '\n';
-
-        initial_state.replace(index_of_input, 3, input);
-      }
-
-      const auto [index_of_output, end_of_output] = match('~', initial_state);
-
-      if (index_of_output != std::string::npos) {
-        match_found = true;
-
-        std::cout << initial_state.substr(index_of_output + 1);
-
-        initial_state.erase(index_of_output, 1);
-      }
-    }
+    if (!classic) match_found = handle_input_and_output(initial_state);
 
     if (!match_found) break;
   }
@@ -154,6 +131,33 @@ void Grammar::apply_production(Production&                        production,
 
     string.replace(index_of_match, lhs.size(), "");
   }
+}
+
+bool Grammar::handle_input_and_output(std::string& initial_state)
+{
+  const auto [index_of_input, end_of_input] = match(":::", initial_state);
+
+  if (index_of_input != std::string::npos) {
+    std::string input;
+    std::getline(std::cin, input);
+    if (!std::cin.eof()) input += '\n';
+
+    initial_state.replace(index_of_input, 3, input);
+
+    return true;
+  }
+
+  const auto [index_of_output, end_of_output] = match('~', initial_state);
+
+  if (index_of_output != std::string::npos) {
+    std::cout << initial_state.substr(index_of_output + 1);
+
+    initial_state.erase(index_of_output, 1);
+
+    return true;
+  }
+
+  return false;
 }
 
 std::pair<std::size_t, std::size_t> Grammar::match(const char lhs, const std::string_view string)

@@ -64,7 +64,7 @@ private:
                         std::string&       string,
                         const std::size_t  index_of_match,
                         const std::size_t  _);
-
+  bool handle_input_and_output(std::string& initial_state);
   template<typename T>
   std::size_t locate(const T                lhs,
                      const std::string_view string) requires(any_of<T, const char*, std::string_view, char>)
