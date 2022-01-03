@@ -187,7 +187,7 @@ std::pair<std::size_t, std::size_t> Grammar::match(const std::string& lhs, const
 }
 
 // TODO implement this
-std::pair<std::size_t, std::size_t> Grammar::match(const Pattern& lhs, [[maybe_unused]] const std::string_view string)
+std::pair<std::size_t, std::size_t> Grammar::match(const Pattern& lhs, const std::string_view string)
 {
   enum
   {
@@ -207,8 +207,14 @@ std::pair<std::size_t, std::size_t> Grammar::match(const Pattern& lhs, [[maybe_u
       else literals.emplace_back(index++, std::get<LITERAL>(constituent));
     }
 
-    for (const auto& [index, literal] : literals)
-      std::cout << "Literal " << literal.value << " which appears in position " << index << " in the pattern.\n";
+    std::cout << "String to match against: " << string << '\n';
+
+    for (const auto& [index, literal] : literals) {
+      const auto [start, end] = match(literal.value, string);
+
+      if (start != std::string::npos)
+        std::cout << "Matched literal " << literal.value << " at indices " << start << "-" << end << "\n";
+    }
     for (const auto& [index, character] : characters)
       std::cout << "Character " << character.value << " which appears in position " << index << " in the pattern.\n";
     for (const auto& [index, string] : strings)
