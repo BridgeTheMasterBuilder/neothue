@@ -7,8 +7,8 @@ void Pattern::add_alternative(const std::string_view pattern)
   _alternatives.push_back(analyze_pattern(pattern.data()));
 }
 
-std::vector<std::variant<Pattern::Character, Pattern::String, Pattern::Literal>>
-Pattern::analyze_pattern(const std::string& pattern)
+// TODO ability to escape 'c' and 's'
+std::vector<std::variant<Character, String, Literal>> Pattern::analyze_pattern(const std::string& pattern)
 {
   std::vector<std::variant<Character, String, Literal>> constituents;
 

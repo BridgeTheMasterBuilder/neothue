@@ -175,7 +175,8 @@ IndexPair Grammar::match(const std::string_view lhs, const std::string_view stri
 {
   std::size_t index_of_match = locate(lhs, string);
 
-  return { index_of_match, index_of_match + lhs.size() };
+  if (index_of_match == std::string::npos) return { std::string::npos, std::string::npos };
+  else return { index_of_match, index_of_match + lhs.size() };
 }
 
 IndexPair Grammar::match(const std::string& lhs, const std::string_view string)
@@ -183,30 +184,15 @@ IndexPair Grammar::match(const std::string& lhs, const std::string_view string)
   return match(std::string_view(lhs), string);
 }
 
-IndexPair Grammar::match([[maybe_unused]] const Pattern::Character& c, [[maybe_unused]] const std::string_view string)
-{
-  return { std::string::npos, std::string::npos };
-}
-
-IndexPair Grammar::match([[maybe_unused]] const Pattern::String& s, [[maybe_unused]] const std::string_view string)
-{
-  return { std::string::npos, std::string::npos };
-}
-
-IndexPair Grammar::match(const Pattern::Literal& l, const std::string_view string) { return match(l.value, string); }
-
 IndexPair Grammar::match(const Pattern& lhs, const std::string_view string)
 {
-  bool matched = false;
+  // bool matched = false;
 
   for (const auto& alternative : lhs.alternatives()) {
-    Match match(string);
+    Match match(alternative, string);
 
-    for (const auto& constituent : alternative) {
-      matched = match.attempt_to_match(constituent);
-
-      if (matched) return match.match_indices();
-    }
+    // TODO return match.match_indices() if match.is_match is true
+    // or operator bool()
   }
 
   std::cout << "Match failed\n";

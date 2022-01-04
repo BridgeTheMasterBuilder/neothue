@@ -1,7 +1,8 @@
 #include "Match.h"
 #include <iostream>
 
-bool Match::attempt_to_match(const auto& constituent)
+Match::Match(const Alternative& alternative, const std::string_view string)
+    : available_indices(1, { 0, string.size() }), string(string)
 {
   enum
   {
@@ -10,41 +11,10 @@ bool Match::attempt_to_match(const auto& constituent)
     LITERAL
   };
 
-  if (constituent.index() == LITERAL) {
-    const auto [start, end] = match(std::get<LITERAL>(constituent).value, string);
+  for (const auto& constituent : alternative) {
+    const auto [start, end] = std::visit([this](const auto& constituent) { return match(constituent); }, constituent);
 
     if (start == std::string::npos) break;
-
-    std::cout << "Found literal " << std::get<LITERAL>(constituent).value << " at indices " << start << "-" << end
-              << "\n";
-
-    IndexPair match = { start, end };
-    remove_indices(available_indices, match);
-    index = end;
-  }
-  else if (constituent.index() == CHARACTER) {
-    const auto [start, end] = find_possible_indices(available_indices, index);
-
-    if (start == std::string::npos) break;
-
-    if (end == start + 1) {
-      std::cout << "Character with id " << std::get<CHARACTER>(constituent).value << " is located at position " << start
-                << '\n';
-    }
-    else {
-      std::cout << "Character with id " << std::get<CHARACTER>(constituent).value << " may be located at indices "
-                << start << "-" << end << "\n";
-    }
-
-    index++;
-  }
-  else {
-    const auto [start, end] = find_possible_indices(available_indices, index);
-
-    if (start == std::string::npos) break;
-
-    std::cout << "String with id " << std::get<STRING>(constituent).value << " may be located at indices " << start
-              << "-" << end << "\n";
   }
 }
 
@@ -60,13 +30,34 @@ IndexPair Match::find_possible_indices(std::vector<IndexPair>& available_indices
   return { std::string::npos, std::string::npos };
 }
 
+// TODO update available
+IndexPair Match::match([[maybe_unused]] const Character& c)
+{
+  return find_possible_indices(available_indices, index++);
+}
+
+// TODO update available
+IndexPair Match::match([[maybe_unused]] const String& s) { return find_possible_indices(available_indices, index); }
+
+IndexPair Match::match(const Literal& l)
+{
+  // IndexPair match = { start, end };
+  // remove_indices(available_indices, match);
+  // index = end;
+
+  std::size_t index_of_match = string.find(l.value);
+
+  if (index_of_match == std::string::npos) return { std::string::npos, std::string::npos };
+  else return { index_of_match, index_of_match + l.value.size() };
+}
+
 void Match::remove_indices(std::vector<IndexPair>& available_indices, IndexPair match)
 {
   const auto [match_start, match_end] = match;
 
-  std::cout << "Available indices before removal:\n";
-  for (const auto& [start, end] : available_indices)
-    std::cout << '[' << start << ", " << end << ")\n";
+  // std::cout << "Available indices before removal:\n";
+  // for (const auto& [start, end] : available_indices)
+  //   std::cout << '[' << start << ", " << end << ")\n";
 
   for (std::size_t i = 0; i < available_indices.size(); i++) {
     auto& [start, end] = available_indices[i];
@@ -87,7 +78,7 @@ void Match::remove_indices(std::vector<IndexPair>& available_indices, IndexPair 
     }
   }
 
-  std::cout << "Available indices after removal\n";
-  for (const auto& [start, end] : available_indices)
-    std::cout << '[' << start << ", " << end << ")\n";
+  // std::cout << "Available indices after removal\n";
+  // for (const auto& [start, end] : available_indices)
+  //   std::cout << '[' << start << ", " << end << ")\n";
 }
