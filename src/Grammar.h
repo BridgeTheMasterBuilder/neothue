@@ -22,6 +22,7 @@
 #include "Pattern.h"
 #include "concepts.h"
 #include <random>
+#include <set>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -83,8 +84,10 @@ private:
   std::pair<std::size_t, std::size_t> match(const char* lhs, const std::string_view string);
   std::pair<std::size_t, std::size_t> match(const std::string_view lhs, const std::string_view string);
   std::pair<std::size_t, std::size_t> match(const std::string& lhs, const std::string_view string);
-  std::pair<std::size_t, std::size_t> match([[maybe_unused]] const Pattern&         lhs,
-                                            [[maybe_unused]] const std::string_view string);
+  std::pair<std::size_t, std::size_t> match(const Pattern::Character& c, const std::string_view string);
+  std::pair<std::size_t, std::size_t> match(const Pattern::String& s, const std::string_view string);
+  std::pair<std::size_t, std::size_t> match(const Pattern::Literal& l, const std::string_view string);
+  std::pair<std::size_t, std::size_t> match(const Pattern& lhs, const std::string_view string);
   void                                rewrite_production(Production& production, const std::string_view rhs);
   void                                shuffle();
   void                                sort_left_to_right();

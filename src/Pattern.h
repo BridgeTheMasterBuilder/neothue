@@ -54,6 +54,7 @@ public:
 
 private:
   // PRIVATE MEMBER FUNCTIONS
+  // TODO escape 'c' and 's'
   std::vector<std::variant<Character, String, Literal>> analyze_pattern(const std::string& pattern)
   {
     std::vector<std::variant<Character, String, Literal>> constituents;

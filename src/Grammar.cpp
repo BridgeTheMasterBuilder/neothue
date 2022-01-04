@@ -186,6 +186,41 @@ std::pair<std::size_t, std::size_t> Grammar::match(const std::string& lhs, const
   return match(std::string_view(lhs), string);
 }
 
+std::pair<std::size_t, std::size_t> Grammar::match([[maybe_unused]] const Pattern::Character& c,
+                                                   [[maybe_unused]] const std::string_view    string)
+{
+  return { std::string::npos, std::string::npos };
+}
+
+std::pair<std::size_t, std::size_t> Grammar::match([[maybe_unused]] const Pattern::String& s,
+                                                   [[maybe_unused]] const std::string_view string)
+{
+  return { std::string::npos, std::string::npos };
+}
+
+std::pair<std::size_t, std::size_t> Grammar::match(const Pattern::Literal& l, const std::string_view string)
+{
+  return match(l.value, string);
+}
+
+void remove_indices(std::vector<std::pair<std::size_t, std::size_t>>& available_indices,
+                    std::pair<std::size_t, std::size_t>               match)
+{
+  const auto [match_start, match_end] = match;
+
+  for (auto& [start, end] : available_indices) {
+    // overlap only on the left side
+    if (match_start < start && start < match_end)
+      ;
+    // overlap only on the right side
+    else if (match_end > end && end > match_start)
+      ;
+    // contained within; partition
+    else
+      ;
+  }
+}
+
 // TODO implement this
 std::pair<std::size_t, std::size_t> Grammar::match(const Pattern& lhs, const std::string_view string)
 {
@@ -196,37 +231,42 @@ std::pair<std::size_t, std::size_t> Grammar::match(const Pattern& lhs, const std
     LITERAL
   };
 
+  /* TODO
+     if next is literal, then this constituent's end is the literal's start
+     if previous is literal, then this constituent's start is the literal's end
+     keep track of available indices
+   */
   for (const auto& alternative : lhs.alternatives()) {
-    std::vector<std::pair<int, const Pattern::Literal&>>   literals;
-    std::vector<std::pair<int, const Pattern::Character&>> characters;
-    std::vector<std::pair<int, const Pattern::String&>>    strings;
+    std::set<std::pair<std::size_t, std::pair<std::size_t, std::size_t>>> match_indices;
+    std::vector<std::pair<std::size_t, std::size_t>>                      available_indices = {
+      {0, string.size()}
+    };
 
-    for (int index = 0; const auto& constituent : alternative) {
-      if (constituent.index() == CHARACTER) characters.emplace_back(index++, std::get<CHARACTER>(constituent));
-      else if (constituent.index() == STRING) strings.emplace_back(index++, std::get<STRING>(constituent));
-      else literals.emplace_back(index++, std::get<LITERAL>(constituent));
+    for (std::size_t index = 0; const auto& constituent : alternative) {
+      const auto [possible_start, possible_end] = std::visit(
+          [this, &string](const auto& constituent) -> std::pair<std::size_t, std::size_t> {
+            return match(constituent, string);
+          },
+          constituent);
+
+      if (possible_start == std::string::npos) break;
+
+      if (constituent.index() == LITERAL) {
+        std::cout << "Found literal " << std::get<2>(constituent).value << " at indices " << possible_start << "-"
+                  << possible_end << "\n";
+
+        std::pair<std::size_t, std::size_t> match = { possible_start, possible_end };
+        match_indices.emplace(index++, match);
+        remove_indices(available_indices, match);
+      }
     }
-
-    std::cout << "String to match against: " << string << '\n';
-
-    for (const auto& [index, literal] : literals) {
-      const auto [start, end] = match(literal.value, string);
-
-      if (start != std::string::npos)
-        std::cout << "Matched literal " << literal.value << " at indices " << start << "-" << end << "\n";
-    }
-    for (const auto& [index, character] : characters)
-      std::cout << "Character " << character.value << " which appears in position " << index << " in the pattern.\n";
-    for (const auto& [index, string] : strings)
-      std::cout << "String " << string.value << " which appears in position " << index << " in the pattern.\n";
+    return { std::string::npos, std::string::npos };
   }
-  return { std::string::npos, std::string::npos };
-}
 
-void Grammar::rewrite_production(Production& production, const std::string_view rhs) { production.second = rhs; }
+  void Grammar::rewrite_production(Production & production, const std::string_view rhs) { production.second = rhs; }
 
-void Grammar::shuffle() { std::shuffle(productions.begin(), productions.end(), rng); }
+  void Grammar::shuffle() { std::shuffle(productions.begin(), productions.end(), rng); }
 
-void Grammar::sort_left_to_right() { std::sort(productions.begin(), productions.end()); }
+  void Grammar::sort_left_to_right() { std::sort(productions.begin(), productions.end()); }
 
-void Grammar::sort_right_to_left() { std::sort(productions.rbegin(), productions.rend()); }
+  void Grammar::sort_right_to_left() { std::sort(productions.rbegin(), productions.rend()); }
