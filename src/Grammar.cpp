@@ -17,6 +17,7 @@
 */
 
 #include "Grammar.h"
+#include "Match.h"
 #include "util.h"
 #include <cstring>
 #include <iostream>
@@ -47,9 +48,7 @@ void Grammar::apply_productions(std::string& initial_state)
       const auto& lhs = production.first;
 
       const auto [start, end] =
-          std::visit([this, &initial_state](
-                         const auto& lhs) -> std::pair<std::size_t, std::size_t> { return match(lhs, initial_state); },
-                     lhs);
+          std::visit([this, &initial_state](const auto& lhs) -> IndexPair { return match(lhs, initial_state); }, lhs);
 
       if (start == std::string::npos) continue;
       else match_found = true;
@@ -160,113 +159,64 @@ bool Grammar::handle_input_and_output(std::string& initial_state)
   return false;
 }
 
-std::pair<std::size_t, std::size_t> Grammar::match(const char lhs, const std::string_view string)
+IndexPair Grammar::match(const char lhs, const std::string_view string)
 {
   std::size_t index_of_match = locate(lhs, string);
 
   return { index_of_match, index_of_match + 1 };
 }
 
-std::pair<std::size_t, std::size_t> Grammar::match(const char* lhs, const std::string_view string)
+IndexPair Grammar::match(const char* lhs, const std::string_view string)
 {
-  std::size_t index_of_match = locate(lhs, string);
-
-  return { index_of_match, index_of_match + std::strlen(lhs) };
+  return match(std::string_view(lhs), string);
 }
 
-std::pair<std::size_t, std::size_t> Grammar::match(const std::string_view lhs, const std::string_view string)
+IndexPair Grammar::match(const std::string_view lhs, const std::string_view string)
 {
   std::size_t index_of_match = locate(lhs, string);
 
   return { index_of_match, index_of_match + lhs.size() };
 }
 
-std::pair<std::size_t, std::size_t> Grammar::match(const std::string& lhs, const std::string_view string)
+IndexPair Grammar::match(const std::string& lhs, const std::string_view string)
 {
   return match(std::string_view(lhs), string);
 }
 
-std::pair<std::size_t, std::size_t> Grammar::match([[maybe_unused]] const Pattern::Character& c,
-                                                   [[maybe_unused]] const std::string_view    string)
+IndexPair Grammar::match([[maybe_unused]] const Pattern::Character& c, [[maybe_unused]] const std::string_view string)
 {
   return { std::string::npos, std::string::npos };
 }
 
-std::pair<std::size_t, std::size_t> Grammar::match([[maybe_unused]] const Pattern::String& s,
-                                                   [[maybe_unused]] const std::string_view string)
+IndexPair Grammar::match([[maybe_unused]] const Pattern::String& s, [[maybe_unused]] const std::string_view string)
 {
   return { std::string::npos, std::string::npos };
 }
 
-std::pair<std::size_t, std::size_t> Grammar::match(const Pattern::Literal& l, const std::string_view string)
+IndexPair Grammar::match(const Pattern::Literal& l, const std::string_view string) { return match(l.value, string); }
+
+IndexPair Grammar::match(const Pattern& lhs, const std::string_view string)
 {
-  return match(l.value, string);
-}
+  bool matched = false;
 
-void remove_indices(std::vector<std::pair<std::size_t, std::size_t>>& available_indices,
-                    std::pair<std::size_t, std::size_t>               match)
-{
-  const auto [match_start, match_end] = match;
-
-  for (auto& [start, end] : available_indices) {
-    // overlap only on the left side
-    if (match_start < start && start < match_end)
-      ;
-    // overlap only on the right side
-    else if (match_end > end && end > match_start)
-      ;
-    // contained within; partition
-    else
-      ;
-  }
-}
-
-// TODO implement this
-std::pair<std::size_t, std::size_t> Grammar::match(const Pattern& lhs, const std::string_view string)
-{
-  enum
-  {
-    CHARACTER,
-    STRING,
-    LITERAL
-  };
-
-  /* TODO
-     if next is literal, then this constituent's end is the literal's start
-     if previous is literal, then this constituent's start is the literal's end
-     keep track of available indices
-   */
   for (const auto& alternative : lhs.alternatives()) {
-    std::set<std::pair<std::size_t, std::pair<std::size_t, std::size_t>>> match_indices;
-    std::vector<std::pair<std::size_t, std::size_t>>                      available_indices = {
-      {0, string.size()}
-    };
+    Match match(string);
 
-    for (std::size_t index = 0; const auto& constituent : alternative) {
-      const auto [possible_start, possible_end] = std::visit(
-          [this, &string](const auto& constituent) -> std::pair<std::size_t, std::size_t> {
-            return match(constituent, string);
-          },
-          constituent);
+    for (const auto& constituent : alternative) {
+      matched = match.attempt_to_match(constituent);
 
-      if (possible_start == std::string::npos) break;
-
-      if (constituent.index() == LITERAL) {
-        std::cout << "Found literal " << std::get<2>(constituent).value << " at indices " << possible_start << "-"
-                  << possible_end << "\n";
-
-        std::pair<std::size_t, std::size_t> match = { possible_start, possible_end };
-        match_indices.emplace(index++, match);
-        remove_indices(available_indices, match);
-      }
+      if (matched) return match.match_indices();
     }
-    return { std::string::npos, std::string::npos };
   }
 
-  void Grammar::rewrite_production(Production & production, const std::string_view rhs) { production.second = rhs; }
+  std::cout << "Match failed\n";
+  return { std::string::npos, std::string::npos };
+}
 
-  void Grammar::shuffle() { std::shuffle(productions.begin(), productions.end(), rng); }
+void Grammar::rewrite_production(Production& production, const std::string_view rhs) { production.second = rhs; }
 
-  void Grammar::sort_left_to_right() { std::sort(productions.begin(), productions.end()); }
+void Grammar::shuffle() { std::shuffle(productions.begin(), productions.end(), rng); }
 
-  void Grammar::sort_right_to_left() { std::sort(productions.rbegin(), productions.rend()); }
+void Grammar::sort_left_to_right() { std::sort(productions.begin(), productions.end()); }
+
+void Grammar::sort_right_to_left() { std::sort(productions.rbegin(), productions.rend()); }

@@ -30,6 +30,7 @@
 #include <vector>
 
 using Production = std::pair<std::variant<Pattern, std::string>, std::string>;
+using IndexPair  = std::pair<std::size_t, std::size_t>;
 
 enum class application_order
 {
@@ -80,18 +81,18 @@ private:
 
     return index_of_match;
   }
-  std::pair<std::size_t, std::size_t> match(const char lhs, const std::string_view string);
-  std::pair<std::size_t, std::size_t> match(const char* lhs, const std::string_view string);
-  std::pair<std::size_t, std::size_t> match(const std::string_view lhs, const std::string_view string);
-  std::pair<std::size_t, std::size_t> match(const std::string& lhs, const std::string_view string);
-  std::pair<std::size_t, std::size_t> match(const Pattern::Character& c, const std::string_view string);
-  std::pair<std::size_t, std::size_t> match(const Pattern::String& s, const std::string_view string);
-  std::pair<std::size_t, std::size_t> match(const Pattern::Literal& l, const std::string_view string);
-  std::pair<std::size_t, std::size_t> match(const Pattern& lhs, const std::string_view string);
-  void                                rewrite_production(Production& production, const std::string_view rhs);
-  void                                shuffle();
-  void                                sort_left_to_right();
-  void                                sort_right_to_left();
+  IndexPair match(const char lhs, const std::string_view string);
+  IndexPair match(const char* lhs, const std::string_view string);
+  IndexPair match(const std::string_view lhs, const std::string_view string);
+  IndexPair match(const std::string& lhs, const std::string_view string);
+  IndexPair match(const Pattern::Character& c, const std::string_view string);
+  IndexPair match(const Pattern::String& s, const std::string_view string);
+  IndexPair match(const Pattern::Literal& l, const std::string_view string);
+  IndexPair match(const Pattern& lhs, const std::string_view string);
+  void      rewrite_production(Production& production, const std::string_view rhs);
+  void      shuffle();
+  void      sort_left_to_right();
+  void      sort_right_to_left();
 
   // PRIVATE DATA
   std::vector<Production> productions;
