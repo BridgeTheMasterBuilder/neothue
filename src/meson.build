@@ -2,6 +2,7 @@ sources = files( 'main.cpp',
            'Grammar.cpp',
            'Lexer.cpp',
            'Parser.cpp',
+           'Pattern.cpp',
            'terminal.cpp',
            'util.cpp')
 
