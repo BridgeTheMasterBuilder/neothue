@@ -30,7 +30,7 @@ struct Literal {
   const std::string value;
 };
 
-using Alternative = std::vector<std::variant<Character, String, Literal>>;
+using Alternative = std::vector<std::variant<Character, Literal, String>>;
 
 class Pattern {
 public:
@@ -43,8 +43,8 @@ public:
 
 private:
   // PRIVATE MEMBER FUNCTIONS
-  std::vector<std::variant<Character, String, Literal>> analyze_pattern(const std::string& pattern);
-  std::pair<int, std::size_t>                           parse_id(const std::string& pattern, const std::size_t index);
+  Alternative                         analyze_pattern(const std::string& pattern);
+  std::pair<int, std::size_t>         parse_id(const std::string& pattern, const std::size_t index);
   std::pair<std::string, std::size_t> parse_literal(const std::string& pattern, const std::size_t index);
 
   // PRIVATE DATA

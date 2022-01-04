@@ -5,26 +5,42 @@
 #include <string_view>
 #include <vector>
 
-// TODO store the deduced values in this type so as to support back references?
+struct Constituent {
+  Constituent(const Character& c) : type(Type::CHARACTER), id(c.value) { }
+  Constituent(const Literal& c) : type(Type::LITERAL), deduced_value(c.value) { }
+  Constituent(const String& c) : type(Type::STRING), id(c.value) { }
+
+  enum class Type
+  {
+    CHARACTER,
+    LITERAL,
+    STRING
+  } type;
+  const int   id = 0;
+  IndexPair   possible_indices;
+  std::string deduced_value;
+  bool        matched = false;
+};
+
 class Match {
 public:
   Match(const Alternative& alternative, const std::string_view string);
-  bool      is_match() const;
   IndexPair match_indices() const;
 
-private:
-  IndexPair find_possible_indices(std::vector<IndexPair>& available_indices, std::size_t index);
-  IndexPair match(const Character& c);
-  IndexPair match(const String& s);
-  IndexPair match(const Literal& l);
-  // TODO update available?
-  void      remove_indices(std::vector<IndexPair>& available_indices, IndexPair match);
+  operator bool() const;
 
 private:
-  // TODO vector of Constituents that each keep track of their possible values
-  std::vector<IndexPair> available_indices;
-  const std::string_view string;
-  std::size_t            index = 0;
+  /* IndexPair find_possible_indices(std::vector<IndexPair>& available_indices, std::size_t index); */
+  IndexPair match(Constituent c);
+  /* IndexPair match_character(); */
+  IndexPair match_literal(const std::string_view literal);
+  /* IndexPair match_string(); */
+  /* void      update_possible_indices(std::vector<IndexPair>& available_indices, IndexPair match); */
+
+private:
+  std::vector<Constituent> constituents;
+  const std::string_view   string;
+  std::size_t              index = 0;
 };
 
 #endif

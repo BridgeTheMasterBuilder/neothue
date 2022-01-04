@@ -8,9 +8,9 @@ void Pattern::add_alternative(const std::string_view pattern)
 }
 
 // TODO ability to escape 'c' and 's'
-std::vector<std::variant<Character, String, Literal>> Pattern::analyze_pattern(const std::string& pattern)
+Alternative Pattern::analyze_pattern(const std::string& pattern)
 {
-  std::vector<std::variant<Character, String, Literal>> constituents;
+  Alternative constituents;
 
   for (std::size_t i = 0; i < pattern.size();) {
     switch (pattern[i]) {
@@ -28,6 +28,9 @@ std::vector<std::variant<Character, String, Literal>> Pattern::analyze_pattern(c
           i = end;
         }
         continue;
+      case '\\':
+        i++;
+        [[fallthrough]];
       default:
         const auto [literal, end] = parse_literal(pattern, i);
         constituents.push_back(Literal(literal));
@@ -55,10 +58,21 @@ std::pair<int, std::size_t> Pattern::parse_id(const std::string& pattern, const 
   return { number, end };
 }
 
+// TODO verify this later
 std::pair<std::string, std::size_t> Pattern::parse_literal(const std::string& pattern, const std::size_t index)
 {
-  std::size_t end = pattern.find_first_of("cs", index);
-  if (end == std::string::npos) end = pattern.size();
+  std::size_t end;
+  while (true) {
+    end = pattern.find_first_of("cs", index);
+
+    if (end == std::string::npos) {
+      end = pattern.size();
+      break;
+    }
+
+    if (pattern[end - 1] == '\\') continue;
+    else break;
+  }
 
   const std::string literal = pattern.substr(index, end - index);
 
