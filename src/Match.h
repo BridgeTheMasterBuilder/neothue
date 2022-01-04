@@ -30,12 +30,8 @@ public:
   operator bool() const;
 
 private:
-  /* IndexPair find_possible_indices(std::vector<IndexPair>& available_indices, std::size_t index); */
-  IndexPair match(Constituent c);
-  /* IndexPair match_character(); */
-  IndexPair match_literal(const std::string_view literal);
-  /* IndexPair match_string(); */
-  /* void      update_possible_indices(std::vector<IndexPair>& available_indices, IndexPair match); */
+  IndexPair match(const Constituent c);
+  IndexPair match(const std::string_view literal);
 
 private:
   std::vector<Constituent> constituents;
