@@ -16,8 +16,8 @@ struct Constituent {
     LITERAL,
     STRING
   } type;
-  const int   id = 0;
-  IndexPair   possible_indices;
+  const int   id               = 0;
+  IndexPair   possible_indices = { std::string::npos, std::string::npos };
   std::string deduced_value;
   bool        matched = false;
 };
@@ -30,6 +30,7 @@ public:
   operator bool() const;
 
 private:
+  bool      deduce(Constituent& c1, Constituent& c2);
   IndexPair match(const Constituent c);
   IndexPair match(const std::string_view literal);
 

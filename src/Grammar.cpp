@@ -102,7 +102,9 @@ void Grammar::apply_production([[maybe_unused]] Production&        production,
                                [[maybe_unused]] std::string&       string,
                                [[maybe_unused]] const std::size_t  start,
                                [[maybe_unused]] const std::size_t  end)
-{ }
+{
+  std::cout << "TODO: replace " << string.substr(start, end - start) << " with " << rhs << '\n';
+}
 
 void Grammar::apply_production(Production&                        production,
                                const std::string&                 lhs,
@@ -189,10 +191,8 @@ IndexPair Grammar::match(const Pattern& lhs, const std::string_view string)
   for (const auto& alternative : lhs.alternatives()) {
     Match match(alternative, string);
 
-    // TODO placeholder
     if (match) {
-      std::cout << "MATCHED!!!!\n";
-      return { 0, 0 };
+      return match.match_indices();
     }
   }
 

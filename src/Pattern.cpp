@@ -7,7 +7,7 @@ void Pattern::add_alternative(const std::string_view pattern)
   _alternatives.push_back(analyze_pattern(pattern.data()));
 }
 
-// TODO ability to escape 'c' and 's'
+// TODO add ability to escape 'c' and 's'
 Alternative Pattern::analyze_pattern(const std::string& pattern)
 {
   Alternative constituents;
@@ -28,9 +28,9 @@ Alternative Pattern::analyze_pattern(const std::string& pattern)
           i = end;
         }
         continue;
-      case '\\':
-        i++;
-        [[fallthrough]];
+      // case '\\':
+      //   i++;
+      //   [[fallthrough]];
       default:
         const auto [literal, end] = parse_literal(pattern, i);
         constituents.push_back(Literal(literal));
@@ -58,7 +58,7 @@ std::pair<int, std::size_t> Pattern::parse_id(const std::string& pattern, const 
   return { number, end };
 }
 
-// TODO verify this later
+// TODO verify this later, I think this is wrong
 std::pair<std::string, std::size_t> Pattern::parse_literal(const std::string& pattern, const std::size_t index)
 {
   std::size_t end;
