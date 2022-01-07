@@ -31,6 +31,14 @@ public:
 
 private:
   bool      deduce(Constituent& c1, Constituent& c2);
+  void      deduce_character_on_left(Constituent& c1, Constituent& c2);
+  void      deduce_character_on_right(Constituent& c1, Constituent& c2);
+  void      deduce_string_on_left(Constituent& c1, Constituent& c2);
+  void      deduce_string_on_right(Constituent& c1, Constituent& c2);
+  void      deduce_characters(Constituent& c1, Constituent& c2);
+  void      deduce_character_and_literal(Constituent& c1, Constituent& c2);
+  void      deduce_literal_and_character(Constituent& c1, Constituent& c2);
+  void      deduce_character_and_string(Constituent& c1, Constituent& c2);
   IndexPair match(const Constituent c);
   IndexPair match(const std::string_view literal);
 

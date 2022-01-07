@@ -8,6 +8,8 @@ void Pattern::add_alternative(const std::string_view pattern)
 }
 
 // TODO add ability to escape 'c' and 's'
+// TODO add support for ... for recursing
+// TODO maybe also add a syntax for for example c1...c...c1 which would match c1c2c3...cN...c3c2c1 etc.
 Alternative Pattern::analyze_pattern(const std::string& pattern)
 {
   Alternative constituents;
