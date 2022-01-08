@@ -1,6 +1,7 @@
 #include "Lexer.h"
 #include "Parser.h"
 #include <boost/ut.hpp>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -34,11 +35,18 @@ void test(const std::string item, const std::string message, const bool expected
 
 int main()
 {
-  const std::vector<std::string> legal_programs = {
-#include "testdata"
-  };
+  // TODO have to figure this out, can't hardcode the path like this
+  std::ifstream i("/home/master/projects/thue/tests/testdata");
+  if (!i) std::cerr << "FUCK";
+  std::vector<std::string> strings;
 
-  for (const auto& program : legal_programs) {
+  while (i) {
+    std::string temp;
+    std::getline(i, temp);
+    strings.push_back(temp);
+  }
+
+  for (const auto& program : strings) {
     test(program, "\nParser did not recognize:\n\t" + program + "\nas a valid program", true);
   }
 
