@@ -75,6 +75,7 @@ bool Match::deduce(Constituent& c1, Constituent& c2)
           deduce_literal_and_character(c1, c2);
           break;
         case Constituent::Type::STRING:
+          deduce_literal_and_string(c1, c2);
           break;
         default:
           break;
@@ -83,10 +84,13 @@ bool Match::deduce(Constituent& c1, Constituent& c2)
     case Constituent::Type::STRING:
       switch (c2.type) {
         case Constituent::Type::CHARACTER:
+          deduce_string_and_character(c1, c2);
           break;
         case Constituent::Type::LITERAL:
+          deduce_string_and_literal(c1, c2);
           break;
         case Constituent::Type::STRING:
+          deduce_strings(c1, c2);
           break;
         default:
           break;
@@ -99,13 +103,25 @@ bool Match::deduce(Constituent& c1, Constituent& c2)
   return c1.matched && c2.matched;
 }
 
+void Match::deduce_literal_and_string([[maybe_unused]] Constituent& c1, [[maybe_unused]] Constituent& c2) { }
+void Match::deduce_string_and_literal([[maybe_unused]] Constituent& c1, [[maybe_unused]] Constituent& c2) { }
+void Match::deduce_strings([[maybe_unused]] Constituent& c1, [[maybe_unused]] Constituent& c2) { }
 void Match::deduce_character_on_left(Constituent& c1, Constituent& c2)
 {
   const auto [start, end] = c2.possible_indices;
 
-  c1.possible_indices     = { start - 1, start };
-  c1.deduced_value        = string.substr(start - 1, 1);
-  c1.matched              = true;
+  if (start == 0) {
+    c1.possible_indices = { 0, 1 };
+    c2.possible_indices = { std::string::npos, std::string::npos };
+    c2.deduced_value    = "";
+    c2.matched          = false;
+  }
+  else c1.possible_indices = { start - 1, start };
+
+  const auto [start2, end2] = c1.possible_indices;
+
+  c1.deduced_value          = string[start2];
+  c1.matched                = true;
 
   std::cout << "Deduced character c" << c1.id << " to be " << c1.deduced_value << '\n';
 }
@@ -114,23 +130,27 @@ void Match::deduce_character_on_right(Constituent& c1, Constituent& c2)
 {
   const auto [start, end] = c1.possible_indices;
 
-  c2.possible_indices     = { end, end + 1 };
-  c2.deduced_value        = string.substr(end, 1);
-  if (!c2.deduced_value.empty()) {
-    c2.matched = true;
-    std::cout << "Deduced character c" << c2.id << " to be " << c2.deduced_value << '\n';
+  if (end == string.size()) {
+    c2.possible_indices = { string.size() - 1, string.size() };
+    c1.possible_indices = { std::string::npos, std::string::npos };
+    c1.deduced_value    = "";
+    c1.matched          = false;
   }
+  else c2.possible_indices = { end, end + 1 };
+
+  const auto [start2, end2] = c2.possible_indices;
+
+  c2.deduced_value          = string[start2];
+  c2.matched                = true;
+
+  std::cout << "Deduced character c" << c2.id << " to be " << c2.deduced_value << '\n';
 }
 
 void Match::deduce_characters(Constituent& c1, Constituent& c2)
 {
   if (c1.matched && c2.matched) return;
-  else if (!c1.matched && c2.matched) {
-    deduce_character_on_left(c1, c2);
-  }
-  else if (c1.matched && !c2.matched) {
-    deduce_character_on_right(c1, c2);
-  }
+  else if (!c1.matched && c2.matched) deduce_character_on_left(c1, c2);
+  else if (c1.matched && !c2.matched) deduce_character_on_right(c1, c2);
   else {
     c1.possible_indices     = { index, string.size() };
     c2.possible_indices     = { index + 1, string.size() };
@@ -187,35 +207,70 @@ void Match::deduce_literal_and_character(Constituent& c1, Constituent& c2)
   }
 }
 
-void Match::deduce_character_and_string(Constituent& c1, Constituent& s)
+void Match::deduce_character_and_string(Constituent& c, Constituent& s)
 {
-  if (c1.matched && s.matched) return;
+  // if (c.matched && s.matched) return;
+  // if (s.matched) {
+  //   const auto [start, end]   = c.possible_indices;
+  //   const auto [start2, end2] = s.possible_indices;
+
+  //   if (start2 == std::string::npos) s.possible_indices = { start + 1, string.size() };
+  //   else s.possible_indices = { start + 1, end2 };
+
+  //   s.deduced_value = string.substr(start + 1, end2 - end);
+  //   s.matched       = true;
+
+  //   deduce_character_on_left(c, s);
+  // }
+  // else {
+  // c.possible_indices = { index, string.size() };
+  s.possible_indices = { index + 1, string.size() };
+  s.deduced_value    = string.substr(index + 1);
+  s.matched          = true;
+  deduce_character_on_left(c, s);
+  // }
+
+  index++;
+}
+
+void Match::deduce_string_and_character(Constituent& s, Constituent& c)
+{
+  if (c.matched) {
+    const auto [start, end]   = s.possible_indices;
+    const auto [start2, end2] = c.possible_indices;
+
+    s.possible_indices        = { start, start2 };
+
+    s.deduced_value           = string.substr(start, start2);
+    s.matched                 = true;
+
+    deduce_character_on_right(s, c);
+  }
   else {
-    const auto [start, end]   = c1.possible_indices;
-    const auto [start2, end2] = s.possible_indices;
+    c.possible_indices = { string.size() - 1, string.size() };
+    c.deduced_value    = string[string.size() - 1];
+    c.matched          = true;
+    // s.possible_indices = { std::string::npos, std::string::npos };
+    // s.deduced_value    = "";
+    // s.matched          = false;
 
-    if (start2 == std::string::npos) s.possible_indices = { start + 1, string.size() };
-    else s.possible_indices = { start + 1, end2 };
-
-    s.deduced_value = string.substr(start + 1, end2 - end);
-    s.matched       = true;
-
-    deduce_character_on_left(c1, s);
+    deduce_string_on_left(s, c);
+    // deduce_character_on_right(s, c);
   }
 
   index++;
 }
 
-void Match::deduce_string_on_left(Constituent& c1, Constituent& c2)
+void Match::deduce_string_on_left(Constituent& s, Constituent& c)
 {
-  const auto [start, end]   = c1.possible_indices;
-  const auto [start2, end2] = c2.possible_indices;
+  const auto [start, end]   = s.possible_indices;
+  const auto [start2, end2] = c.possible_indices;
 
-  c2.possible_indices       = { start, start2 - 1 };
-  c2.deduced_value          = string.substr(start, start2 - start);
-  c2.matched                = true;
+  s.possible_indices        = { start, start2 };
+  s.deduced_value           = string.substr(start, start2 - start);
+  s.matched                 = true;
 
-  std::cout << "Deduced string s" << c1.id << " to be " << c1.deduced_value << '\n';
+  std::cout << "Deduced string s" << s.id << " to be " << s.deduced_value << '\n';
 }
 
 void Match::deduce_string_on_right(Constituent& c1, Constituent& c2)
@@ -228,48 +283,6 @@ void Match::deduce_string_on_right(Constituent& c1, Constituent& c2)
 
   std::cout << "Deduced string s" << c2.id << " to be " << c2.deduced_value << '\n';
 }
-
-// void Match::deduce_string_and_character(Constituent& c1, Constituent& c2)
-// {
-//   if (c1.matched && c2.matched) return;
-//   else if (!c1.matched && c2.matched) {
-//     const auto [start, end] = c2.possible_indices;
-
-//     c1.possible_indices     = { start - 1, start };
-//     c1.deduced_value        = string.substr(start - 1, 1);
-//     c1.matched              = true;
-//     std::cout << "Character c" << c1.id << " has the value " << string[start - 1] << '\n';
-//   }
-//   else if (c1.matched && !c2.matched) {
-//     const auto [start, end] = c1.possible_indices;
-
-//     if (c2.possible_indices.first == std::string::npos) {
-//       c2.possible_indices = { end, string.size() };
-//     }
-//     else {
-//       const auto [start2, end2] = c2.possible_indices;
-//       c2.deduced_value          = string.substr(end, end2 - end);
-//       c2.matched                = true;
-//       std::cout << "String s" << c2.id << " has the value " << c2.deduced_value << '\n';
-//     }
-//   }
-//   else {
-//     std::cout << "Trying to deduce what character c" << c1.id << " is...\n";
-//     c1.possible_indices     = { index, string.size() };
-
-//     c2.possible_indices     = { index + 1, string.size() };
-
-//     const auto [start, end] = c1.possible_indices;
-//     std::cout << "It's located between indices " << start << "-" << end << '\n';
-
-//     std::cout << "Trying to deduce what string s" << c2.id << " is...\n";
-
-//     const auto [start2, end2] = c2.possible_indices;
-//     std::cout << "It could be the string " << string.substr(start2) << '\n';
-//   }
-
-//   index++;
-// }
 
 IndexPair Match::match(const Constituent c) { return match(c.deduced_value); }
 
