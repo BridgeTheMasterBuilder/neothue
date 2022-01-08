@@ -9,12 +9,17 @@ struct Constituent {
   Constituent(const Character& c) : type(Type::CHARACTER), id(c.value) { }
   Constituent(const Literal& c) : type(Type::LITERAL), deduced_value(c.value) { }
   Constituent(const String& c) : type(Type::STRING), id(c.value) { }
+  Constituent([[maybe_unused]] const End& c) : type(Type::END), id(-1), matched(true) { }
+  Constituent([[maybe_unused]] const Start& c)
+      : type(Type::START), id(-1), possible_indices({ 0, 0 }), matched(true) { }
 
   enum class Type
   {
+    START,
     CHARACTER,
     LITERAL,
-    STRING
+    STRING,
+    END
   } type;
   const int   id               = 0;
   IndexPair   possible_indices = { std::string::npos, std::string::npos };
@@ -30,15 +35,20 @@ public:
   operator bool() const;
 
 private:
+  bool      anchored_deduce(Constituent& c1, Constituent& c2);
+  bool      unanchored_deduce(Constituent& c1, Constituent& c2);
   bool      deduce(Constituent& c1, Constituent& c2);
   void      deduce_literal_and_string(Constituent& c1, Constituent& c2);
+  bool      deduce_literals(Constituent& l);
   void      deduce_string_and_literal(Constituent& c1, Constituent& c2);
-  void      deduce_strings(Constituent& c1, Constituent& c2);
+  bool      deduce_strings(Constituent& c1, Constituent& c2);
+  void      deduce_string_and_string(Constituent& c1, Constituent& c2);
   void      deduce_character_on_left(Constituent& c1, Constituent& c2);
   void      deduce_character_on_right(Constituent& c1, Constituent& c2);
   void      deduce_string_on_left(Constituent& c1, Constituent& c2);
   void      deduce_string_on_right(Constituent& c1, Constituent& c2);
-  void      deduce_characters(Constituent& c1, Constituent& c2);
+  bool      deduce_characters(Constituent& c1, Constituent& c2);
+  void      deduce_character_and_character(Constituent& c1, Constituent& c2);
   void      deduce_character_and_literal(Constituent& c1, Constituent& c2);
   void      deduce_literal_and_character(Constituent& c1, Constituent& c2);
   void      deduce_character_and_string(Constituent& c1, Constituent& c2);

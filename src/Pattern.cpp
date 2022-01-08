@@ -14,6 +14,8 @@ Alternative Pattern::analyze_pattern(const std::string& pattern)
 {
   Alternative constituents;
 
+  constituents.push_back(Start());
+
   for (std::size_t i = 0; i < pattern.size();) {
     switch (pattern[i]) {
       case 'c':
@@ -40,6 +42,8 @@ Alternative Pattern::analyze_pattern(const std::string& pattern)
         continue;
     }
   }
+
+  constituents.push_back(End());
 
   return constituents;
 }

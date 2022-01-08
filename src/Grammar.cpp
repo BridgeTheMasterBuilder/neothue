@@ -103,9 +103,11 @@ void Grammar::apply_production([[maybe_unused]] Production&        production,
                                [[maybe_unused]] const std::size_t  start,
                                [[maybe_unused]] const std::size_t  end)
 {
-  std::cout << "TODO: replace " << string.substr(start, end - start) << " with " << rhs << '\n';
+  // std::cout << "TODO: replace " << string.substr(start, end - start) << " with " << rhs << '\n';
+  string.replace(start, end - start, rhs);
 }
 
+// TODO
 void Grammar::apply_production(Production&                        production,
                                const std::string&                 lhs,
                                const std::string&                 rhs,
@@ -126,12 +128,16 @@ void Grammar::apply_production(Production&                        production,
     rewrite_production(production, new_rhs);
 
     string.replace(index_of_match, lhs.size(), rhs);
+    return;
   }
   else if ((index = rhs.find("~")) != std::string::npos) {
     std::cout << rhs.substr(index + 1);
 
     string.replace(index_of_match, lhs.size(), "");
+    return;
   }
+
+  string.replace(index_of_match, lhs.size(), rhs);
 }
 
 bool Grammar::handle_input_and_output(std::string& initial_state)

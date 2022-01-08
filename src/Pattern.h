@@ -30,7 +30,13 @@ struct Literal {
   const std::string value;
 };
 
-using Alternative = std::vector<std::variant<Character, Literal, String>>;
+struct Start {
+};
+
+struct End {
+};
+
+using Alternative = std::vector<std::variant<Start, Character, Literal, String, End>>;
 
 class Pattern {
 public:
