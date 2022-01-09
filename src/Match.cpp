@@ -1,9 +1,28 @@
+/*
+    thue, an interpreter for the Thue metalanguage
+    Copyright (C) 2021  masterbuilder
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "Match.h"
 #include <iostream>
 
 /***************
  * CONSTRUCTORS *
  ***************/
+// TODO as a final step, need to check whether characters or strings with the same id match
 Match::Match(const Alternative& alternative, const std::string_view string) : string(string)
 {
   for (const auto& constituent : alternative)
@@ -70,7 +89,7 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
           deduce_string_and_literal(c1, c2);
           break;
         case Constituent::Type::END:
-          if (!c1.matched) deduce_string_on_left(c1, c2);
+          deduce_string_on_left(c1, c2);
           break;
         default:
           break;
@@ -91,7 +110,7 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
     case Constituent::Type::START:
       switch (c2.type) {
         case Constituent::Type::STRING:
-          if (!c2.matched) deduce_string_on_right(c1, c2);
+          deduce_string_on_right(c1, c2);
           break;
         default:
           break;
@@ -108,17 +127,14 @@ bool Match::deduce_literal(Constituent& l)
 {
   if (l.type != Constituent::Type::LITERAL) return false;
 
-  const std::string_view literal = l.deduced_value;
+  const auto [start, end] = find_start_and_end_of_literal(l);
 
-  const std::size_t start        = string.find(literal, index);
   if (start == std::string::npos) return false;
 
-  const std::size_t end = start + literal.size();
+  l.possible_indices = { start, end };
+  l.matched          = true;
 
-  l.possible_indices    = { start, end };
-  l.matched             = true;
-
-  index                 = end;
+  index              = end;
 
   return true;
 }
@@ -142,15 +158,10 @@ void Match::deduce_character_and_string(Constituent& c, Constituent& s)
 void Match::deduce_character_and_literal(Constituent& c, Constituent& l)
 {
   if (c.matched && l.matched) return;
+  else if (!l.matched) {
+    const auto [start, end] = find_start_and_end_of_literal(l);
 
-  if (!l.matched) {
-    const std::string_view literal = l.deduced_value;
-
-    const std::size_t start        = string.find(literal, index);
     if (start == std::string::npos) return;
-
-    std::size_t end = start + literal.size();
-    if (end >= string.size()) end = string.size();
 
     l.possible_indices = { start, end };
     l.matched          = true;
@@ -163,28 +174,32 @@ void Match::deduce_character_and_literal(Constituent& c, Constituent& l)
 
 void Match::deduce_character_on_left(Constituent& c1, Constituent& c2)
 {
-  const auto [start, end]   = c2.possible_indices;
+  if (c1.matched) return;
 
-  c1.possible_indices       = { start - 1, start };
+  const auto [left_start, left_end]   = c2.possible_indices;
 
-  const auto [start2, end2] = c1.possible_indices;
+  c1.possible_indices                 = { left_start - 1, left_start };
 
-  c1.deduced_value          = string[start2];
-  c1.matched                = true;
+  const auto [right_start, right_end] = c1.possible_indices;
+
+  c1.deduced_value                    = string[right_start];
+  c1.matched                          = true;
 
   std::cout << "Deduced character c" << c1.id << " to be " << c1.deduced_value << '\n';
 }
 
 void Match::deduce_character_on_right(Constituent& c1, Constituent& c2)
 {
-  const auto [start, end]   = c1.possible_indices;
+  if (c2.matched) return;
 
-  c2.possible_indices       = { end, end + 1 };
+  const auto [left_start, left_end]   = c1.possible_indices;
 
-  const auto [start2, end2] = c2.possible_indices;
+  c2.possible_indices                 = { left_end, left_end + 1 };
 
-  c2.deduced_value          = string[start2];
-  c2.matched                = true;
+  const auto [right_start, right_end] = c2.possible_indices;
+
+  c2.deduced_value                    = string[right_start];
+  c2.matched                          = true;
 
   std::cout << "Deduced character c" << c2.id << " to be " << c2.deduced_value << '\n';
 }
@@ -198,18 +213,14 @@ void Match::deduce_string_and_character(Constituent& s, Constituent& c)
   index++;
 }
 
-void Match::deduce_string_and_string([[maybe_unused]] Constituent& c1, [[maybe_unused]] Constituent& c2) { return; }
+// void Match::deduce_string_and_string([[maybe_unused]] Constituent& c1, [[maybe_unused]] Constituent& c2) { return; }
 
 void Match::deduce_string_and_literal(Constituent& s, Constituent& l)
 {
   if (!l.matched) {
-    const std::string_view literal = l.deduced_value;
+    const auto [start, end] = find_start_and_end_of_literal(l);
 
-    const std::size_t start        = string.find(literal, index);
     if (start == std::string::npos) return;
-
-    std::size_t end = start + literal.size();
-    if (end >= string.size()) end = string.size();
 
     l.possible_indices = { start, end };
     l.matched          = true;
@@ -223,38 +234,32 @@ void Match::deduce_string_and_literal(Constituent& s, Constituent& l)
 
 void Match::deduce_string_on_left(Constituent& s, Constituent& c2)
 {
-  const auto [start, end]   = s.possible_indices;
-  const auto [start2, end2] = c2.possible_indices;
+  if (s.matched) return;
 
-  s.possible_indices        = { start, start2 };
+  const auto [left_start, left_end]   = s.possible_indices;
+  const auto [right_start, right_end] = c2.possible_indices;
 
-  if (start == std::string::npos) return;
-  // else if (index == 0) {
-  else {
-    // s.possible_indices = { index, start2 };
-    s.deduced_value = string.substr(start, start2 - start);
+  s.possible_indices                  = { left_start, right_start };
+
+  if (left_start != std::string::npos) {
+    s.deduced_value = string.substr(left_start, right_start - left_start);
     s.matched       = true;
 
     std::cout << "Deduced string s" << s.id << " to be " << s.deduced_value << '\n';
   }
-  // else if (start2 == string.size()) {
-  //   s.possible_indices = { start, start2 };
-  //   s.deduced_value    = string.substr(start, start2 - start);
-  //   s.matched          = true;
-
-  //   std::cout << "Deduced string s" << s.id << " to be " << s.deduced_value << '\n';
-  // }
 }
 
 void Match::deduce_string_on_right(Constituent& c1, Constituent& s)
 {
-  const auto [start, end]   = c1.possible_indices;
-  const auto [start2, end2] = s.possible_indices;
+  if (s.matched) return;
 
-  s.possible_indices        = { end, end2 };
+  const auto [left_start, left_end]   = c1.possible_indices;
+  const auto [right_start, right_end] = s.possible_indices;
 
-  if (end2 != std::string::npos) {
-    s.deduced_value = string.substr(end, end2 - end);
+  s.possible_indices                  = { left_end, right_end };
+
+  if (right_end != std::string::npos) {
+    s.deduced_value = string.substr(left_end, right_end - left_end);
     s.matched       = true;
 
     std::cout << "Deduced string s" << s.id << " to be " << s.deduced_value << '\n';
@@ -266,13 +271,9 @@ void Match::deduce_literal_and_character(Constituent& l, Constituent& c)
   if (l.matched && c.matched) return;
 
   if (!l.matched) {
-    const std::string_view literal = l.deduced_value;
+    const auto [start, end] = find_start_and_end_of_literal(l);
 
-    const std::size_t start        = string.find(literal, index);
     if (start == std::string::npos) return;
-
-    std::size_t end = start + literal.size();
-    if (end >= string.size()) end = string.size();
 
     l.possible_indices = { start, end };
     l.matched          = true;
@@ -286,13 +287,9 @@ void Match::deduce_literal_and_character(Constituent& l, Constituent& c)
 void Match::deduce_literal_and_string(Constituent& l, Constituent& s)
 {
   if (!l.matched) {
-    const std::string_view literal = l.deduced_value;
+    const auto [start, end] = find_start_and_end_of_literal(l);
 
-    const std::size_t start        = string.find(literal, index);
     if (start == std::string::npos) return;
-
-    std::size_t end = start + literal.size();
-    if (end >= string.size()) end = string.size();
 
     l.possible_indices = { start, end };
     l.matched          = true;
@@ -301,6 +298,18 @@ void Match::deduce_literal_and_string(Constituent& l, Constituent& s)
   }
 
   deduce_string_on_right(l, s);
+}
+
+std::pair<std::size_t, std::size_t> Match::find_start_and_end_of_literal(const Constituent& l)
+{
+  const std::string_view literal = l.deduced_value;
+
+  const std::size_t start        = string.find(literal, index);
+
+  std::size_t end                = start + literal.size();
+  if (end >= string.size()) end = string.size();
+
+  return { start, end };
 }
 
 void Match::fixed_point_anchored_deduce()
@@ -388,7 +397,7 @@ bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
           deduce_character_and_literal(c1, c2);
           break;
         case Constituent::Type::END:
-          if (!c1.matched) deduce_character_on_left(c1, c2);
+          deduce_character_on_left(c1, c2);
           break;
         default:
           break;
@@ -400,7 +409,7 @@ bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
           deduce_string_and_character(c1, c2);
           break;
         case Constituent::Type::END:
-          if (!c1.matched) deduce_string_on_left(c1, c2);
+          deduce_string_on_left(c1, c2);
           break;
         default:
           break;
@@ -418,10 +427,10 @@ bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
     case Constituent::Type::START:
       switch (c2.type) {
         case Constituent::Type::STRING:
-          if (!c2.matched) deduce_string_on_right(c1, c2);
+          deduce_string_on_right(c1, c2);
           break;
         case Constituent::Type::CHARACTER:
-          if (!c2.matched) deduce_character_on_right(c1, c2);
+          deduce_character_on_right(c1, c2);
           break;
         case Constituent::Type::END:
           return false;
