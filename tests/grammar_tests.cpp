@@ -16,7 +16,10 @@
   (( |\n|\t)*('1*'|"1*"|1*)( |\n|\t)*=( |\n|\t)*('1*'|"1*"|1*)( |\n|\t)*)*( |\n|\t)*('1*'|"1*"|1*)( |\n|\t)*)*
  */
 
-void test(const std::string item, const std::string message, const std::string expected_result)
+void test(const std::string item,
+          const std::string message,
+          const std::string expected_result,
+          const bool        expect_success = true)
 {
   bool        successful = true;
   std::string actual;
@@ -27,7 +30,7 @@ void test(const std::string item, const std::string message, const std::string e
     auto [grammar, initial_state] = p.parse();
     grammar.apply_productions(initial_state);
     actual = initial_state;
-    if (actual != expected_result) successful = false;
+    if (actual != expected_result && expect_success) successful = false;
   }
   catch (...) {
     successful = false;
@@ -38,7 +41,7 @@ void test(const std::string item, const std::string message, const std::string e
 
 int main()
 {
-  const std::vector<std::pair<std::string, std::string>> legal_programs = {
+  const std::vector<std::pair<std::string, std::string>> patterns = {
     {"{c}=b a",                  "b"},
     { "{s}=b foo",               "b"},
     { "{foo}=b foo",             "b"},
@@ -53,32 +56,37 @@ int main()
     { "{ccs}=b abfoo",           "b"},
     { "{ccfoo}=b abfoo",         "b"},
     { "{csc}=b afoob",           "b"},
-    { "{css}=b afoobar",         "b"},
-    { "{csfoo}=b abarfoo",       "b"},
     { "{cfooc}=b afoob",         "b"},
     { "{cfoos}=b afoobar",       "b"},
     { "{cfoobar}=b afoobar",     "b"},
-    { "{scc}=b fooab",           "b"},
-    { "{scs}=b fooabar",         "b"},
     { "{scfoo}=b barafoo",       "b"},
-    { "{ssc}=b barfooa",         "b"},
-    { "{sss}=b barfoobaz",       "b"},
-    { "{ssbaz}=b barfoobaz",     "b"},
     { "{sfooc}=b barfoob",       "b"},
     { "{sfoos}=b barfoobaz",     "b"},
     { "{sfoobaz}=b barfoobaz",   "b"},
     { "{foocc}=b fooab",         "b"},
     { "{foocs}=b fooabar",       "b"},
     { "{foocbar}=b fooabar",     "b"},
-    { "{foosc}=b foobara",       "b"},
-    { "{fooss}=b foobarbaz",     "b"},
     { "{foosbaz}=b foobarbaz",   "b"},
     { "{foobarc}=b foobara",     "b"},
     { "{foobars}=b foobarbaz",   "b"},
     { "{foobarbaz}=b foobarbaz", "b"},
   };
 
-  for (const auto& [grammar, result] : legal_programs) {
-    test(grammar, "Grammar did not rewrite" + grammar + " to " + result, result);
-  }
+  for (const auto& [grammar, result] : patterns)
+    test(grammar, "Failed to match " + grammar + ", got " + result, result);
+
+  const std::vector<std::pair<std::string, std::string>> ambiguous_patterns = {
+    {"{css}=b afoobar",      "b"},
+    { "{csfoo}=b abarfoo",   "b"},
+    { "{scc}=b fooab",       "b"},
+    { "{scs}=b fooabar",     "b"},
+    { "{ssc}=b barfooa",     "b"},
+    { "{sss}=b barfoobaz",   "b"},
+    { "{ssbaz}=b barfoobaz", "b"},
+    { "{foosc}=b foobara",   "b"},
+    { "{fooss}=b foobarbaz", "b"},
+  };
+
+  for (const auto& [grammar, result] : ambiguous_patterns)
+    test(grammar, "Incorrectly matched " + grammar, result, false);
 }
