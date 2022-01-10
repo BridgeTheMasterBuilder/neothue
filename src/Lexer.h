@@ -57,15 +57,19 @@ private:
   int         get() noexcept;
   Token       get_token();
   auto        length_of_string(const std::string_view string) const noexcept;
-  char        peek() const { return !finished_scanning() ? source_code[index] : EOF; }
+  char        peek() const noexcept { return !finished_scanning() ? source_code[index] : EOF; }
   void        report_error() const;
   void        skip_comment() noexcept;
   void        skip_whitespace() noexcept;
   void        synchronize(const std::size_t old_index) noexcept;
 
   // TOKENIZERS
+  Token end_of_pattern();
+  Token pattern_separator();
   Token separator();
+  Token start_of_pattern();
   Token string();
+  Token tokenize(auto type);
 
   // PRIVATE DATA
   int                          column_number = 0;
@@ -76,7 +80,7 @@ private:
   mutable int                  number_of_errors = 0;
   const std::string&           source_code;
   std::deque<Token>            tokens;
-  static constexpr const char* delimiters = "\t\n\r =";
+  static constexpr const char* delimiters = "\t\n\r ;=}";
 };
 
 #endif
