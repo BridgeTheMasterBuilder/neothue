@@ -1,5 +1,7 @@
 * Features [/]
- - [ ] Pattern matching 
+ - [ ] Pattern matching [/]
+   - [ ] Add ability to escape special characters
+   - [ ] Add backreferences so that the right hand side can use matches from the left hand side
  - [ ] Thue compiler
 
 * Bugs [/]
