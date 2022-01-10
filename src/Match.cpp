@@ -22,6 +22,7 @@
 /***************
  * CONSTRUCTORS *
  ***************/
+// TODO recursion doesn't quite work
 Match::Match(const Alternative& alternative, const std::string& string) : string(string)
 {
   for (const auto& constituent : alternative)

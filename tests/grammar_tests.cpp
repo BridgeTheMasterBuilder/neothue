@@ -93,6 +93,7 @@ int main()
     { "{foobarc}=b afoobarab",     "abb" },
     { "{foobars}=b afoobarbaz",    "ab"  },
     { "{foobarbaz}=b afoobarbazb", "abb" },
+    { "{c1c1}=b aa",               "b"   },
   };
 
   for (const auto& [grammar, result] : patterns)
@@ -108,6 +109,7 @@ int main()
     { "{ssbaz}=b barfoobaz", "b"},
     { "{foosc}=b foobara",   "b"},
     { "{fooss}=b foobarbaz", "b"},
+    { "{c1c1}=b ab",         "b"},
   };
 
   for (const auto& [grammar, result] : ambiguous_patterns)
