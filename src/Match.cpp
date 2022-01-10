@@ -44,6 +44,7 @@ Match::Match(const Alternative& alternative, const std::string& string) : string
     ;
   }
 
+  // TODO it's necessary to fix the id's to make the recursion hygienic and unambiguous
   if (recursive) {
     for (auto& constituent : constituents)
       if (constituent.type == Constituent::Type::RECURSION) {
