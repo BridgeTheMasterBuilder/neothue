@@ -21,6 +21,7 @@
 
 #include "Grammar.h"
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 struct Constituent {
@@ -54,6 +55,13 @@ public:
   // CONSTRUCTORS
   Match(const Alternative& alternative, const std::string_view string);
 
+  // EXCEPTIONS
+  struct Contradiction {
+    Contradiction(const Constituent& constituent) : constituent(constituent) { }
+
+    const Constituent constituent;
+  };
+
   // PUBLIC MEMBER FUNCTIONS
   IndexPair match_indices() const;
 
@@ -63,6 +71,7 @@ public:
 private:
   // PRIVATE MEMBER FUNCTIONS
   bool                                anchored_deduce(Constituent& c1, Constituent& c2);
+  void                                check_for_contradiction(const Constituent& c);
   bool                                deduce(Constituent& c1, Constituent& c2);
   void                                deduce_character_and_character(Constituent& c1, Constituent& c2);
   void                                deduce_character_and_string(Constituent& c1, Constituent& c2);
@@ -85,9 +94,11 @@ private:
   bool                                unanchored_deduce(Constituent& c1, Constituent& c2);
 
   // PRIVATE DATA
-  std::vector<Constituent> constituents;
-  const std::string_view   string;
-  std::size_t              index = 0;
+  std::unordered_map<int, std::string> character_map;
+  std::unordered_map<int, std::string> string_map;
+  std::vector<Constituent>             constituents;
+  const std::string_view               string;
+  std::size_t                          index = 0;
 };
 
 #endif

@@ -22,7 +22,6 @@
 /***************
  * CONSTRUCTORS *
  ***************/
-// TODO as a final step, need to check whether characters or strings with the same id match
 Match::Match(const Alternative& alternative, const std::string_view string) : string(string)
 {
   for (const auto& constituent : alternative)
@@ -36,8 +35,13 @@ Match::Match(const Alternative& alternative, const std::string_view string) : st
   for (auto& constituent : constituents)
     if (deduce_literal(constituent)) contains_anchor = true;
 
-  if (contains_anchor) fixed_point_anchored_deduce();
-  else fixed_point_unanchored_deduce();
+  try {
+    if (contains_anchor) fixed_point_anchored_deduce();
+    else fixed_point_unanchored_deduce();
+  }
+  catch (const Contradiction& c) {
+    ;
+  }
 }
 
 /**************************
@@ -123,6 +127,12 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
   return c1.matched && c2.matched;
 }
 
+void Match::check_for_contradiction(const Constituent& c)
+{
+  if (!string_map.contains(c.id)) string_map[c.id] = c.deduced_value;
+  else if (string_map[c.id] != c.deduced_value) throw Contradiction(c);
+}
+
 bool Match::deduce_literal(Constituent& l)
 {
   if (l.type != Constituent::Type::LITERAL) return false;
@@ -183,7 +193,10 @@ void Match::deduce_character_on_left(Constituent& c1, Constituent& c2)
   const auto [right_start, right_end] = c1.possible_indices;
 
   c1.deduced_value                    = string[right_start];
-  c1.matched                          = true;
+
+  check_for_contradiction(c1);
+
+  c1.matched = true;
 
   std::cout << "Deduced character c" << c1.id << " to be " << c1.deduced_value << '\n';
 }
@@ -199,7 +212,10 @@ void Match::deduce_character_on_right(Constituent& c1, Constituent& c2)
   const auto [right_start, right_end] = c2.possible_indices;
 
   c2.deduced_value                    = string[right_start];
-  c2.matched                          = true;
+
+  check_for_contradiction(c2);
+
+  c2.matched = true;
 
   std::cout << "Deduced character c" << c2.id << " to be " << c2.deduced_value << '\n';
 }
@@ -243,7 +259,10 @@ void Match::deduce_string_on_left(Constituent& s, Constituent& c2)
 
   if (left_start != std::string::npos) {
     s.deduced_value = string.substr(left_start, right_start - left_start);
-    s.matched       = true;
+
+    check_for_contradiction(s);
+
+    s.matched = true;
 
     std::cout << "Deduced string s" << s.id << " to be " << s.deduced_value << '\n';
   }
@@ -260,7 +279,10 @@ void Match::deduce_string_on_right(Constituent& c1, Constituent& s)
 
   if (right_end != std::string::npos) {
     s.deduced_value = string.substr(left_end, right_end - left_end);
-    s.matched       = true;
+
+    check_for_contradiction(s);
+
+    s.matched = true;
 
     std::cout << "Deduced string s" << s.id << " to be " << s.deduced_value << '\n';
   }
