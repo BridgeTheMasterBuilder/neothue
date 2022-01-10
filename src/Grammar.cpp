@@ -192,7 +192,7 @@ IndexPair Grammar::match(const std::string& lhs, const std::string_view string)
   return match(std::string_view(lhs), string);
 }
 
-IndexPair Grammar::match(const Pattern& lhs, const std::string_view string)
+IndexPair Grammar::match(const Pattern& lhs, const std::string& string)
 {
   for (const auto& alternative : lhs.alternatives()) {
     Match match(alternative, string);

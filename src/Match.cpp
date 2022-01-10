@@ -22,7 +22,7 @@
 /***************
  * CONSTRUCTORS *
  ***************/
-Match::Match(const Alternative& alternative, const std::string_view string) : string(string)
+Match::Match(const Alternative& alternative, const std::string& string) : string(string)
 {
   for (const auto& constituent : alternative)
     std::visit([this](const auto& constituent) { return constituents.push_back(Constituent(constituent)); },
@@ -41,6 +41,19 @@ Match::Match(const Alternative& alternative, const std::string_view string) : st
   }
   catch (const Contradiction& c) {
     ;
+  }
+
+  if (recursive) {
+    for (auto& constituent : constituents)
+      if (constituent.type == Constituent::Type::RECURSION) {
+        const auto [start, end]     = constituent.possible_indices;
+
+        const std::string substring = string.substr(start, end - start);
+
+        Match match(alternative, substring);
+
+        if (match) std::cout << "Recursively matched\n";
+      }
   }
 }
 
@@ -80,6 +93,9 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
         case Constituent::Type::LITERAL:
           deduce_character_and_literal(c1, c2);
           break;
+        case Constituent::Type::RECURSION:
+          deduce_recursion_on_right(c1, c2);
+          break;
         default:
           break;
       }
@@ -107,6 +123,9 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
         case Constituent::Type::STRING:
           deduce_literal_and_string(c1, c2);
           break;
+        case Constituent::Type::RECURSION:
+          deduce_recursion_on_right(c1, c2);
+          break;
         default:
           break;
       }
@@ -120,11 +139,55 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
           break;
       }
       break;
+    case Constituent::Type::RECURSION:
+      switch (c2.type) {
+        case Constituent::Type::CHARACTER:
+        case Constituent::Type::LITERAL:
+          deduce_recursion_on_left(c1, c2);
+          break;
+        default:
+          break;
+      }
+      break;
     default:
       break;
   }
 
   return c1.matched && c2.matched;
+}
+
+void Match::deduce_recursion_on_left(Constituent& r, Constituent& c2)
+{
+  if (r.matched) return;
+
+  const auto [left_start, left_end]   = r.possible_indices;
+  const auto [right_start, right_end] = c2.possible_indices;
+
+  r.possible_indices                  = { left_start, right_start };
+
+  if (right_start - left_start == 0) recursive = false;
+  else if (right_start != std::string::npos) {
+    r.matched = true;
+
+    std::cout << "Deduced recursion\n";
+  }
+}
+
+void Match::deduce_recursion_on_right(Constituent& c1, Constituent& r)
+{
+  if (r.matched) return;
+
+  const auto [left_start, left_end]   = c1.possible_indices;
+  const auto [right_start, right_end] = r.possible_indices;
+
+  r.possible_indices                  = { left_end, right_end };
+
+  if (right_end - left_end == 0) recursive = false;
+  else if (right_end != std::string::npos) {
+    r.matched = true;
+
+    std::cout << "Deduced recursion\n";
+  }
 }
 
 void Match::check_for_contradiction(const Constituent& c)
@@ -135,6 +198,8 @@ void Match::check_for_contradiction(const Constituent& c)
 
 bool Match::deduce_literal(Constituent& l)
 {
+  if (l.type == Constituent::Type::RECURSION) recursive = true;
+
   if (l.type != Constituent::Type::LITERAL) return false;
 
   const auto [start, end] = find_start_and_end_of_literal(l);
@@ -421,6 +486,9 @@ bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
         case Constituent::Type::END:
           deduce_character_on_left(c1, c2);
           break;
+        case Constituent::Type::RECURSION:
+          deduce_recursion_on_right(c1, c2);
+          break;
         default:
           break;
       }
@@ -442,6 +510,9 @@ bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
         case Constituent::Type::CHARACTER:
           deduce_literal_and_character(c1, c2);
           break;
+        case Constituent::Type::RECURSION:
+          deduce_recursion_on_right(c1, c2);
+          break;
         default:
           break;
       }
@@ -456,6 +527,16 @@ bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
           break;
         case Constituent::Type::END:
           return false;
+        default:
+          break;
+      }
+      break;
+    case Constituent::Type::RECURSION:
+      switch (c2.type) {
+        case Constituent::Type::CHARACTER:
+        case Constituent::Type::LITERAL:
+          deduce_recursion_on_left(c1, c2);
+          break;
         default:
           break;
       }

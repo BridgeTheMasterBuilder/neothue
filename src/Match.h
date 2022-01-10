@@ -29,6 +29,7 @@ struct Constituent {
   Constituent(const Character& c) : type(Type::CHARACTER), id(c.value) { }
   Constituent(const Literal& c) : type(Type::LITERAL), deduced_value(c.value) { }
   Constituent(const String& c) : type(Type::STRING), id(c.value) { }
+  Constituent([[maybe_unused]] const Recursion& c) : type(Type::RECURSION), id(-1) { }
   Constituent([[maybe_unused]] const End& c) : type(Type::END), id(-1), matched(true) { }
   Constituent([[maybe_unused]] const Start& c)
       : type(Type::START), id(-1), possible_indices({ 0, 0 }), matched(true) { }
@@ -39,6 +40,7 @@ struct Constituent {
     START,
     CHARACTER,
     LITERAL,
+    RECURSION,
     STRING,
     END
   } type;
@@ -53,7 +55,7 @@ struct Constituent {
 class Match {
 public:
   // CONSTRUCTORS
-  Match(const Alternative& alternative, const std::string_view string);
+  Match(const Alternative& alternative, const std::string& string);
 
   // EXCEPTIONS
   struct Contradiction {
@@ -91,9 +93,13 @@ private:
   void                                fixed_point_unanchored_deduce();
   IndexPair                           match(const Constituent c);
   IndexPair                           match(const std::string_view literal);
+  void                                deduce_recursion_on_left(Constituent& r, Constituent& c2);
+  void                                deduce_recursion_on_right(Constituent& c1, Constituent& r);
   bool                                unanchored_deduce(Constituent& c1, Constituent& c2);
 
   // PRIVATE DATA
+  bool                                 recursive = false;
+  // TODO make static, so alternatives can share context
   std::unordered_map<int, std::string> character_map;
   std::unordered_map<int, std::string> string_map;
   std::vector<Constituent>             constituents;

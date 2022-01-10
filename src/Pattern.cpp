@@ -29,7 +29,6 @@ void Pattern::add_alternative(const std::string_view pattern)
 }
 
 // TODO add ability to escape 'c' and 's'
-// TODO add support for ... for recursing
 // TODO maybe also add a syntax for for example c1...c...c1 which would match c1c2c3...cN...c3c2c1 etc.
 /***************************
  * PRIVATE MEMBER FUNCTIONS *
@@ -42,17 +41,17 @@ Alternative Pattern::analyze_pattern(const std::string& pattern)
 
   for (std::size_t i = 0; i < pattern.size();) {
     switch (pattern[i]) {
-      // case '.':
-      //   {
-      //     const std::string ellipsis = pattern.substr(i, 3);
+      case '.':
+        {
+          const std::string ellipsis = pattern.substr(i, 3);
 
-      //     if (ellipsis == "...") {
-      //       constituents.push_back(Recursion());
-      //       i += 3;
-      //     }
-      //     else i++;
-      //   }
-      //   break;
+          if (ellipsis == "...") {
+            constituents.push_back(Recursion());
+            i += 3;
+          }
+          else i++;
+        }
+        break;
       case 'c':
         {
           const auto [number, end] = parse_id(pattern, i + 1);
@@ -104,11 +103,16 @@ std::pair<std::string, std::size_t> Pattern::parse_literal(const std::string& pa
   std::size_t end;
 
   while (true) {
-    end = pattern.find_first_of("cs", index);
+    end = pattern.find_first_of("cs.", index);
 
     if (end == std::string::npos) {
       end = pattern.size();
       break;
+    }
+    else if (pattern[end] == '.') {
+      const std::string ellipsis = pattern.substr(end, 3);
+
+      if (ellipsis != "...") continue;
     }
 
     if (pattern[end - 1] == '\\') continue;

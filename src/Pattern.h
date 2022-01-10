@@ -49,13 +49,17 @@ struct Literal {
   const std::string value;
 };
 
+struct Recursion {
+};
+
 struct Start {
 };
 
 struct End {
 };
 
-using Alternative = std::vector<std::variant<Start, Character, Literal, String, End>>;
+// using Alternative = std::vector<std::variant<Start, Character, Literal, String, End>>;
+using Alternative = std::vector<std::variant<Start, Character, Literal, Recursion, String, End>>;
 
 class Pattern {
 public:

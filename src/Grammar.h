@@ -85,7 +85,7 @@ private:
   IndexPair match(const char* lhs, const std::string_view string);
   IndexPair match(const std::string_view lhs, const std::string_view string);
   IndexPair match(const std::string& lhs, const std::string_view string);
-  IndexPair match(const Pattern& lhs, const std::string_view string);
+  IndexPair match(const Pattern& lhs, const std::string& string);
   void      rewrite_production(Production& production, const std::string_view rhs);
   void      shuffle();
   void      sort_left_to_right();
