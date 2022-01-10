@@ -80,7 +80,7 @@ private:
   mutable int                  number_of_errors = 0;
   const std::string&           source_code;
   std::deque<Token>            tokens;
-  static constexpr const char* delimiters = "\t\n\r =}";
+  static constexpr const char* delimiters = "\t\n\r ;=}";
 };
 
 #endif

@@ -33,8 +33,6 @@ meson compile -C <build directory>
 meson test -C <build directory>
 ```
 
-**Note**: Building the tests will take a while, they are very thorough.
-
 # Running the interpreter
 ```
 thue [options] file
@@ -53,6 +51,7 @@ string = "'", { symbol - "'" }, "'"
 	| { symbol } ;
 symbol = ? any character ? ;
 separator = '=' ;
+comment = ';', { symbol - '\n' } ;
 ```
 
 (`{ symbol - "'" }` should be understood to mean that strings that start with a single quote may not contain *unescaped* single quotes) 
@@ -84,6 +83,8 @@ That is, the former does not mean that the second production rewrites β to the 
 **Note 4:** The output operator `~` outputs everything to its right to standard output. Because both the input and output operators behave exactly like regular productions, if the output operator appears in the initial state of the program it is only applied once (applying this production effectively consumes the output operator and erases it from the initial state). This is done in the interest of making it not completely unusable, because leaving the output operator in the initial state means that it will be continuously applied. However, if the output operator appears on the right hand side of a production, it is not consumed, which allows productions to have side effects which are triggered whenever they are applied.
 
 **Note 5:** In Thue, both of these operators may be redefined by the user. Thus, they do not have their normal behavior when they appear on the left hand side of a production.
+
+**Note 6:** Comments start with a semicolon (`;`) and extend to the end of the current line. Comments may appear anywhere except inside quoted strings.
 
 ---
 
