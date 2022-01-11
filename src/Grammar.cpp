@@ -197,7 +197,7 @@ IndexPair Grammar::match(const Pattern& lhs, const std::string& string)
   for (const auto& alternative : lhs.alternatives()) {
     Match match(alternative, string);
 
-    if (match) {
+    if (match.match()) {
       return match.match_indices();
     }
   }

@@ -23,15 +23,21 @@
  * CONSTRUCTORS *
  ***************/
 // TODO recursion doesn't quite work
-Match::Match(const Alternative& alternative, const std::string& string) : string(string)
+Match::Match(const Alternative& alternative, const std::string& string) : alternative(alternative), string(string)
 {
   for (const auto& constituent : alternative)
     std::visit([this](const auto& constituent) { return constituents.push_back(Constituent(constituent)); },
                constituent);
 
   constituents[constituents.size() - 1].possible_indices = { string.size(), string.size() };
+}
 
-  bool contains_anchor                                   = false;
+/**************************
+ * PUBLIC MEMBER FUNCTIONS *
+ **************************/
+bool Match::match()
+{
+  bool contains_anchor = false;
 
   for (auto& constituent : constituents)
     if (deduce_literal(constituent)) contains_anchor = true;
@@ -44,6 +50,8 @@ Match::Match(const Alternative& alternative, const std::string& string) : string
     ;
   }
 
+  bool matched = false;
+
   // TODO it's necessary to fix the id's to make the recursion hygienic and unambiguous
   if (recursive) {
     for (auto& constituent : constituents)
@@ -54,14 +62,15 @@ Match::Match(const Alternative& alternative, const std::string& string) : string
 
         Match match(alternative, substring);
 
-        if (match) std::cout << "Recursively matched\n";
+        matched = match.match();
+
+        if (matched) std::cout << "Recursively matched\n";
       }
   }
+
+  return matched;
 }
 
-/**************************
- * PUBLIC MEMBER FUNCTIONS *
- **************************/
 IndexPair Match::match_indices() const
 {
   return { constituents[1].possible_indices.first, constituents[constituents.size() - 2].possible_indices.second };

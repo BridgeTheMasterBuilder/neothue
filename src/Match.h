@@ -65,6 +65,7 @@ public:
   };
 
   // PUBLIC MEMBER FUNCTIONS
+  bool      match();
   IndexPair match_indices() const;
 
   // CONVERSION OPERATORS
@@ -98,12 +99,13 @@ private:
   bool                                unanchored_deduce(Constituent& c1, Constituent& c2);
 
   // PRIVATE DATA
+  const Alternative&                   alternative;
   bool                                 recursive = false;
   // TODO make static, so alternatives can share context
   std::unordered_map<int, std::string> character_map;
   std::unordered_map<int, std::string> string_map;
   std::vector<Constituent>             constituents;
-  const std::string_view               string;
+  const std::string&                   string;
   std::size_t                          index = 0;
 };
 
