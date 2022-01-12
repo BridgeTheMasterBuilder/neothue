@@ -51,7 +51,7 @@ Alternative Pattern::analyze_pattern(const std::string& pattern)
           }
           else i++;
         }
-        break;
+        continue;
       case 'c':
         {
           const auto [number, end] = parse_id(pattern, i + 1);
@@ -109,11 +109,11 @@ std::pair<std::string, std::size_t> Pattern::parse_literal(const std::string& pa
       end = pattern.size();
       break;
     }
-    else if (pattern[end] == '.') {
-      const std::string ellipsis = pattern.substr(end, 3);
+    // else if (pattern[end] == '.') {
+    //   const std::string ellipsis = pattern.substr(end, 3);
 
-      if (ellipsis != "...") continue;
-    }
+    //   if (ellipsis != "...") continue;
+    // }
 
     if (pattern[end - 1] == '\\') continue;
     else break;

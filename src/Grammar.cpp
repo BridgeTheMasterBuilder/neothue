@@ -194,12 +194,10 @@ IndexPair Grammar::match(const std::string& lhs, const std::string_view string)
 
 IndexPair Grammar::match(const Pattern& lhs, const std::string& string)
 {
-  for (const auto& alternative : lhs.alternatives()) {
-    Match match(alternative, string);
+  Match match(lhs, string);
 
-    if (match.match()) {
-      return match.match_indices();
-    }
+  if (match.match()) {
+    return match.match_indices();
   }
 
   std::cout << "Match failed\n";

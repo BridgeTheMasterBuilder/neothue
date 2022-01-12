@@ -55,7 +55,7 @@ struct Constituent {
 class Match {
 public:
   // CONSTRUCTORS
-  Match(const Alternative& alternative, const std::string& string);
+  Match(const Pattern& pattern, const std::string& string);
 
   // EXCEPTIONS
   struct Contradiction {
@@ -90,8 +90,8 @@ private:
   void                                deduce_literal_and_character(Constituent& c1, Constituent& c2);
   void                                deduce_literal_and_string(Constituent& c1, Constituent& c2);
   std::pair<std::size_t, std::size_t> find_start_and_end_of_literal(const Constituent& l);
-  void                                fixed_point_anchored_deduce();
-  void                                fixed_point_unanchored_deduce();
+  void                                fixed_point_anchored_deduce(auto& alternative);
+  void                                fixed_point_unanchored_deduce(auto& alternative);
   IndexPair                           match(const Constituent c);
   IndexPair                           match(const std::string_view literal);
   void                                deduce_recursion_on_left(Constituent& r, Constituent& c2);
@@ -99,14 +99,15 @@ private:
   bool                                unanchored_deduce(Constituent& c1, Constituent& c2);
 
   // PRIVATE DATA
-  const Alternative&                   alternative;
-  bool                                 recursive = false;
+  std::vector<std::vector<Constituent>> alternatives;
+  bool                                  recursive = false;
   // TODO make static, so alternatives can share context
-  std::unordered_map<int, std::string> character_map;
-  std::unordered_map<int, std::string> string_map;
-  std::vector<Constituent>             constituents;
-  const std::string&                   string;
-  std::size_t                          index = 0;
+  std::unordered_map<int, std::string>  character_map;
+  std::unordered_map<int, std::string>  string_map;
+  const std::string&                    string;
+  std::size_t                           index       = 0;
+  std::size_t                           match_index = 0;
+  const Pattern&                        pattern;
 };
 
 #endif
