@@ -82,7 +82,7 @@ private:
     return index_of_match;
   }
   IndexPair match(const char lhs, const std::string_view string);
-  IndexPair match(const char* lhs, const std::string_view string);
+  IndexPair match(const char* lhs, const std::string& string);
   IndexPair match(const std::string_view lhs, const std::string_view string);
   IndexPair match(const std::string& lhs, const std::string_view string);
   IndexPair match(const Pattern& lhs, const std::string& string);

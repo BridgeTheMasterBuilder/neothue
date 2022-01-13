@@ -174,10 +174,7 @@ IndexPair Grammar::match(const char lhs, const std::string_view string)
   return { index_of_match, index_of_match + 1 };
 }
 
-IndexPair Grammar::match(const char* lhs, const std::string_view string)
-{
-  return match(std::string_view(lhs), string);
-}
+IndexPair Grammar::match(const char* lhs, const std::string& string) { return match(std::string_view(lhs), string); }
 
 IndexPair Grammar::match(const std::string_view lhs, const std::string_view string)
 {
