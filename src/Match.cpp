@@ -27,14 +27,27 @@ Match::Match(const Pattern& pattern, const std::string& string) : string(string)
 {
   for (const auto& alternative : pattern.alternatives()) {
     std::vector<Constituent> constituents;
+    int                      minimum_length = 0;
 
-    for (const auto& constituent : alternative)
+    for (const auto& constituent : alternative) {
       std::visit([&constituents](const auto& constituent) { return constituents.push_back(Constituent(constituent)); },
                  constituent);
+
+      switch (constituent.index()) {
+        case 1:
+          minimum_length++;
+          break;
+        case 2:
+          minimum_length += std::get<2>(constituent).value.size();
+          break;
+      }
+    }
 
     constituents[constituents.size() - 1].possible_indices = { string.size(), string.size() };
 
     alternatives.push_back(constituents);
+
+    minimum_lengths.push_back(minimum_length);
   }
 }
 
@@ -45,6 +58,7 @@ bool Match::match()
 {
   for (auto& alternative : alternatives) {
     bool contains_anchor = false;
+    recursive            = false;
 
     for (auto& constituent : alternative)
       if (deduce_literal(constituent)) contains_anchor = true;
@@ -54,12 +68,18 @@ bool Match::match()
       else fixed_point_unanchored_deduce(alternative);
     }
     catch (const Contradiction& c) {
+      match_index++;
+      continue;
+    }
+
+    if (!*this) {
+      match_index++;
       continue;
     }
 
     bool matched = true;
 
-    // TODO it's necessary to fix the id's to make the recursion hygienic and unambiguous
+    // TODO it's necessary to fix the id's to make the recursion hygienic and unambiguous?
     if (recursive) {
       matched = false;
 
@@ -77,13 +97,7 @@ bool Match::match()
         }
     }
 
-    // return matched && operator bool();
-    if (!matched) {
-      if (match_index < alternatives.size() - 1) match_index++;
-      continue;
-    }
-    else if (*this) return true;
-    else return false;
+    return matched;
   }
 
   return false;
@@ -98,10 +112,24 @@ IndexPair Match::match_indices() const
 /***********************
  * CONVERSION OPERATORS *
  ***********************/
-Match::operator bool() const
+Match::operator bool()
 {
-  for (const auto& constituent : alternatives[match_index])
-    if (constituent.matched == false) continue;
+  auto& alternative = alternatives[match_index];
+
+  if ((alternative[alternative.size() - 1].possible_indices.first - alternative[0].possible_indices.first)
+      < minimum_lengths[match_index])
+    return false;
+
+  for (auto c1 = alternative.begin() + 1, c2 = alternative.begin() + 2; c2 != alternative.end() - 1; c1++, c2++) {
+    Constituent& first_constituent      = *c1;
+    Constituent& second_constituent     = *c2;
+
+    const auto [left_start, left_end]   = first_constituent.possible_indices;
+    const auto [right_start, right_end] = second_constituent.possible_indices;
+
+    if (first_constituent.matched == false) return false;
+    else if (left_end != right_start) return false;
+  }
 
   return true;
 }
@@ -199,7 +227,7 @@ void Match::deduce_recursion_on_left(Constituent& r, Constituent& c2)
   r.matched                           = true;
   recursive                           = true;
 
-  if (right_start - left_start <= 1) {
+  if (right_start - left_start == 0) {
     recursive = false;
   }
   else if (right_start != std::string::npos) {
@@ -223,7 +251,7 @@ void Match::deduce_recursion_on_right(Constituent& c1, Constituent& r)
   r.matched                           = true;
   recursive                           = true;
 
-  if (right_end - left_end <= 1) {
+  if (right_end - left_end == 0) {
     recursive = false;
   }
   else if (right_end != std::string::npos) {

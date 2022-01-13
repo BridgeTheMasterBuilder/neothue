@@ -69,7 +69,7 @@ public:
   IndexPair match_indices() const;
 
   // CONVERSION OPERATORS
-  operator bool() const;
+  operator bool();
 
 private:
   // PRIVATE MEMBER FUNCTIONS
@@ -108,6 +108,7 @@ private:
   std::size_t                           index       = 0;
   std::size_t                           match_index = 0;
   const Pattern&                        pattern;
+  std::vector<std::size_t>              minimum_lengths;
 };
 
 #endif
