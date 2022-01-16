@@ -32,7 +32,7 @@ struct Constituent {
   Constituent([[maybe_unused]] const Recursion& c) : type(Type::RECURSION), id(-1) { }
   Constituent([[maybe_unused]] const End& c) : type(Type::END), id(-1), matched(true) { }
   Constituent([[maybe_unused]] const Start& c)
-      : type(Type::START), id(-1), possible_indices({ 0, 0 }), matched(true) { }
+      : type(Type::START), id(-1), matched(true), possible_indices({ 0, 0 }) { }
 
   // ENUMS
   enum class Type
@@ -46,10 +46,10 @@ struct Constituent {
   } type;
 
   // PUBLIC DATA
-  const int   id               = 0;
-  IndexPair   possible_indices = { std::string::npos, std::string::npos };
   std::string deduced_value;
-  bool        matched = false;
+  const int   id               = 0;
+  bool        matched          = false;
+  IndexPair   possible_indices = { std::string::npos, std::string::npos };
 };
 
 class Match {
@@ -74,6 +74,7 @@ public:
 private:
   // PRIVATE MEMBER FUNCTIONS
   bool                                anchored_deduce(Constituent& c1, Constituent& c2);
+  void                                anchored_fixed_point_deduce(auto& alternative);
   void                                check_for_contradiction(const Constituent& c);
   bool                                deduce(Constituent& c1, Constituent& c2);
   void                                deduce_character_and_character(Constituent& c1, Constituent& c2);
@@ -82,33 +83,36 @@ private:
   void                                deduce_character_on_left(Constituent& c1, Constituent& c2);
   void                                deduce_character_on_right(Constituent& c1, Constituent& c2);
   void                                deduce_string_and_character(Constituent& c1, Constituent& c2);
-  // void                                deduce_string_and_string(Constituent& c1, Constituent& c2);
   void                                deduce_string_and_literal(Constituent& c1, Constituent& c2);
   void                                deduce_string_on_left(Constituent& c1, Constituent& c2);
   void                                deduce_string_on_right(Constituent& c1, Constituent& c2);
   bool                                deduce_literal(Constituent& l);
   void                                deduce_literal_and_character(Constituent& c1, Constituent& c2);
   void                                deduce_literal_and_string(Constituent& c1, Constituent& c2);
-  std::pair<std::size_t, std::size_t> find_start_and_end_of_literal(const Constituent& l);
-  void                                fixed_point_anchored_deduce(auto& alternative);
-  void                                fixed_point_unanchored_deduce(auto& alternative);
-  IndexPair                           match(const Constituent c);
-  IndexPair                           match(const std::string_view literal);
   void                                deduce_recursion_on_left(Constituent& r, Constituent& c2);
   void                                deduce_recursion_on_right(Constituent& c1, Constituent& r);
+  std::pair<std::size_t, std::size_t> find_start_and_end_of_literal(const Constituent& l);
+  bool                                locate_anchor(auto& alternative);
+  IndexPair                           match(const Constituent c);
+  IndexPair                           match(const std::string_view literal);
+  bool                                maybe_recurse(auto& alternative);
+  void                                reset();
   bool                                unanchored_deduce(Constituent& c1, Constituent& c2);
+  void                                unanchored_fixed_point_deduce(auto& alternative);
 
   // PRIVATE DATA
   std::vector<std::vector<Constituent>> alternatives;
-  bool                                  recursive = false;
   // TODO make static, so alternatives can share context
+  // static std::unordered_map<int, std::string> character_map;
+  // static std::unordered_map<int, std::string> string_map;
   std::unordered_map<int, std::string>  character_map;
-  std::unordered_map<int, std::string>  string_map;
-  const std::string&                    string;
   std::size_t                           index       = 0;
   std::size_t                           match_index = 0;
-  const Pattern&                        pattern;
   std::vector<std::size_t>              minimum_lengths;
+  const Pattern&                        pattern;
+  bool                                  recursive = false;
+  const std::string&                    string;
+  std::unordered_map<int, std::string>  string_map;
 };
 
 #endif

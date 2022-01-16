@@ -19,31 +19,47 @@
 #include "Match.h"
 #include <iostream>
 
+// TODO restrict this to current Pattern, maybe these should be local to the pattern
+// std::unordered_map<int, std::string> Match::character_map;
+// std::unordered_map<int, std::string> Match::string_map;
+
 /***************
  * CONSTRUCTORS *
  ***************/
-// TODO recursion doesn't quite work
-Match::Match(const Pattern& pattern, const std::string& string) : string(string), pattern(pattern)
+// TODO scan from both ends simultaneously
+Match::Match(const Pattern& pattern, const std::string& string) : pattern(pattern), string(string)
 {
+  enum
+  {
+    START,
+    CHARACTER,
+    LITERAL,
+    RECURSION,
+    STRING,
+    END
+  };
+
   for (const auto& alternative : pattern.alternatives()) {
     std::vector<Constituent> constituents;
     int                      minimum_length = 0;
 
     for (const auto& constituent : alternative) {
-      std::visit([&constituents](const auto& constituent) { return constituents.push_back(Constituent(constituent)); },
+      std::visit([&constituents](const auto& constituent) { constituents.push_back(Constituent(constituent)); },
                  constituent);
 
       switch (constituent.index()) {
-        case 1:
+        case CHARACTER:
           minimum_length++;
           break;
-        case 2:
-          minimum_length += std::get<2>(constituent).value.size();
+        case LITERAL:
+          minimum_length += std::get<LITERAL>(constituent).value.size();
           break;
       }
     }
 
-    constituents[constituents.size() - 1].possible_indices = { string.size(), string.size() };
+    auto& end            = constituents[constituents.size() - 1];
+
+    end.possible_indices = { string.size(), string.size() };
 
     alternatives.push_back(constituents);
 
@@ -57,47 +73,24 @@ Match::Match(const Pattern& pattern, const std::string& string) : string(string)
 bool Match::match()
 {
   for (auto& alternative : alternatives) {
-    bool contains_anchor = false;
-    recursive            = false;
-
-    for (auto& constituent : alternative)
-      if (deduce_literal(constituent)) contains_anchor = true;
+    reset();
 
     try {
-      if (contains_anchor) fixed_point_anchored_deduce(alternative);
-      else fixed_point_unanchored_deduce(alternative);
+      if (locate_anchor(alternative)) anchored_fixed_point_deduce(alternative);
+      else unanchored_fixed_point_deduce(alternative);
     }
     catch (const Contradiction& c) {
       match_index++;
       continue;
     }
 
+    // TODO don't use operator bool()
     if (!*this) {
       match_index++;
       continue;
     }
 
-    bool matched = true;
-
-    // TODO it's necessary to fix the id's to make the recursion hygienic and unambiguous?
-    if (recursive) {
-      matched = false;
-
-      for (auto& constituent : alternative)
-        if (constituent.type == Constituent::Type::RECURSION && constituent.matched) {
-          const auto [start, end]     = constituent.possible_indices;
-
-          const std::string substring = string.substr(start, end - start);
-
-          Match match(pattern, substring);
-
-          matched = match.match();
-
-          if (matched) std::cout << "Recursively matched\n";
-        }
-    }
-
-    return matched;
+    return maybe_recurse(alternative);
   }
 
   return false;
@@ -105,8 +98,10 @@ bool Match::match()
 
 IndexPair Match::match_indices() const
 {
-  return { alternatives[match_index][1].possible_indices.first,
-           alternatives[match_index][alternatives[match_index].size() - 2].possible_indices.second };
+  const auto& start = alternatives[match_index][1];
+  const auto& end   = alternatives[match_index][alternatives[match_index].size() - 2];
+
+  return { start.possible_indices.first, end.possible_indices.second };
 }
 
 /***********************
@@ -114,11 +109,13 @@ IndexPair Match::match_indices() const
  ***********************/
 Match::operator bool()
 {
-  auto& alternative = alternatives[match_index];
+  auto&       alternative = alternatives[match_index];
+  const auto& start       = alternative[0];
+  const auto& end         = alternative[alternative.size() - 1];
+  const auto  first_index = start.possible_indices.first;
+  const auto  last_index  = end.possible_indices.first;
 
-  if ((alternative[alternative.size() - 1].possible_indices.first - alternative[0].possible_indices.first)
-      < minimum_lengths[match_index])
-    return false;
+  if ((last_index - first_index) < minimum_lengths[match_index]) return false;
 
   for (auto c1 = alternative.begin() + 1, c2 = alternative.begin() + 2; c2 != alternative.end() - 1; c1++, c2++) {
     Constituent& first_constituent      = *c1;
@@ -214,7 +211,36 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
   return c1.matched && c2.matched;
 }
 
-// TODO really need to think deeply about how the indices are updated in all these functions
+void Match::anchored_fixed_point_deduce(auto& alternative)
+{
+  bool changing                 = false;
+  int  last_number_of_unmatched = 0;
+  bool matched                  = false;
+
+  do {
+    index                   = 0;
+    int number_of_unmatched = 0;
+
+    for (auto c1 = alternative.begin(), c2 = alternative.begin() + 1; c2 != alternative.end(); c1++, c2++) {
+      Constituent& first_constituent  = *c1;
+      Constituent& second_constituent = *c2;
+
+      if (!anchored_deduce(first_constituent, second_constituent)) {
+        matched = false;
+        number_of_unmatched++;
+      }
+    }
+
+    if (matched) break;
+
+    if (last_number_of_unmatched != number_of_unmatched) {
+      changing                 = true;
+      last_number_of_unmatched = number_of_unmatched;
+    }
+    else changing = false;
+  } while (changing);
+}
+
 void Match::deduce_recursion_on_left(Constituent& r, Constituent& c2)
 {
   if (r.matched || !c2.matched) return;
@@ -367,8 +393,6 @@ void Match::deduce_string_and_character(Constituent& s, Constituent& c)
   index++;
 }
 
-// void Match::deduce_string_and_string([[maybe_unused]] Constituent& c1, [[maybe_unused]] Constituent& c2) { return; }
-
 void Match::deduce_string_and_literal(Constituent& s, Constituent& l)
 {
   if (!l.matched) {
@@ -472,64 +496,14 @@ std::pair<std::size_t, std::size_t> Match::find_start_and_end_of_literal(const C
   return { start, end };
 }
 
-void Match::fixed_point_anchored_deduce(auto& alternative)
+bool Match::locate_anchor(auto& alternative)
 {
-  bool changing                 = false;
-  int  last_number_of_unmatched = 0;
-  bool matched                  = false;
+  bool contains_anchor = false;
 
-  do {
-    index                   = 0;
-    int number_of_unmatched = 0;
+  for (auto& constituent : alternative)
+    if (deduce_literal(constituent)) contains_anchor = true;
 
-    for (auto c1 = alternative.begin(), c2 = alternative.begin() + 1; c2 != alternative.end(); c1++, c2++) {
-      Constituent& first_constituent  = *c1;
-      Constituent& second_constituent = *c2;
-
-      if (!anchored_deduce(first_constituent, second_constituent)) {
-        matched = false;
-        number_of_unmatched++;
-      }
-    }
-
-    if (matched) break;
-
-    if (last_number_of_unmatched != number_of_unmatched) {
-      changing                 = true;
-      last_number_of_unmatched = number_of_unmatched;
-    }
-    else changing = false;
-  } while (changing);
-}
-
-void Match::fixed_point_unanchored_deduce(auto& alternative)
-{
-  bool changing                 = false;
-  int  last_number_of_unmatched = 0;
-  bool matched                  = false;
-
-  do {
-    index                   = 0;
-    int number_of_unmatched = 0;
-
-    for (auto c1 = alternative.begin(), c2 = alternative.begin() + 1; c2 != alternative.end(); c1++, c2++) {
-      Constituent& first_constituent  = *c1;
-      Constituent& second_constituent = *c2;
-
-      if (!unanchored_deduce(first_constituent, second_constituent)) {
-        matched = false;
-        number_of_unmatched++;
-      }
-    }
-
-    if (matched) break;
-
-    if (last_number_of_unmatched != number_of_unmatched) {
-      changing                 = true;
-      last_number_of_unmatched = number_of_unmatched;
-    }
-    else changing = false;
-  } while (changing);
+  return contains_anchor;
 }
 
 IndexPair Match::match(const Constituent c) { return match(c.deduced_value); }
@@ -541,6 +515,32 @@ IndexPair Match::match(const std::string_view literal)
   if (index_of_match == std::string::npos) return { std::string::npos, std::string::npos };
   else return { index_of_match, index_of_match + literal.size() };
 }
+
+bool Match::maybe_recurse(auto& alternative)
+{
+  bool matched = true;
+
+  if (recursive) {
+    matched = false;
+
+    for (auto& constituent : alternative)
+      if (constituent.type == Constituent::Type::RECURSION && constituent.matched) {
+        const auto [start, end]     = constituent.possible_indices;
+
+        const std::string substring = string.substr(start, end - start);
+
+        Match match(pattern, substring);
+
+        matched = match.match();
+
+        // if (matched) std::cout << "Recursively matched\n";
+      }
+  }
+
+  return matched;
+}
+
+void Match::reset() { recursive = false; }
 
 bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
 {
@@ -619,4 +619,34 @@ bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
   }
 
   return c1.matched && c2.matched;
+}
+
+void Match::unanchored_fixed_point_deduce(auto& alternative)
+{
+  bool changing                 = false;
+  int  last_number_of_unmatched = 0;
+  bool matched                  = false;
+
+  do {
+    index                   = 0;
+    int number_of_unmatched = 0;
+
+    for (auto c1 = alternative.begin(), c2 = alternative.begin() + 1; c2 != alternative.end(); c1++, c2++) {
+      Constituent& first_constituent  = *c1;
+      Constituent& second_constituent = *c2;
+
+      if (!unanchored_deduce(first_constituent, second_constituent)) {
+        matched = false;
+        number_of_unmatched++;
+      }
+    }
+
+    if (matched) break;
+
+    if (last_number_of_unmatched != number_of_unmatched) {
+      changing                 = true;
+      last_number_of_unmatched = number_of_unmatched;
+    }
+    else changing = false;
+  } while (changing);
 }
