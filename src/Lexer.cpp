@@ -126,7 +126,8 @@ std::size_t Lexer::find_start_of_string(const std::size_t index) const noexcept
 {
   const char quote = source_code[index];
 
-  if (quote == '\'' || quote == '\"' || quote == '\\') return index + 1;
+  // if (quote == '\'' || quote == '\"' || quote == '\\') return index + 1;
+  if (quote == '\'' || quote == '\"') return index + 1;
   else return index;
 }
 

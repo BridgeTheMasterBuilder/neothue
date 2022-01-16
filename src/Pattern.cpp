@@ -28,8 +28,6 @@ void Pattern::add_alternative(const std::string_view pattern)
   _alternatives.push_back(analyze_pattern(pattern.data()));
 }
 
-// TODO add ability to escape 'c' and 's'
-// TODO maybe also add a syntax for for example c1...c...c1 which would match c1c2c3...cN...c3c2c1 etc.
 /***************************
  * PRIVATE MEMBER FUNCTIONS *
  ***************************/
@@ -66,9 +64,9 @@ Alternative Pattern::analyze_pattern(const std::string& pattern)
           i = end;
         }
         continue;
-      // case '\\':
-      //   i++;
-      //   [[fallthrough]];
+      case '\\':
+        i++;
+        [[fallthrough]];
       default:
         const auto [literal, end] = parse_literal(pattern, i);
         constituents.push_back(Literal(literal));
@@ -103,17 +101,12 @@ std::pair<std::string, std::size_t> Pattern::parse_literal(const std::string& pa
   std::size_t end;
 
   while (true) {
-    end = pattern.find_first_of("cs.", index);
+    end = pattern.find_first_of("cs.", index + 1);
 
     if (end == std::string::npos) {
       end = pattern.size();
       break;
     }
-    // else if (pattern[end] == '.') {
-    //   const std::string ellipsis = pattern.substr(end, 3);
-
-    //   if (ellipsis != "...") continue;
-    // }
 
     if (pattern[end - 1] == '\\') continue;
     else break;
