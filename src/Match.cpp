@@ -19,15 +19,12 @@
 #include "Match.h"
 #include <iostream>
 
-// TODO restrict this to current Pattern, maybe these should be local to the pattern
-// std::unordered_map<int, std::string> Match::character_map;
-// std::unordered_map<int, std::string> Match::string_map;
-
 /***************
  * CONSTRUCTORS *
  ***************/
 // TODO scan from both ends simultaneously
-Match::Match(const Pattern& pattern, const std::string& string) : pattern(pattern), string(string)
+Match::Match(const Pattern& pattern, const std::string& string, const bool submatch)
+    : pattern(pattern), string(string), submatch(submatch)
 {
   enum
   {
@@ -81,6 +78,7 @@ bool Match::match()
     }
     catch (const Contradiction& c) {
       match_index++;
+      std::cout << "This alternative wasn't a match, moving on\n";
       continue;
     }
 
@@ -107,15 +105,17 @@ IndexPair Match::match_indices() const
 /***********************
  * CONVERSION OPERATORS *
  ***********************/
+// TODO check if recursive matches fill up the intermediate space
 Match::operator bool()
 {
   auto&       alternative = alternatives[match_index];
-  const auto& start       = alternative[0];
-  const auto& end         = alternative[alternative.size() - 1];
+  const auto& start       = alternative[1];
+  const auto& end         = alternative[alternative.size() - 2];
   const auto  first_index = start.possible_indices.first;
-  const auto  last_index  = end.possible_indices.first;
+  const auto  last_index  = end.possible_indices.second;
 
-  if ((last_index - first_index) < minimum_lengths[match_index]) return false;
+  if (submatch && (first_index != 0 || last_index != string.size())) return false;
+  else if ((last_index - first_index) < minimum_lengths[match_index]) return false;
 
   for (auto c1 = alternative.begin() + 1, c2 = alternative.begin() + 2; c2 != alternative.end() - 1; c1++, c2++) {
     Constituent& first_constituent      = *c1;
@@ -241,6 +241,12 @@ void Match::anchored_fixed_point_deduce(auto& alternative)
   } while (changing);
 }
 
+void Match::check_for_contradiction(const Constituent& c)
+{
+  if (!pattern.map.contains(c.id)) pattern.map[c.id] = c.deduced_value;
+  else if (pattern.map[c.id] != c.deduced_value) throw Contradiction(c);
+}
+
 void Match::deduce_recursion_on_left(Constituent& r, Constituent& c2)
 {
   if (r.matched || !c2.matched) return;
@@ -287,12 +293,6 @@ void Match::deduce_recursion_on_right(Constituent& c1, Constituent& r)
     r.matched = false;
     recursive = false;
   }
-}
-
-void Match::check_for_contradiction(const Constituent& c)
-{
-  if (!string_map.contains(c.id)) string_map[c.id] = c.deduced_value;
-  else if (string_map[c.id] != c.deduced_value) throw Contradiction(c);
 }
 
 bool Match::deduce_literal(Constituent& l)
@@ -529,7 +529,7 @@ bool Match::maybe_recurse(auto& alternative)
 
         const std::string substring = string.substr(start, end - start);
 
-        Match match(pattern, substring);
+        Match match(pattern, substring, true);
 
         matched = match.match();
 
@@ -540,7 +540,16 @@ bool Match::maybe_recurse(auto& alternative)
   return matched;
 }
 
-void Match::reset() { recursive = false; }
+void Match::reset()
+{
+  recursive = false;
+
+  std::erase_if(pattern.map, [](const auto& element) {
+    const auto& [k, _] = element;
+
+    return k < 0;
+  });
+}
 
 bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
 {

@@ -55,7 +55,7 @@ struct Constituent {
 class Match {
 public:
   // CONSTRUCTORS
-  Match(const Pattern& pattern, const std::string& string);
+  Match(const Pattern& pattern, const std::string& string, const bool submatch = false);
 
   // EXCEPTIONS
   struct Contradiction {
@@ -102,17 +102,13 @@ private:
 
   // PRIVATE DATA
   std::vector<std::vector<Constituent>> alternatives;
-  // TODO make static, so alternatives can share context
-  // static std::unordered_map<int, std::string> character_map;
-  // static std::unordered_map<int, std::string> string_map;
-  std::unordered_map<int, std::string>  character_map;
   std::size_t                           index       = 0;
   std::size_t                           match_index = 0;
   std::vector<std::size_t>              minimum_lengths;
   const Pattern&                        pattern;
   bool                                  recursive = false;
   const std::string&                    string;
-  std::unordered_map<int, std::string>  string_map;
+  bool                                  submatch = false;
 };
 
 #endif

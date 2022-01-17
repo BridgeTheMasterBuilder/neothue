@@ -17,6 +17,9 @@
 */
 
 #include "Pattern.h"
+#include <unordered_map>
+
+std::unordered_map<int, std::string> Pattern::map;
 
 /**************************
  * PUBLIC MEMBER FUNCTIONS *
@@ -82,18 +85,27 @@ Alternative Pattern::analyze_pattern(const std::string& pattern)
 
 std::pair<int, std::size_t> Pattern::parse_id(const std::string& pattern, const std::size_t index)
 {
-  static int  number = 0;
-  std::size_t end    = index;
+  static int                           number = 0;
+  static std::unordered_map<char, int> index_map;
+  std::size_t                          end = index;
 
-  if (std::isdigit(pattern[index])) {
-    end = pattern.find_first_not_of("0123456789", index);
+  if (pattern[index] != '_') return { number++, end++ };
+
+  if (std::isdigit(pattern[index + 1])) {
+    end = pattern.find_first_not_of("0123456789", index + 1);
     if (end == std::string::npos) end = pattern.size();
 
-    number = std::strtol(pattern.substr(index, end - index).c_str(), nullptr, 10);
-  }
-  else number++;
+    number = std::strtol(pattern.substr(index + 1, end - index).c_str(), nullptr, 10);
 
-  return { number, end };
+    return { number, end };
+  }
+  else {
+    if (!index_map.contains(pattern[index + 1])) index_map[pattern[index + 1]] = -(++number);
+
+    end = index + 2;
+
+    return { index_map[pattern[index + 1]], end };
+  }
 }
 
 std::pair<std::string, std::size_t> Pattern::parse_literal(const std::string& pattern, const std::size_t index)

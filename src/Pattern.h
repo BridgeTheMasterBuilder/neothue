@@ -21,6 +21,7 @@
 
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <variant>
 #include <vector>
 
@@ -68,6 +69,9 @@ public:
 
   // FRIEND FUNCTIONS
   friend bool operator<(const Pattern& a, const Pattern& b) { return a.representative < b.representative; }
+
+  // PUBLIC DATA
+  static std::unordered_map<int, std::string> map;
 
 private:
   // PRIVATE MEMBER FUNCTIONS
