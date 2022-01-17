@@ -540,15 +540,17 @@ bool Match::maybe_recurse(auto& alternative)
   return matched;
 }
 
+// TODO when should only temporary indices be reset?
 void Match::reset()
 {
   recursive = false;
 
-  std::erase_if(pattern.map, [](const auto& element) {
-    const auto& [k, _] = element;
+  pattern.map.clear();
+  // std::erase_if(pattern.map, [](const auto& element) {
+  //   const auto& [k, _] = element;
 
-    return k < 0;
-  });
+  //   return k < 0;
+  // });
 }
 
 bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
