@@ -14,7 +14,7 @@ The following options are supported:
 The `examples` directory contains Thue programs distributed by the original author with the original implementation. They can be run using the `--classic` flag. There are currently no programs written in the new syntax, however they may be added later.
 
 # Build instructions
-This implementation of Thue depends on `GNU getopt` as it uses `getopt_long` (but non-GNU implementations of the C library that have `getopt_long` may also work). In addition, a C++ compiler that supports C++20 is required (this program compiles with both GCC 11.2.1 and Clang 13.0.0).
+This implementation of Thue depends on `GNU getopt` as it uses `getopt_long` (but non-GNU implementations of `getopt` that have `getopt_long` may also work). In addition, a C++ compiler that supports C++20 is required (this program compiles with both GCC 11.2.1 and Clang 13.0.0).
 
 Enclosed is a Meson build description which can be used to build Thue. To use Meson to build the program simply run the commands
 
