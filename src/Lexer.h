@@ -64,10 +64,7 @@ private:
   void        synchronize(const std::size_t old_index) noexcept;
 
   // TOKENIZERS
-  Token end_of_pattern();
-  Token pattern_separator();
   Token separator();
-  Token start_of_pattern();
   Token string();
   Token tokenize(auto type);
 

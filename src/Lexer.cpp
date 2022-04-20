@@ -154,12 +154,6 @@ Token Lexer::get_token()
         return get_token();
       case '=':
         return separator();
-      case '{':
-        return start_of_pattern();
-      case '|':
-        return pattern_separator();
-      case '}':
-        return end_of_pattern();
       case EOF:
         return Token(Token::Type::END);
       default:
@@ -222,13 +216,7 @@ void Lexer::synchronize(const std::size_t old_index) noexcept
 /*************
  * TOKENIZERS *
  *************/
-Token Lexer::end_of_pattern() { return tokenize(Token::Type::END_OF_PATTERN); }
-
-Token Lexer::pattern_separator() { return tokenize(Token::Type::PATTERN_SEPARATOR); }
-
 Token Lexer::separator() { return tokenize(Token::Type::SEPARATOR); }
-
-Token Lexer::start_of_pattern() { return tokenize(Token::Type::START_OF_PATTERN); }
 
 Token Lexer::string()
 {
