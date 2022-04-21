@@ -73,8 +73,8 @@ bool Match::match()
     reset();
 
     try {
-      if (locate_anchor(alternative)) anchored_fixed_point_deduce(alternative);
-      else unanchored_fixed_point_deduce(alternative);
+      if (locate_anchor(alternative)) fixed_point_deduce(alternative, true);
+      else fixed_point_deduce(alternative, false);
     }
     catch (const Contradiction& c) {
       match_index++;
@@ -134,7 +134,7 @@ Match::operator bool()
 /***************************
  * PRIVATE MEMBER FUNCTIONS *
  ***************************/
-bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
+bool Match::deduce(Constituent& c1, Constituent& c2, bool anchored)
 {
   switch (c1.type) {
     case Constituent::Type::CHARACTER:
@@ -147,6 +147,9 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
           break;
         case Constituent::Type::LITERAL:
           deduce_character_and_literal(c1, c2);
+          break;
+        case Constituent::Type::END:
+          if (!anchored) deduce_character_on_left(c1, c2);
           break;
         case Constituent::Type::RECURSION:
           deduce_recursion_on_right(c1, c2);
@@ -161,7 +164,7 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
           deduce_string_and_character(c1, c2);
           break;
         case Constituent::Type::LITERAL:
-          deduce_string_and_literal(c1, c2);
+          if (anchored) deduce_string_and_literal(c1, c2);
           break;
         case Constituent::Type::END:
           deduce_string_on_left(c1, c2);
@@ -176,7 +179,7 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
           deduce_literal_and_character(c1, c2);
           break;
         case Constituent::Type::STRING:
-          deduce_literal_and_string(c1, c2);
+          if (anchored) deduce_literal_and_string(c1, c2);
           break;
         case Constituent::Type::RECURSION:
           deduce_recursion_on_right(c1, c2);
@@ -189,6 +192,12 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
       switch (c2.type) {
         case Constituent::Type::STRING:
           deduce_string_on_right(c1, c2);
+          break;
+        case Constituent::Type::CHARACTER:
+          if (!anchored) deduce_character_on_right(c1, c2);
+          break;
+        case Constituent::Type::END:
+          if (!anchored) return false;
           break;
         default:
           break;
@@ -211,7 +220,7 @@ bool Match::anchored_deduce(Constituent& c1, Constituent& c2)
   return c1.matched && c2.matched;
 }
 
-void Match::anchored_fixed_point_deduce(auto& alternative)
+void Match::fixed_point_deduce(auto& alternative, bool anchored)
 {
   bool changing                 = false;
   int  last_number_of_unmatched = 0;
@@ -225,7 +234,10 @@ void Match::anchored_fixed_point_deduce(auto& alternative)
       Constituent& first_constituent  = *c1;
       Constituent& second_constituent = *c2;
 
-      if (!anchored_deduce(first_constituent, second_constituent)) {
+      bool deduced                    = anchored ? deduce(first_constituent, second_constituent, true)
+                                                 : deduce(first_constituent, second_constituent, false);
+
+      if (!deduced) {
         matched = false;
         number_of_unmatched++;
       }
@@ -551,113 +563,4 @@ void Match::reset()
 
   //   return k < 0;
   // });
-}
-
-bool Match::unanchored_deduce(Constituent& c1, Constituent& c2)
-{
-  switch (c1.type) {
-    case Constituent::Type::CHARACTER:
-      switch (c2.type) {
-        case Constituent::Type::CHARACTER:
-          deduce_character_and_character(c1, c2);
-          break;
-        case Constituent::Type::STRING:
-          deduce_character_and_string(c1, c2);
-          break;
-        case Constituent::Type::LITERAL:
-          deduce_character_and_literal(c1, c2);
-          break;
-        case Constituent::Type::END:
-          deduce_character_on_left(c1, c2);
-          break;
-        case Constituent::Type::RECURSION:
-          deduce_recursion_on_right(c1, c2);
-          break;
-        default:
-          break;
-      }
-      break;
-    case Constituent::Type::STRING:
-      switch (c2.type) {
-        case Constituent::Type::CHARACTER:
-          deduce_string_and_character(c1, c2);
-          break;
-        case Constituent::Type::END:
-          deduce_string_on_left(c1, c2);
-          break;
-        default:
-          break;
-      }
-      break;
-    case Constituent::Type::LITERAL:
-      switch (c2.type) {
-        case Constituent::Type::CHARACTER:
-          deduce_literal_and_character(c1, c2);
-          break;
-        case Constituent::Type::RECURSION:
-          deduce_recursion_on_right(c1, c2);
-          break;
-        default:
-          break;
-      }
-      break;
-    case Constituent::Type::START:
-      switch (c2.type) {
-        case Constituent::Type::STRING:
-          deduce_string_on_right(c1, c2);
-          break;
-        case Constituent::Type::CHARACTER:
-          deduce_character_on_right(c1, c2);
-          break;
-        case Constituent::Type::END:
-          return false;
-        default:
-          break;
-      }
-      break;
-    case Constituent::Type::RECURSION:
-      switch (c2.type) {
-        case Constituent::Type::CHARACTER:
-        case Constituent::Type::LITERAL:
-          deduce_recursion_on_left(c1, c2);
-          break;
-        default:
-          break;
-      }
-      break;
-    default:
-      break;
-  }
-
-  return c1.matched && c2.matched;
-}
-
-void Match::unanchored_fixed_point_deduce(auto& alternative)
-{
-  bool changing                 = false;
-  int  last_number_of_unmatched = 0;
-  bool matched                  = false;
-
-  do {
-    index                   = 0;
-    int number_of_unmatched = 0;
-
-    for (auto c1 = alternative.begin(), c2 = alternative.begin() + 1; c2 != alternative.end(); c1++, c2++) {
-      Constituent& first_constituent  = *c1;
-      Constituent& second_constituent = *c2;
-
-      if (!unanchored_deduce(first_constituent, second_constituent)) {
-        matched = false;
-        number_of_unmatched++;
-      }
-    }
-
-    if (matched) break;
-
-    if (last_number_of_unmatched != number_of_unmatched) {
-      changing                 = true;
-      last_number_of_unmatched = number_of_unmatched;
-    }
-    else changing = false;
-  } while (changing);
 }
