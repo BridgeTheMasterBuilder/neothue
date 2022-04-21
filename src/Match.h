@@ -55,7 +55,7 @@ struct Constituent {
 class Match {
 public:
   // CONSTRUCTORS
-  Match(const Pattern& pattern, const std::string& string, const bool submatch = false);
+  Match(const Pattern& pattern, const std::string_view string, const bool submatch = false);
 
   // EXCEPTIONS
   struct Contradiction {
@@ -107,7 +107,7 @@ private:
   std::vector<std::size_t>              minimum_lengths;
   const Pattern&                        pattern;
   bool                                  recursive = false;
-  const std::string&                    string;
+  const std::string_view                string;
   bool                                  submatch = false;
 };
 

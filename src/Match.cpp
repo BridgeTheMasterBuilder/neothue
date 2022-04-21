@@ -23,7 +23,7 @@
  * CONSTRUCTORS *
  ***************/
 // TODO scan from both ends simultaneously
-Match::Match(const Pattern& pattern, const std::string& string, const bool submatch)
+Match::Match(const Pattern& pattern, const std::string_view string, const bool submatch)
     : pattern(pattern), string(string), submatch(submatch)
 {
   enum
@@ -525,9 +525,9 @@ bool Match::maybe_recurse(auto& alternative)
 
     for (auto& constituent : alternative)
       if (constituent.type == Constituent::Type::RECURSION && constituent.matched) {
-        const auto [start, end]     = constituent.possible_indices;
+        const auto [start, end]          = constituent.possible_indices;
 
-        const std::string substring = string.substr(start, end - start);
+        const std::string_view substring = string.substr(start, end - start);
 
         Match match(pattern, substring, true);
 
