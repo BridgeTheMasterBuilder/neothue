@@ -98,7 +98,7 @@ initial state = string ;
 
 Which is actually a regular language, which is very ironic considering that Thue itself is a language for working with unrestricted grammars. It is described by the regular expression 
 
-`/(('1*'|"1*"|1[1'"]*)=('1*'|"1*"|1[1'"]*) )*('1*'|"1*"|1[1'"]*)?/`.
+`/(('[^']*'|"[^"]*"|[^'"].*)=('[^']*'|"[^"]*"|[^'"].*) )*('[^']*'|"[^"]*"|[^'"].*)?/`.
 
 (The above RE is not in any particular syntax. `.` really does mean *any* character, including newline. Also, all unnecessary whitespace is omitted, so this regular expression does not represent all possible strings which constitute a valid Thue program)
 
