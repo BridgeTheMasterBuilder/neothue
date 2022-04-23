@@ -74,6 +74,7 @@ public:
 private:
   // PRIVATE MEMBER FUNCTIONS
   void                                check_for_contradiction(const Constituent& c);
+  // bool                                deduce(Constituent& c1, Constituent& c2, bool anchored);
   bool                                deduce(Constituent& c1, Constituent& c2, bool anchored);
   void                                deduce_character_and_character(Constituent& c1, Constituent& c2);
   void                                deduce_character_and_string(Constituent& c1, Constituent& c2);
@@ -96,16 +97,21 @@ private:
   IndexPair                           match(const std::string_view literal);
   bool                                maybe_recurse(auto& alternative);
   void                                reset();
+  void                                update_index(IndexPair indices);
+  void                                update_index();
+  std::size_t&                        index();
 
   // PRIVATE DATA
   std::vector<std::vector<Constituent>> alternatives;
-  std::size_t                           index       = 0;
-  std::size_t                           match_index = 0;
+  std::size_t                           forward_index  = 0;
+  std::size_t                           backward_index = string.size() - 1;
+  std::size_t                           match_index    = 0;
   std::vector<std::size_t>              minimum_lengths;
   const Pattern&                        pattern;
   bool                                  recursive = false;
   const std::string_view                string;
   bool                                  submatch = false;
+  bool                                  forward  = true;
 };
 
 #endif

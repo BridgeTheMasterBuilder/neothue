@@ -74,12 +74,10 @@ int main()
  //
     { "{c}=b ab",                                    "bb"  },
     { "{foo}=b barfoo",                              "barb"},
-    { "{cc}=b abc",                                  "bc"  },
     { "{cfoo}=b abfoo",                              "ab"  },
     { "{sfoo}=b barfoobaz",                          "bbaz"},
     { "{fooc}=b fooab",                              "bb"  },
     { "{foos}=b afoobar",                            "ab"  },
-    { "{ccc}=b abcd",                                "bd"  },
     { "{ccfoo}=b abfooc",                            "bc"  },
     { "{cfooc}=b abfoocd",                           "abd" },
     { "{cfoos}=b abfoobar",                          "ab"  },
@@ -132,6 +130,8 @@ int main()
     { "{c_1...c_1 | foo...foo | bar}=b fooabarbfoo",       "b"},
     { "{c_1...c_1 | foo...foo | bar}=b fooafoobarfoobfoo", "b"},
     { "{c_1...c_1 | foo...foo | bar}=b fooafoobarfooafoo", "b"},
+    { "{cc}=b abc",                                        "b"},
+    { "{ccc}=b abcd",                                      "b"},
   };
 
   for (const auto& [grammar, result] : ambiguous_patterns)

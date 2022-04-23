@@ -227,17 +227,40 @@ void Match::fixed_point_deduce(auto& alternative, bool anchored)
   bool matched                  = false;
 
   do {
-    index                   = 0;
+    forward_index           = 0;
+    backward_index          = string.size() - 1;
     int number_of_unmatched = 0;
 
-    for (auto c1 = alternative.begin(), c2 = alternative.begin() + 1; c2 != alternative.end(); c1++, c2++) {
+    // for (auto c1 = alternative.begin(), c2 = alternative.begin() + 1; c2 != alternative.end(); c1++, c2++) {
+    for (auto c1 = alternative.begin(), c2 = alternative.end() - 1;
+         (c1 + 1) != alternative.end() && (c2 - 1) != alternative.begin();
+         c1++, c2--) {
       Constituent& first_constituent  = *c1;
-      Constituent& second_constituent = *c2;
+      Constituent& second_constituent = *(c1 + 1);
+      Constituent& third_constituent  = *(c2 - 1);
+      Constituent& fourth_constituent = *c2;
 
-      bool deduced                    = anchored ? deduce(first_constituent, second_constituent, true)
+      bool f_deduced                  = anchored ? deduce(first_constituent, second_constituent, true)
                                                  : deduce(first_constituent, second_constituent, false);
 
-      if (!deduced) {
+      // if (!deduced) {
+      //   matched = false;
+      //   number_of_unmatched++;
+      // }
+
+      forward                         = false;
+
+      bool b_deduced                  = anchored ? deduce(third_constituent, fourth_constituent, true)
+                                                 : deduce(third_constituent, fourth_constituent, false);
+
+      // if (!deduced) {
+      //   matched = false;
+      //   number_of_unmatched++;
+      // }
+
+      forward                         = true;
+
+      if (!f_deduced || !b_deduced) {
         matched = false;
         number_of_unmatched++;
       }
@@ -320,7 +343,8 @@ bool Match::deduce_literal(Constituent& l)
   l.possible_indices = { start, end };
   l.matched          = true;
 
-  index              = end;
+  // index              = end;
+  update_index(l.possible_indices);
 
   return true;
 }
@@ -330,7 +354,8 @@ void Match::deduce_character_and_character(Constituent& c1, Constituent& c2)
   if (!c1.matched && c2.matched) deduce_character_on_left(c1, c2);
   else if (c1.matched && !c2.matched) deduce_character_on_right(c1, c2);
 
-  index++;
+  // index++;
+  update_index();
 }
 
 void Match::deduce_character_and_string(Constituent& c, Constituent& s)
@@ -338,7 +363,8 @@ void Match::deduce_character_and_string(Constituent& c, Constituent& s)
   if (!c.matched && s.matched) deduce_character_on_left(c, s);
   else if (c.matched && !s.matched) deduce_string_on_right(c, s);
 
-  index++;
+  // index++;
+  update_index();
 }
 
 void Match::deduce_character_and_literal(Constituent& c, Constituent& l)
@@ -355,7 +381,8 @@ void Match::deduce_character_and_literal(Constituent& c, Constituent& l)
 
   deduce_character_on_left(c, l);
 
-  index++;
+  // index++;
+  update_index();
 }
 
 void Match::deduce_character_on_left(Constituent& c1, Constituent& c2)
@@ -402,7 +429,8 @@ void Match::deduce_string_and_character(Constituent& s, Constituent& c)
   else if (s.matched) deduce_character_on_right(s, c);
   else if (c.matched) deduce_string_on_left(s, c);
 
-  index++;
+  // index++;
+  update_index();
 }
 
 void Match::deduce_string_and_literal(Constituent& s, Constituent& l)
@@ -417,7 +445,8 @@ void Match::deduce_string_and_literal(Constituent& s, Constituent& l)
 
     deduce_string_on_left(s, l);
 
-    index = end;
+    // index              = end;
+    update_index(l.possible_indices);
   }
   else deduce_string_on_left(s, l);
 }
@@ -474,7 +503,8 @@ void Match::deduce_literal_and_character(Constituent& l, Constituent& c)
     l.possible_indices = { start, end };
     l.matched          = true;
 
-    index              = end;
+    // index              = end;
+    update_index(l.possible_indices);
   }
 
   deduce_character_on_right(l, c);
@@ -490,7 +520,8 @@ void Match::deduce_literal_and_string(Constituent& l, Constituent& s)
     l.possible_indices = { start, end };
     l.matched          = true;
 
-    index              = end;
+    // index              = end;
+    update_index(l.possible_indices);
   }
 
   deduce_string_on_right(l, s);
@@ -500,7 +531,7 @@ std::pair<std::size_t, std::size_t> Match::find_start_and_end_of_literal(const C
 {
   const std::string_view literal = l.deduced_value;
 
-  const std::size_t start        = string.find(literal, index);
+  const std::size_t start        = forward ? string.find(literal, index()) : string.rfind(literal, index());
 
   std::size_t end                = start + literal.size();
   if (end >= string.size()) end = string.size();
@@ -522,7 +553,7 @@ IndexPair Match::match(const Constituent c) { return match(c.deduced_value); }
 
 IndexPair Match::match(const std::string_view literal)
 {
-  std::size_t index_of_match = string.find(literal);
+  std::size_t index_of_match = forward ? string.find(literal) : string.rfind(literal);
 
   if (index_of_match == std::string::npos) return { std::string::npos, std::string::npos };
   else return { index_of_match, index_of_match + literal.size() };
@@ -556,6 +587,7 @@ bool Match::maybe_recurse(auto& alternative)
 void Match::reset()
 {
   recursive = false;
+  forward   = true;
 
   pattern.map.clear();
   // std::erase_if(pattern.map, [](const auto& element) {
@@ -564,3 +596,17 @@ void Match::reset()
   //   return k < 0;
   // });
 }
+
+void Match::update_index(IndexPair indices)
+{
+  if (forward) forward_index = indices.second;
+  else backward_index = indices.first - 1;
+}
+
+void Match::update_index()
+{
+  if (forward) forward_index++;
+  else backward_index--;
+}
+
+std::size_t& Match::index() { return forward ? forward_index : backward_index; }
