@@ -19,6 +19,8 @@
 #include "Match.h"
 #include <iostream>
 
+class RecursiveMatchFailed { };
+
 /***************
  * CONSTRUCTORS *
  ***************/
@@ -69,26 +71,31 @@ Match::Match(const Pattern& pattern, const std::string_view string, const bool s
  **************************/
 bool Match::match()
 {
+  std::cout << "Attempting to pattern match against " << string << "\n";
   for (auto& alternative : alternatives) {
     reset();
 
     try {
       if (locate_anchor(alternative)) fixed_point_deduce(alternative, true);
       else fixed_point_deduce(alternative, false);
+
+      // TODO don't use operator bool()
+      if (!*this) {
+        match_index++;
+        continue;
+      }
+
+      return maybe_recurse(alternative);
     }
     catch (const Contradiction& c) {
       match_index++;
       std::cout << "This alternative wasn't a match, moving on\n";
       continue;
     }
-
-    // TODO don't use operator bool()
-    if (!*this) {
-      match_index++;
+    catch (const RecursiveMatchFailed& rf) {
+      std::cout << "Recursive match failed.\n";
       continue;
     }
-
-    return maybe_recurse(alternative);
   }
 
   return false;
@@ -222,58 +229,60 @@ bool Match::deduce(Constituent& c1, Constituent& c2, bool anchored)
 
 void Match::fixed_point_deduce(auto& alternative, bool anchored)
 {
-  bool changing                 = false;
-  int  last_number_of_unmatched = 0;
-  bool matched                  = false;
+  // bool changing                 = false;
+  // int  last_number_of_unmatched = 0;
+  // bool matched                  = false;
 
-  do {
-    forward_index           = 0;
-    backward_index          = string.size() - 1;
-    int number_of_unmatched = 0;
+  // do {
+  forward_index  = 0;
+  backward_index = string.size() - 1;
+  // int number_of_unmatched = 0;
 
-    // for (auto c1 = alternative.begin(), c2 = alternative.begin() + 1; c2 != alternative.end(); c1++, c2++) {
-    for (auto c1 = alternative.begin(), c2 = alternative.end() - 1;
-         (c1 + 1) != alternative.end() && (c2 - 1) != alternative.begin();
-         c1++, c2--) {
-      Constituent& first_constituent  = *c1;
-      Constituent& second_constituent = *(c1 + 1);
-      Constituent& third_constituent  = *(c2 - 1);
-      Constituent& fourth_constituent = *c2;
+  // for (auto c1 = alternative.begin(), c2 = alternative.begin() + 1; c2 != alternative.end(); c1++, c2++) {
+  for (auto c1 = alternative.begin(), c2 = alternative.end() - 1;
+       (c1 + 1) != alternative.end() && (c2 - 1) != alternative.begin();
+       c1++, c2--) {
+    Constituent& first_constituent  = *c1;
+    Constituent& second_constituent = *(c1 + 1);
+    Constituent& third_constituent  = *(c2 - 1);
+    Constituent& fourth_constituent = *c2;
 
-      bool f_deduced                  = anchored ? deduce(first_constituent, second_constituent, true)
-                                                 : deduce(first_constituent, second_constituent, false);
+    // bool f_deduced                  = anchored ? deduce(first_constituent, second_constituent, true)
+    anchored ? deduce(first_constituent, second_constituent, true)
+             : deduce(first_constituent, second_constituent, false);
 
-      // if (!deduced) {
-      //   matched = false;
-      //   number_of_unmatched++;
-      // }
+    // if (!deduced) {
+    //   matched = false;
+    //   number_of_unmatched++;
+    // }
 
-      forward                         = false;
+    forward = false;
 
-      bool b_deduced                  = anchored ? deduce(third_constituent, fourth_constituent, true)
-                                                 : deduce(third_constituent, fourth_constituent, false);
+    // bool b_deduced                  = anchored ? deduce(third_constituent, fourth_constituent, true)
+    anchored ? deduce(third_constituent, fourth_constituent, true)
+             : deduce(third_constituent, fourth_constituent, false);
 
-      // if (!deduced) {
-      //   matched = false;
-      //   number_of_unmatched++;
-      // }
+    // if (!deduced) {
+    //   matched = false;
+    //   number_of_unmatched++;
+    // }
 
-      forward                         = true;
+    forward = true;
 
-      if (!f_deduced || !b_deduced) {
-        matched = false;
-        number_of_unmatched++;
-      }
-    }
+    // if (!f_deduced || !b_deduced) {
+    //   matched = false;
+    //   number_of_unmatched++;
+    // }
+  }
 
-    if (matched) break;
+  //   if (matched) break;
 
-    if (last_number_of_unmatched != number_of_unmatched) {
-      changing                 = true;
-      last_number_of_unmatched = number_of_unmatched;
-    }
-    else changing = false;
-  } while (changing);
+  //   if (last_number_of_unmatched != number_of_unmatched) {
+  //     changing                 = true;
+  //     last_number_of_unmatched = number_of_unmatched;
+  //   }
+  //   else changing = false;
+  // } while (changing);
 }
 
 void Match::check_for_contradiction(const Constituent& c)
@@ -580,7 +589,10 @@ bool Match::maybe_recurse(auto& alternative)
       }
   }
 
-  return matched;
+  // return matched;
+  if (!matched) throw RecursiveMatchFailed();
+
+  return true;
 }
 
 // TODO when should only temporary indices be reset?
@@ -589,7 +601,7 @@ void Match::reset()
   recursive = false;
   forward   = true;
 
-  pattern.map.clear();
+  // pattern.map.clear();
   // std::erase_if(pattern.map, [](const auto& element) {
   //   const auto& [k, _] = element;
 
