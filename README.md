@@ -25,7 +25,7 @@ meson compile -C <build directory>
 
 Which will build the program and place it in `<build directory>`.
 
-To build and run tests, do
+To build and run tests (depends on the [μt](https://github.com/boost-ext/ut) framework), do
 
 ```
 meson configure -Dtest=true <build directory>
@@ -117,6 +117,7 @@ The grammar is extremely loose. The only pattern that constitutes an illegal Thu
 - The original language had no concept of quoting which placed certain restrictions on strings. For example, the left hand side of a production cannot contain ::=, because that would be interpreted as a production separator. Moreover, strings cannot contain newline characters and are also also implicitly terminated by a newline. The ability to quote allows strings to be truly arbitrary.
 - Treatment of whitespace differs. In this implementation, whitespace is completely ignored apart from acting as a delimiter. Thus, unquoted strings cannot contain whitespace.
 - This implementation does not use a terminating "empty production" to mark the end of the grammar as it is unnecessary. One could also argue that it is not consistent with the rest of the language, because a production with an empty left hand side semantically entails an infinite loop. 
+- Input read interactively from standard input does not discard the newline character. 
 
 However, if you pass the flag `-c, --classic` then Thue programs written in the original syntax are accepted and behave as they do in the original. The only exception is that the two implementations are nondeterministic in different ways because different pseudorandom algorithms are used. Nondeterminism in this implementation also differs slightly in the way it's handled. After the productions have been randomly shuffled they are applied one by one scanning the shuffled productions from top to bottom. However, they are also applied in a random fashion, either starting from the left side of the string or the right.
 
