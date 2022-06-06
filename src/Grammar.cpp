@@ -124,6 +124,7 @@ void Grammar::apply_production(Production& production, std::string& string, cons
 
     string.replace(index_of_match, lhs.size(), "");
   }
+  else string.replace(index_of_match, lhs.size(), rhs);
 }
 
 void Grammar::rewrite_production(Production& production, const std::string_view rhs) { production.second = rhs; }
