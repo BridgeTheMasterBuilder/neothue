@@ -11,10 +11,10 @@ The following options are supported:
 -l, --left-to-right	apply productions deterministically from left-to-right
 -r, --right-to-left	apply productions deterministically from right-to-left
 ```
-The `examples` directory contains Thue programs distributed by the original author with the original implementation. They can be run using the `--classic` flag. There are currently no programs written in the new syntax, however they may be added later.
+The `examples` directory contains Thue programs distributed by the original author with the original implementation. They can be run using the `--classic` flag. Currently the only program written in the new syntax distributed with this implementation is a simple Hello World, however more programs may be added later.
 
 # Build instructions
-This implementation of Thue depends on `GNU getopt` as it uses `getopt_long` (but non-GNU implementations of `getopt` that have `getopt_long` may also work). In addition, a C++ compiler that supports C++20 is required (this program compiles with both GCC 11.3.0 and Clang 14.0.4).
+This implementation of Thue depends on `GNU getopt` as it uses `getopt_long` (but non-GNU implementations of `getopt` that have `getopt_long` may also work - for instance FreeBSD). In addition, a C++ compiler that supports C++20 is required (this program compiles with both GCC 11.3.0 and Clang 14.0.4).
 
 Enclosed is a Meson build description which can be used to build Thue. To use Meson to build the program simply run the commands
 
