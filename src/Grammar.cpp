@@ -110,7 +110,7 @@ void Grammar::apply_production(Production& production, std::string& string, cons
   if ((index = rhs.find(":::")) != std::string::npos) {
     std::string input;
     std::getline(std::cin, input);
-    if (!std::cin.eof()) input += '\n';
+    if (!classic && !std::cin.eof()) input += '\n';
 
     std::string new_rhs = rhs;
     new_rhs.replace(index, 3, input);
