@@ -17,7 +17,10 @@
 */
 
 #include "Grammar.h"
+#include <cstddef>
 #include <iostream>
+#include <numeric>
+#include <vector>
 
 /***************
  * CONSTRUCTORS *
@@ -41,12 +44,18 @@ void Grammar::add_production(const std::string_view lhs, const std::string_view 
 
 void Grammar::apply_productions(std::string& initial_state)
 {
+  using enum application_order;
+
   if (debug) std::cout << "Initial state: \"" << initial_state << "\"\n";
 
   while (true) {
     bool match_found = false;
 
-    for (auto& production : productions) {
+    if (order == NONDETERMINISTIC) shuffle();
+
+    for (auto index : indices) {
+      auto& production                 = productions[index];
+
       const auto& lhs                  = production.first;
 
       const std::size_t index_of_match = match(lhs, initial_state);
@@ -57,6 +66,8 @@ void Grammar::apply_productions(std::string& initial_state)
       apply_production(production, initial_state, index_of_match);
 
       if (debug) std::cout << initial_state << '\n';
+
+      if (match_found) break;
     }
 
     if (!classic) {
@@ -92,6 +103,9 @@ void Grammar::apply_productions(std::string& initial_state)
 void Grammar::sort()
 {
   using enum application_order;
+
+  indices = std::vector<std::size_t>(productions.size());
+  std::iota(indices.begin(), indices.end(), 0);
 
   if (order == LEFT_TO_RIGHT) sort_left_to_right();
   else if (order == RIGHT_TO_LEFT) sort_right_to_left();
@@ -129,8 +143,8 @@ void Grammar::apply_production(Production& production, std::string& string, cons
 
 void Grammar::rewrite_production(Production& production, const std::string_view rhs) { production.second = rhs; }
 
-void Grammar::shuffle() { std::shuffle(productions.begin(), productions.end(), rng); }
+void Grammar::shuffle() { std::shuffle(indices.begin(), indices.end(), rng); }
 
-void Grammar::sort_left_to_right() { std::sort(productions.begin(), productions.end()); }
+void Grammar::sort_left_to_right() { std::sort(indices.begin(), indices.end()); }
 
-void Grammar::sort_right_to_left() { std::sort(productions.rbegin(), productions.rend()); }
+void Grammar::sort_right_to_left() { std::sort(indices.rbegin(), indices.rend()); }

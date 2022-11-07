@@ -20,12 +20,13 @@
 #define GRAMMAR_H
 
 #include "concepts.h"
+#include <algorithm>
+#include <cstddef>
 #include <random>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
-#include <algorithm>
 
 using Production = std::pair<std::string, std::string>;
 
@@ -74,11 +75,12 @@ private:
   void sort_right_to_left();
 
   // PRIVATE DATA
-  std::vector<Production> productions;
-  std::mt19937            rng;
-  const application_order order;
-  const bool              classic;
-  const bool              debug;
+  std::vector<Production>  productions;
+  std::vector<std::size_t> indices;
+  std::mt19937             rng;
+  const application_order  order;
+  const bool               classic;
+  const bool               debug;
 };
 
 #endif
