@@ -1,6 +1,13 @@
-# Introduction
+# Neothue
+- [Introduction](#introduction)
+- [Build instructions](#build-instructions)
+- [Running the interpreter](#running-the-interpreter)
+- [Syntax and semantics](#syntax-and-semantics)
+- [Differences from original](#differences-from-original)
+- [Reporting bugs](#reporting-bugs)
 
-Thue is an [esoteric programming language (esolang)](https://esolangs.org/wiki/Esoteric_programming_language) created by John Colagioia in 2000. It is based around [string rewriting](https://en.wikipedia.org/wiki/Semi-Thue_system) (string rewriting systems are also known as Semi-Thue systems, named after the Norwegian mathematician Axel Thue, which is also this language's namesake). Semi-Thue systems are essentially equivalent to Chomsky's [type-0 grammars](https://en.wikipedia.org/wiki/Unrestricted_grammar) which are in turn essentially equivalent to Turing machines. Thus, Thue is Turing complete. Personally I find Thue very interesting because it's like the perfect mix between Turing machines and lambda calculus. This implementation completely overhauls the syntax and clarifies semantic ambiguities in the original.
+# Introduction
+Thue is an [esoteric programming language (esolang)](https://esolangs.org/wiki/Esoteric_programming_language) created by John Colagioia in 2000. It is based around [string rewriting](https://en.wikipedia.org/wiki/Semi-Thue_system) (string rewriting systems are also known as Semi-Thue systems, named after the Norwegian mathematician Axel Thue, which is also this language's namesake). Semi-Thue systems are essentially equivalent to Chomsky's [type-0 grammars](https://en.wikipedia.org/wiki/Unrestricted_grammar) which are in turn essentially equivalent to Turing machines. Thus, Thue is Turing complete. Personally I find Thue very interesting because it represents an elegant union of Turing machines and lambda calculus. Neothue completely overhauls the syntax and clarifies semantic ambiguities in the original Thue.
 
 The following options are supported:
 
@@ -11,12 +18,13 @@ The following options are supported:
 -l, --left-to-right	apply productions deterministically from left-to-right
 -r, --right-to-left	apply productions deterministically from right-to-left
 ```
-The `examples` directory contains Thue programs distributed by the original author with the original implementation. They can be run using the `--classic` flag. Currently the only program written in the new syntax distributed with this implementation is a simple Hello World, however more programs may be added later.
-
+The `examples` directory contains Thue programs distributed by the original author with the original implementation. They can be run using the `--classic` flag. Currently the only program written in the new syntax distributed with this implementation is a simple Hello World, however more programs may be added later.  
+  
+[(back to top)](#neothue)
 # Build instructions
-This implementation of Thue depends on `GNU getopt` as it uses `getopt_long` (but non-GNU implementations of `getopt` that have `getopt_long` may also work - for instance FreeBSD). In addition, a C++ compiler that supports C++20 is required (this program compiles with both GCC 11.3.0 and Clang 14.0.4).
+Neothue depends on `GNU getopt` as it uses `getopt_long` (but non-GNU implementations of `getopt` that have `getopt_long` may also work - for instance FreeBSD). In addition, a C++ compiler that supports C++20 is required (this program compiles with both GCC 12.2.1 and Clang 15.0.6).
 
-Enclosed is a Meson build description which can be used to build Thue. To use Meson to build the program simply run the commands
+Enclosed is a Meson build description which can be used to build the interpreter. To use Meson to build the program simply run the commands
 
 ```
 meson setup <build directory>
@@ -33,17 +41,19 @@ meson compile -C <build directory>
 meson test -C <build directory>
 ```
 
+[(back to top)](#neothue)
 # Running the interpreter
 ```
-thue [options] file
+nthue [options] file
 ```
 
-If any arguments remain after processing command-line options, the first non-option argument is taken to be a filename and Thue source code is read from that file and the rest of the arguments are ignored.
+If any arguments remain after processing command-line options, the first non-option argument is taken to be a filename and {Neot,T}hue source code is read from that file and the rest of the arguments are ignored.
 
 **Note:** Options may come before or after the filename
 
+[(back to top)](#neothue)
 # Syntax and semantics
-Thue's lexical grammar is extremely simple. There are only two types of lexemes: strings and the separator symbol "=". Strings may be quoted; both single quotes and double quotes are supported but they must be symmetrical. The following is the complete lexical syntax in EBNF notation:
+Neothue's lexical grammar is extremely simple. There are only two types of lexemes: strings and the separator symbol "=". Strings may be quoted; both single quotes and double quotes are supported but they must be symmetrical. The following is the complete lexical syntax in EBNF notation:
 
 ```
 string = "'", { symbol - "'" }, "'"
@@ -82,13 +92,13 @@ That is, the former does not mean that the second production rewrites β to the 
 
 **Note 4:** The output operator `~` outputs everything to its right to standard output. Because both the input and output operators behave exactly like regular productions, if the output operator appears in the initial state of the program it is only applied once (applying this production effectively consumes the output operator and erases it from the initial state). This is done in the interest of making it not completely unusable, because leaving the output operator in the initial state means that it will be continuously applied. However, if the output operator appears on the right hand side of a production, it is not consumed, which allows productions to have side effects which are triggered whenever they are applied.
 
-**Note 5:** In Thue, both of these operators may be redefined by the user. Thus, they do not have their normal behavior when they appear on the left hand side of a production.
+**Note 5:** In Neothue, both of these operators may be redefined by the user. Thus, they do not have their normal behavior when they appear on the left hand side of a production.
 
 **Note 6:** Comments start with a semicolon (`;`) and extend to the end of the current line. Comments may appear anywhere except inside quoted strings.
 
 ---
 
-The following is a complete overview of Thue's grammar (previously defined elements have been omitted):
+The following is a complete overview of Neothue's grammar (previously defined elements have been omitted):
 
 ```
 program = { production }, [ initial state ] ;
@@ -100,9 +110,9 @@ Which is actually a regular language, which is very ironic considering that Thue
 
 `/(('[^']*'|"[^"]*"|[^'"].*)=('[^']*'|"[^"]*"|[^'"].*) )*('[^']*'|"[^"]*"|[^'"].*)?/`.
 
-(The above RE is not in any particular syntax. `.` really does mean *any* character, including newline. Also, all unnecessary whitespace is omitted, so this regular expression does not represent all possible strings which constitute a valid Thue program)
+(The above RE is not in any particular syntax. `.` really does mean *any* character, including newline. Also, all unnecessary whitespace is omitted, so this regular expression does not represent all possible strings which constitute a valid Neothue program)
 
-The grammar is extremely loose. The only pattern that constitutes an illegal Thue program is two adjacent strings in a context where a production definition is expected. Everything else is legal, including the empty program as well as a series of ε=ε productions that look like a series of separators if whitespace is omitted: ===.
+The grammar is extremely loose. The only pattern that constitutes an illegal Neothue program is two adjacent strings in a context where a production definition is expected. Everything else is legal, including the empty program as well as a series of ε=ε productions that look like a series of separators if whitespace is omitted: ===.
 
 **Note 1:** Productions with the empty string as their left hand side will never fail to match. They will even match an empty initial state. This makes such productions impractical because it means that any program that contains such a production will never terminate. However, it can be used to implement a kind of non-ending version of the UNIX program `yes`:
 
@@ -111,7 +121,8 @@ The grammar is extremely loose. The only pattern that constitutes an illegal Thu
 ```
 
 **Note 2:** The quoting style of left and right hand sides of a production need not be identical.
-
+  
+[(back to top)](#neothue)
 # Differences from original
 - This implementation uses EBNF-like syntax with = as a separator instead of ::=.
 - The original language had no concept of quoting which placed certain restrictions on strings. For example, the left hand side of a production cannot contain ::=, because that would be interpreted as a production separator. Moreover, strings cannot contain newline characters and are also also implicitly terminated by a newline. The ability to quote allows strings to be truly arbitrary.
@@ -124,7 +135,8 @@ However, if you pass the flag `-c, --classic` then Thue programs written in the 
 For more information consult doc/README.md which is the original specification of the Thue language.
 
 Out of respect for the original author, this implementation is covered by the GPLv3 license, same as the original implementation (even though it uses none of the original code).
-
+  
+[(back to top)](#neothue)
 # Reporting bugs
 If you come across any bugs I would be very grateful if you would let me know by opening an issue here on GitHub. Here are some things I consider to be bugs:
 

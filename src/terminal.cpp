@@ -1,6 +1,6 @@
 /*
-    thue, an interpreter for the Thue metalanguage
-    Copyright (C) 2021  masterbuilder
+    nthue, an interpreter for Neothue, a dialect of the Thue metalanguage
+    Copyright (C) 2022  masterbuilder
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
