@@ -79,7 +79,7 @@ bool maybe_erase_empty_production(std::string& source_code, const std::size_t in
   else return false;
 }
 
-Options parse_command_line_options(int argc, char* argv[])
+Config parse_command_line_options(int argc, char* argv[])
 {
   bool              classic     = false;
   bool              debug       = false;
@@ -120,7 +120,7 @@ Options parse_command_line_options(int argc, char* argv[])
 
   if (argv[optind]) filename = argv[optind];
 
-  return { classic, debug, filename, print_usage, order };
+  return Config { classic, debug, filename, print_usage, order };
 }
 
 // ⍺ → '⍺'

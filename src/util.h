@@ -25,8 +25,14 @@
 #include <string_view>
 #include <tuple>
 
-// Alias
-using Options = std::tuple<bool, bool, std::string_view, bool, application_order>;
+// Command-line options class
+struct Config {
+  const bool classic;
+  const bool debug;
+  const std::string_view filename;
+  const bool print_usage;
+  const application_order order;
+};
 
 // Function prototypes
 void        erase_empty_production(std::string& source_code, const std::size_t index);
@@ -34,7 +40,7 @@ void        escape_quotes(std::string& source_code);
 std::string file_as_string(const std::string_view filename);
 bool        finished_preprocessing(std::string& source_code, const std::size_t index) noexcept;
 bool        maybe_erase_empty_production(std::string& source_code, const std::size_t index);
-Options     parse_command_line_options(int argc, char* argv[]);
+Config      parse_command_line_options(int argc, char* argv[]);
 void        preprocess(std::string& source_code);
 std::size_t quote_initial_state(std::string& source_code, std::size_t index);
 std::size_t quote_lhs(std::string& source_code, std::size_t index);

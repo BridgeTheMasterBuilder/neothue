@@ -27,21 +27,21 @@
 int main(int argc, char* argv[])
 {
   try {
-    const auto [classic, debug, filename, print_usage, order] = parse_command_line_options(argc, argv);
+    const Config config = parse_command_line_options(argc, argv);
 
-    if (print_usage) {
+    if (config.print_usage) {
       usage();
       return EXIT_SUCCESS;
     }
 
-    std::string source_code = file_as_string(filename);
+    std::string source_code = file_as_string(config.filename);
 
-    if (classic) preprocess(source_code);
+    if (config.classic) preprocess(source_code);
 
-    Lexer  lexer(source_code, filename.data());
-    Parser parser(lexer, filename.data(), source_code);
+    Lexer  lexer(source_code, config.filename.data());
+    Parser parser(lexer, config.filename.data(), source_code);
 
-    auto [grammar, initial_state] = parser.parse(order, classic, debug);
+    auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
 
     grammar.apply_productions(initial_state);
   }
