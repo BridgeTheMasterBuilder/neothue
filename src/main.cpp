@@ -23,7 +23,8 @@
 #include <string>
 #include "Lexer.h"
 
-using yy::Lexer;
+using nthue::Lexer;
+using nthue::Parser;
 
 int main(int argc, char* argv[])
 {
@@ -40,12 +41,12 @@ int main(int argc, char* argv[])
     if (config.classic) preprocess(source_code);
 
     Lexer  lexer(source_code, config.filename.data());
+    Parser parser(lexer);
 //
 //    auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
 //
 //    grammar.apply_productions(initial_state);
 
-    yy::parser parser(lexer);
     // TODO get total number of errors?
     if (parser.parse() != 0) throw 0;
   }
@@ -57,6 +58,7 @@ int main(int argc, char* argv[])
     std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
     return EXIT_FAILURE;
   }
+  // TODO hook this up to Bison
 //  catch (const Parser::Syntax_error& se) {
 //    std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
 //    return EXIT_FAILURE;

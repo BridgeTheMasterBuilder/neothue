@@ -19,14 +19,14 @@
 #include "Lexer.h"
 #include "terminal.h"
 #include <iostream>
+#include <algorithm>
 
-
-namespace yy {
+namespace nthue {
   /***************
  * CONSTRUCTORS *
  ***************/
   Lexer::Lexer(const std::string& source_code, const std::string_view filename)
-      : filename(filename.empty() ? "stdin" : filename), source_code(source_code)
+      : filename(filename.empty() ? "stdin" : filename), source_code(source_code), pos(position())
   {
     if (malformed) throw Syntax_error(number_of_errors);
   }
@@ -52,7 +52,7 @@ namespace yy {
           case '=':
             return separator();
           case EOF:
-            return parser::make_YYEOF(location());
+            return Parser::make_YYEOF(location(pos));
           default:
             return string();
         }
@@ -138,6 +138,7 @@ namespace yy {
   int Lexer::get() noexcept
   {
     column_number++;
+    pos += 1;
     return !finished_scanning() ? source_code[index++] : EOF;
   }
 
@@ -166,6 +167,7 @@ namespace yy {
       switch (peek()) {
         case '\n':
           line_number++;
+          pos.lines();
           column_number = 0;
           index++;
           break;
@@ -194,7 +196,8 @@ namespace yy {
  *************/
   Token Lexer::separator() {
     get();
-    return parser::make_SEPARATOR(location()); }
+
+    return Parser::make_SEPARATOR(location()); }
 
   Token  Lexer::string()
   {
@@ -203,12 +206,18 @@ namespace yy {
     const std::string string          = source_code.substr(start_of_string, end_of_string - start_of_string);
     const std::size_t length          = length_of_string(string);
     const std::size_t old_index       = index;
+    const std::size_t number_of_newlines = std::count(string.begin(), string.end(), '\n');
 
     index                             = end_of_string;
+    auto start = pos;
     column_number += length;
+    pos += length;
+    line_number += number_of_newlines;
+    pos.lines(number_of_newlines);
+    auto end = pos;
 
     synchronize(old_index);
 
-    return parser::make_STRING(string, location());
+    return Parser::make_STRING(string, location(start, end));
   }
 }

@@ -7,7 +7,7 @@ sources = files('main.cpp',
            'terminal.cpp',
            'util.cpp',
            'Lexer.cpp',
-           'neothue.tab.cc')
+           'Parser.cpp')
 
 lexer_test_sources = files('Lexer.cpp', 'terminal.cpp', '../tests/lexer_tests.cpp')
 

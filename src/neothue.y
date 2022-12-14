@@ -1,23 +1,24 @@
 %require "3.8.2"
 %language "C++"
 
-%define api.namespace {yy}
-%define api.parser.class {parser}
+%define api.namespace {nthue}
+%define api.parser.class {Parser}
 %define api.value.type variant
 %define api.token.constructor
+%define api.location.file "Token.h"
 %define parse.assert
 %define parse.error detailed
 %define parse.lac full
 
-%defines
 %locations
-%header
+%header "Parser.h"
+%output "Parser.cpp"
 
 %token SEPARATOR "="
 %token <std::string> STRING "string"
 
 %code requires {
-    namespace yy {
+    namespace nthue {
         class Lexer;
     }
  }
@@ -42,9 +43,10 @@ initial_state: STRING
 | ;
 
 %%
-namespace yy {
+namespace nthue {
     // TODO get total number of errors?
-    void parser::error(const location_type& loc, const std::string& msg) {
+    // TODO look up error message
+    void Parser::error(const location_type& loc, const std::string& msg) {
         std::cerr << loc << msg << '\n';
     }
 }

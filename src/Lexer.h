@@ -22,10 +22,11 @@
 #include <deque>
 #include <string>
 #include <string_view>
-#include "neothue.tab.hh"
+#include "Parser.h"
+#include "Token.h"
 
-namespace yy {
-  using Token = parser::symbol_type;
+namespace nthue {
+  using Token = Parser::symbol_type;
 
   class Lexer {
   public:
@@ -72,6 +73,7 @@ namespace yy {
     mutable bool                 malformed        = false;
     mutable int                  number_of_errors = 0;
     const std::string&           source_code;
+    position                     pos;
     static constexpr const char* delimiters = "\t\n\r ;=}";
   };
 }
