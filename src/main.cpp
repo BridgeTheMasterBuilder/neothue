@@ -16,14 +16,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "Grammar.h"
-#include "Parser.h"
 #include "terminal.h"
 #include "util.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include "neothue.tab.hh"
+#include "Lexer.h"
+
+using yy::Lexer;
 
 int main(int argc, char* argv[])
 {
@@ -39,15 +39,15 @@ int main(int argc, char* argv[])
 
     if (config.classic) preprocess(source_code);
 
-//    Lexer  lexer(source_code, config.filename.data());
-//    Parser parser(lexer, config.filename.data(), source_code);
+    Lexer  lexer(source_code, config.filename.data());
 //
 //    auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
 //
 //    grammar.apply_productions(initial_state);
 
-    yy::parser parse;
-    return parse();
+    yy::parser parser(lexer);
+    // TODO get total number of errors?
+    if (parser.parse() != 0) throw 0;
   }
   catch (const File_not_found& fnf) {
     std::cerr << bold(red("error: ")) << "File not found: " << bold(fnf.file) << '\n';
@@ -57,10 +57,10 @@ int main(int argc, char* argv[])
     std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
     return EXIT_FAILURE;
   }
-  catch (const Parser::Syntax_error& se) {
-    std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
-    return EXIT_FAILURE;
-  }
+//  catch (const Parser::Syntax_error& se) {
+//    std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
+//    return EXIT_FAILURE;
+//  }
   catch (...) {
     std::cerr << "Unknown exception occurred.\n";
     return EXIT_FAILURE;

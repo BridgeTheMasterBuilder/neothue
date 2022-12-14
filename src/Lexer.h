@@ -19,65 +19,61 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "Token.hpp"
 #include <deque>
 #include <string>
 #include <string_view>
+#include "neothue.tab.hh"
 
-class Lexer {
-public:
-  // CONSTRUCTORS
-  Lexer(const std::string& source_code, const std::string_view filename);
+namespace yy {
+  using Token = parser::symbol_type;
 
-  // EXCEPTIONS
-  struct Syntax_error {
-    Syntax_error(const int number) : number(number) { }
+  class Lexer {
+  public:
+    // CONSTRUCTORS
+    Lexer(const std::string& source_code, const std::string_view filename);
 
-    const int number;
+    // EXCEPTIONS
+    struct Syntax_error {
+      Syntax_error(const int number) : number(number) { }
+
+      const int number;
+    };
+
+    struct Unterminated_string { };
+
+    // PUBLIC MEMBER FUNCTIONS
+    Token        lex();
+
+  private:
+    // PRIVATE MEMBER FUNCTIONS
+    bool        finished_scanning() const noexcept { return index >= source_code.size(); }
+    void        emit_error(const std::string_view message) const;
+    std::size_t find_end_of_line() const noexcept;
+    std::size_t find_end_of_string(const std::size_t start_of_string) const;
+    std::size_t find_start_of_line() const noexcept;
+    std::size_t find_start_of_string(const std::size_t index) const noexcept;
+    int         get() noexcept;
+    auto        length_of_string(const std::string_view string) const noexcept;
+    char        peek() const noexcept { return !finished_scanning() ? source_code[index] : EOF; }
+    void        report_error() const;
+    void        skip_comment() noexcept;
+    void        skip_whitespace() noexcept;
+    void        synchronize(const std::size_t old_index) noexcept;
+
+    // TOKENIZERS
+    Token separator();
+    Token  string();
+
+    // PRIVATE DATA
+    int                          column_number = 0;
+    const std::string_view       filename;
+    std::size_t                  index            = 0;
+    int                          line_number      = 1;
+    mutable bool                 malformed        = false;
+    mutable int                  number_of_errors = 0;
+    const std::string&           source_code;
+    static constexpr const char* delimiters = "\t\n\r ;=}";
   };
-
-  struct Unterminated_string {
-  };
-
-  // PUBLIC MEMBER FUNCTIONS
-  bool         empty() const { return tokens.front() == Token::Type::END; }
-  const Token& lookahead() const noexcept;
-  const Token& lookaround() const noexcept;
-  Token        pop() noexcept;
-  void         push(const Token token) { tokens.push_back(token); }
-
-private:
-  // PRIVATE MEMBER FUNCTIONS
-  bool        finished_scanning() const noexcept { return index >= source_code.size(); }
-  void        emit_error(const std::string_view message) const;
-  std::size_t find_end_of_line() const noexcept;
-  std::size_t find_end_of_string(const std::size_t start_of_string) const;
-  std::size_t find_start_of_line() const noexcept;
-  std::size_t find_start_of_string(const std::size_t index) const noexcept;
-  int         get() noexcept;
-  Token       get_token();
-  auto        length_of_string(const std::string_view string) const noexcept;
-  char        peek() const noexcept { return !finished_scanning() ? source_code[index] : EOF; }
-  void        report_error() const;
-  void        skip_comment() noexcept;
-  void        skip_whitespace() noexcept;
-  void        synchronize(const std::size_t old_index) noexcept;
-
-  // TOKENIZERS
-  Token separator();
-  Token string();
-  Token tokenize(auto type);
-
-  // PRIVATE DATA
-  int                          column_number = 0;
-  const std::string_view       filename;
-  std::size_t                  index            = 0;
-  int                          line_number      = 1;
-  mutable bool                 malformed        = false;
-  mutable int                  number_of_errors = 0;
-  const std::string&           source_code;
-  std::deque<Token>            tokens;
-  static constexpr const char* delimiters = "\t\n\r ;=}";
-};
+}
 
 #endif
