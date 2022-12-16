@@ -22,6 +22,7 @@
 #include <iostream>
 #include <string>
 #include "Lexer.h"
+#include "Parser.h"
 
 using nthue::Lexer;
 using nthue::Parser;
@@ -41,12 +42,9 @@ int main(int argc, char* argv[])
     if (config.classic) preprocess(source_code);
 
     Lexer  lexer(source_code, config.filename.data());
-    Grammar grammar(config.order, config.classic, config.debug);
-    std::string initial_state;
-    Parser parser(lexer, grammar, initial_state);
+    Parser parser(lexer);
 
-    // TODO get total number of errors?
-    if (parser.parse() != 0) throw 0;
+    auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
 
     grammar.apply_productions(initial_state);
   }
@@ -58,11 +56,10 @@ int main(int argc, char* argv[])
     std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
     return EXIT_FAILURE;
   }
-  // TODO hook this up to Bison
-//  catch (const Parser::Syntax_error& se) {
-//    std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
-//    return EXIT_FAILURE;
-//  }
+  catch (const Parser::Syntax_error& se) {
+    std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
+    return EXIT_FAILURE;
+  }
   catch (...) {
     std::cerr << "Unknown exception occurred.\n";
     return EXIT_FAILURE;

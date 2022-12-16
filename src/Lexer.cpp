@@ -52,7 +52,7 @@ namespace nthue {
           case '=':
             return separator();
           case EOF:
-            return Parser::make_YYEOF(location(pos));
+            return ParserImplementation::make_YYEOF(location(pos));
           default:
             return string();
         }
@@ -198,7 +198,7 @@ namespace nthue {
   Token Lexer::separator() {
     get();
 
-    return Parser::make_SEPARATOR(location()); }
+    return ParserImplementation::make_SEPARATOR(location()); }
 
   Token  Lexer::string()
   {
@@ -219,6 +219,6 @@ namespace nthue {
 
     synchronize(old_index);
 
-    return Parser::make_STRING(string, location(start, end));
+    return ParserImplementation::make_STRING(string, location(start, end));
   }
 }

@@ -2,7 +2,7 @@
 %language "C++"
 
 %define api.namespace {nthue}
-%define api.parser.class {Parser}
+%define api.parser.class {ParserImplementation}
 %define api.value.type variant
 %define api.token.constructor
 %define api.location.file "Token.h"
@@ -11,9 +11,9 @@
 %define parse.lac full
 
 %locations
-%header "Parser.h"
-%output "Parser.cpp"
-%expect 1
+%header "ParserImplementation.h"
+%output "ParserImplementation.cpp"
+%expect 2
 
 %token SEPARATOR "="
 %token <std::string> STRING "string"
@@ -31,6 +31,7 @@
 %parse-param {Lexer& lexer}
 %parse-param {Grammar& grammar}
 %parse-param {std::string& initial_state}
+%parse-param {int& number_of_errors}
 
 %code {
 #include "Lexer.h"
@@ -45,17 +46,18 @@ productions: productions production
 | %empty
 
 production: string SEPARATOR string { grammar.add_production($1, $3); }
+| string error string
 
 initial_state: string
 
 string: STRING
-| %empty { $$ = ""; } %expect 1
+| %empty { $$ = ""; } %expect 2
 
 %%
 namespace nthue {
-    // TODO get total number of errors?
     // TODO look up error message
-    void Parser::error(const location_type& loc, const std::string& msg) {
+    void ParserImplementation::error(const location_type& loc, const std::string& msg) {
+        number_of_errors++;
         std::cerr << loc << msg << '\n';
     }
 }

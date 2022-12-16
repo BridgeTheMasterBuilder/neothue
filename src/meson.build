@@ -8,7 +8,8 @@ sources = files('main.cpp',
            'terminal.cpp',
            'util.cpp',
            'Lexer.cpp',
-           'Parser.cpp')
+           'Parser.cpp',
+           'ParserImplementation.cpp')
 
 lexer_test_sources = files('Lexer.cpp', 'terminal.cpp', '../tests/lexer_tests.cpp')
 

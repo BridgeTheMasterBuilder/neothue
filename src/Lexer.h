@@ -22,11 +22,11 @@
 #include <deque>
 #include <string>
 #include <string_view>
-#include "Parser.h"
+#include "ParserImplementation.h"
 #include "Token.h"
 
 namespace nthue {
-  using Token = Parser::symbol_type;
+  using Token = ParserImplementation::symbol_type;
 
   class Lexer {
   public:
