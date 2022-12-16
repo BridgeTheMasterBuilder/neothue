@@ -13,10 +13,12 @@
 %locations
 %header "Parser.h"
 %output "Parser.cpp"
+%expect 1
 
 %token SEPARATOR "="
 %token <std::string> STRING "string"
 %type <std::string> initial_state
+%type <std::string> string
 
 %code requires {
     #include "Grammar.h"
@@ -40,12 +42,14 @@
 program: productions initial_state { grammar.sort(); initial_state = $2; }
 
 productions: productions production
-| ;
+| %empty
 
-production: STRING SEPARATOR STRING { grammar.add_production($1, $3); }
+production: string SEPARATOR string { grammar.add_production($1, $3); }
 
-initial_state: STRING
-| ;
+initial_state: string
+
+string: STRING
+| %empty { $$ = ""; } %expect 1
 
 %%
 namespace nthue {

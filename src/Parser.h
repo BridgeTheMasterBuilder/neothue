@@ -45,7 +45,7 @@
 #ifndef YY_YY_PARSER_H_INCLUDED
 # define YY_YY_PARSER_H_INCLUDED
 // "%code requires" blocks.
-#line 21 "/home/master/projects/thue/src/neothue.y"
+#line 23 "/home/master/projects/thue/src/neothue.y"
 
     #include "Grammar.h"
 
@@ -416,6 +416,7 @@ namespace nthue {
     {
       // "string"
       // initial_state
+      // string
       char dummy1[sizeof (std::string)];
     };
 
@@ -498,7 +499,8 @@ namespace nthue {
         S_program = 6,                           // program
         S_productions = 7,                       // productions
         S_production = 8,                        // production
-        S_initial_state = 9                      // initial_state
+        S_initial_state = 9,                     // initial_state
+        S_string = 10                            // string
       };
     };
 
@@ -537,6 +539,7 @@ namespace nthue {
     {
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
+      case symbol_kind::S_string: // string
         value.move< std::string > (std::move (that.value));
         break;
 
@@ -603,6 +606,7 @@ switch (yykind)
     {
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
+      case symbol_kind::S_string: // string
         value.template destroy< std::string > ();
         break;
 
@@ -1186,8 +1190,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 5,     ///< Last index in yytable_.
-      yynnts_ = 5,  ///< Number of nonterminal symbols.
+      yylast_ = 3,     ///< Last index in yytable_.
+      yynnts_ = 6,  ///< Number of nonterminal symbols.
       yyfinal_ = 3 ///< Termination state number.
     };
 
@@ -1258,6 +1262,7 @@ switch (yykind)
     {
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
+      case symbol_kind::S_string: // string
         value.copy< std::string > (YY_MOVE (that.value));
         break;
 
@@ -1294,6 +1299,7 @@ switch (yykind)
     {
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
+      case symbol_kind::S_string: // string
         value.move< std::string > (YY_MOVE (s.value));
         break;
 
@@ -1364,7 +1370,7 @@ switch (yykind)
 
 #line 4 "/home/master/projects/thue/src/neothue.y"
 } // nthue
-#line 1368 "Parser.h"
+#line 1374 "Parser.h"
 
 
 

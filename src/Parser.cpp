@@ -42,7 +42,7 @@
 
 
 // Unqualified %code blocks.
-#line 33 "/home/master/projects/thue/src/neothue.y"
+#line 35 "/home/master/projects/thue/src/neothue.y"
 
 #include "Lexer.h"
 #define yylex lexer.lex
@@ -214,6 +214,7 @@ namespace nthue {
     {
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
+      case symbol_kind::S_string: // string
         value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
         break;
 
@@ -234,6 +235,7 @@ namespace nthue {
     {
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
+      case symbol_kind::S_string: // string
         value.move< std::string > (YY_MOVE (that.value));
         break;
 
@@ -254,6 +256,7 @@ namespace nthue {
     {
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
+      case symbol_kind::S_string: // string
         value.copy< std::string > (that.value);
         break;
 
@@ -273,6 +276,7 @@ namespace nthue {
     {
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
+      case symbol_kind::S_string: // string
         value.move< std::string > (that.value);
         break;
 
@@ -547,6 +551,7 @@ namespace nthue {
     {
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
+      case symbol_kind::S_string: // string
         yylhs.value.emplace< std::string > ();
         break;
 
@@ -571,25 +576,37 @@ namespace nthue {
           switch (yyn)
             {
   case 2: // program: productions initial_state
-#line 40 "/home/master/projects/thue/src/neothue.y"
+#line 42 "/home/master/projects/thue/src/neothue.y"
                                    { grammar.sort(); initial_state = yystack_[0].value.as < std::string > (); }
-#line 577 "Parser.cpp"
+#line 582 "Parser.cpp"
     break;
 
-  case 5: // production: "string" "=" "string"
-#line 45 "/home/master/projects/thue/src/neothue.y"
-                                    { grammar.add_production(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > ()); }
-#line 583 "Parser.cpp"
-    break;
-
-  case 6: // initial_state: "string"
+  case 5: // production: string "=" string
 #line 47 "/home/master/projects/thue/src/neothue.y"
+                                    { grammar.add_production(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > ()); }
+#line 588 "Parser.cpp"
+    break;
+
+  case 6: // initial_state: string
+#line 49 "/home/master/projects/thue/src/neothue.y"
                { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
-#line 589 "Parser.cpp"
+#line 594 "Parser.cpp"
+    break;
+
+  case 7: // string: "string"
+#line 51 "/home/master/projects/thue/src/neothue.y"
+        { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
+#line 600 "Parser.cpp"
+    break;
+
+  case 8: // string: %empty
+#line 52 "/home/master/projects/thue/src/neothue.y"
+         { yylhs.value.as < std::string > () = ""; }
+#line 606 "Parser.cpp"
     break;
 
 
-#line 593 "Parser.cpp"
+#line 610 "Parser.cpp"
 
             default:
               break;
@@ -774,7 +791,7 @@ namespace nthue {
     static const char *const yy_sname[] =
     {
     "end of file", "error", "invalid token", "=", "string", "$accept",
-  "program", "productions", "production", "initial_state", YY_NULLPTR
+  "program", "productions", "production", "initial_state", "string", YY_NULLPTR
     };
     return yy_sname[yysymbol];
   }
@@ -1043,62 +1060,62 @@ namespace nthue {
   }
 
 
-  const signed char Parser::yypact_ninf_ = -4;
+  const signed char Parser::yypact_ninf_ = -6;
 
   const signed char Parser::yytable_ninf_ = -1;
 
   const signed char
   Parser::yypact_[] =
   {
-      -4,     0,    -3,    -4,    -1,    -4,    -4,     1,    -4
+      -6,     0,    -3,    -6,    -6,    -6,    -6,    -1,    -3,    -6
   };
 
   const signed char
   Parser::yydefact_[] =
   {
-       4,     0,     7,     1,     6,     3,     2,     0,     5
+       4,     0,     8,     1,     7,     3,     2,     6,     8,     5
   };
 
   const signed char
   Parser::yypgoto_[] =
   {
-      -4,    -4,    -4,    -4,    -4
+      -6,    -6,    -6,    -6,    -6,    -5
   };
 
   const signed char
   Parser::yydefgoto_[] =
   {
-       0,     1,     2,     5,     6
+       0,     1,     2,     5,     6,     7
   };
 
   const signed char
   Parser::yytable_[] =
   {
-       3,     4,     7,     0,     0,     8
+       3,     4,     8,     9
   };
 
   const signed char
   Parser::yycheck_[] =
   {
-       0,     4,     3,    -1,    -1,     4
+       0,     4,     3,     8
   };
 
   const signed char
   Parser::yystos_[] =
   {
-       0,     6,     7,     0,     4,     8,     9,     3,     4
+       0,     6,     7,     0,     4,     8,     9,    10,     3,    10
   };
 
   const signed char
   Parser::yyr1_[] =
   {
-       0,     5,     6,     7,     7,     8,     9,     9
+       0,     5,     6,     7,     7,     8,     9,    10,    10
   };
 
   const signed char
   Parser::yyr2_[] =
   {
-       0,     2,     2,     2,     0,     3,     1,     0
+       0,     2,     2,     2,     0,     3,     1,     1,     0
   };
 
 
@@ -1108,7 +1125,7 @@ namespace nthue {
   const signed char
   Parser::yyrline_[] =
   {
-       0,    40,    40,    42,    43,    45,    47,    48
+       0,    42,    42,    44,    45,    47,    49,    51,    52
   };
 
   void
@@ -1141,9 +1158,9 @@ namespace nthue {
 
 #line 4 "/home/master/projects/thue/src/neothue.y"
 } // nthue
-#line 1145 "Parser.cpp"
+#line 1162 "Parser.cpp"
 
-#line 50 "/home/master/projects/thue/src/neothue.y"
+#line 54 "/home/master/projects/thue/src/neothue.y"
 
 namespace nthue {
     // TODO get total number of errors?
