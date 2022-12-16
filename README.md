@@ -53,7 +53,7 @@ If any arguments remain after processing command-line options, the first non-opt
 
 [(back to top)](#neothue)
 # Syntax and semantics
-Neothue's lexical grammar is extremely simple. There are only two types of lexemes: strings and the separator symbol "=". Strings may be quoted; both single quotes and double quotes are supported but they must be symmetrical. The following is the complete lexical syntax in EBNF notation:
+Neothue's lexical grammar is extremely simple. There are only two types of lexemes: strings and the separator symbol `=`. Strings may be quoted; both single quotes and double quotes are supported but they must be symmetrical. The following is the complete lexical syntax in EBNF notation:
 
 ```
 string = "'", { symbol - "'" }, "'"
@@ -66,9 +66,9 @@ comment = ';', { symbol - '\n' } ;
 
 (`{ symbol - "'" }` should be understood to mean that strings that start with a single quote may not contain *unescaped* single quotes) 
 
-which is also described by the regular expressions `/'[^']*'|"[^"]*"|[^'"].*/` and `/=/`.
+which is also described by the regular expressions `/'([^'\\]|\\')*'|"([^"\\]|\\")*"|[^'"].*/` and `/=/`.
 
-**Note 1:** If the first character of a string is not ' or " then quotes within strings have no special meaning at all. Quotes may also be escaped with \ to disable quoting.
+**Note 1:** If the first character of a string is not `'` or `"` then quotes within strings have no special meaning at all. Quotes may also be escaped with `\` to disable quoting.
 
 **Note 2:** Whitespace is not significant except that two productions must be separated by whitespace if the right hand side of the first production and the left hand side of the second production are both unquoted. The empty string is valid on either side of a production, but the fact that whitespace is not significant means that productions are not newline-terminated. Thus, the following program:
 
@@ -108,7 +108,7 @@ initial state = string ;
 
 Which is actually a regular language, which is very ironic considering that Thue itself is a language for working with unrestricted grammars. It is described by the regular expression 
 
-`/(('[^']*'|"[^"]*"|[^'"].*)=('[^']*'|"[^"]*"|[^'"].*) )*('[^']*'|"[^"]*"|[^'"].*)?/`.
+`/(('([^'\\]|\\')*'|"([^"\\]|\\")*"|[^'"].*)=('([^'\\]|\\')*'|"([^"\\]|\\")*"|[^'"].*) )*('([^'\\]|\\')*'|"([^"\\]|\\")*"|[^'"].*)?/`.
 
 (The above RE is not in any particular syntax. `.` really does mean *any* character, including newline. Also, all unnecessary whitespace is omitted, so this regular expression does not represent all possible strings which constitute a valid Neothue program)
 
