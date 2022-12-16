@@ -41,9 +41,9 @@ int main(int argc, char* argv[])
     if (config.classic) preprocess(source_code);
 
     Lexer  lexer(source_code, config.filename.data());
-    Grammar grammar;
+    Grammar grammar(config.order, config.classic, config.debug);
     std::string initial_state;
-    Parser parser(lexer, grammar, initial_state, config.order, config.classic, config.debug);
+    Parser parser(lexer, grammar, initial_state);
 
     // TODO get total number of errors?
     if (parser.parse() != 0) throw 0;

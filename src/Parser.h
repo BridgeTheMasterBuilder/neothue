@@ -45,7 +45,7 @@
 #ifndef YY_YY_PARSER_H_INCLUDED
 # define YY_YY_PARSER_H_INCLUDED
 // "%code requires" blocks.
-#line 24 "/home/master/projects/thue/src/neothue.y"
+#line 21 "/home/master/projects/thue/src/neothue.y"
 
     #include "Grammar.h"
 
@@ -414,18 +414,9 @@ namespace nthue {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // production
-      char dummy1[sizeof (Production)];
-
-      // program
-      char dummy2[sizeof (std::pair<Grammar, std::string>)];
-
       // "string"
       // initial_state
-      char dummy3[sizeof (std::string)];
-
-      // productions
-      char dummy4[sizeof (std::vector<Production>)];
+      char dummy1[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -544,21 +535,9 @@ namespace nthue {
       {
         switch (this->kind ())
     {
-      case symbol_kind::S_production: // production
-        value.move< Production > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_program: // program
-        value.move< std::pair<Grammar, std::string> > (std::move (that.value));
-        break;
-
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
         value.move< std::string > (std::move (that.value));
-        break;
-
-      case symbol_kind::S_productions: // productions
-        value.move< std::vector<Production> > (std::move (that.value));
         break;
 
       default:
@@ -585,34 +564,6 @@ namespace nthue {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, Production&& v, location_type&& l)
-        : Base (t)
-        , value (std::move (v))
-        , location (std::move (l))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const Production& v, const location_type& l)
-        : Base (t)
-        , value (v)
-        , location (l)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::pair<Grammar, std::string>&& v, location_type&& l)
-        : Base (t)
-        , value (std::move (v))
-        , location (std::move (l))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::pair<Grammar, std::string>& v, const location_type& l)
-        : Base (t)
-        , value (v)
-        , location (l)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::string&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -620,20 +571,6 @@ namespace nthue {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const std::string& v, const location_type& l)
-        : Base (t)
-        , value (v)
-        , location (l)
-      {}
-#endif
-
-#if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::vector<Production>&& v, location_type&& l)
-        : Base (t)
-        , value (std::move (v))
-        , location (std::move (l))
-      {}
-#else
-      basic_symbol (typename Base::kind_type t, const std::vector<Production>& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -664,21 +601,9 @@ namespace nthue {
         // Value type destructor.
 switch (yykind)
     {
-      case symbol_kind::S_production: // production
-        value.template destroy< Production > ();
-        break;
-
-      case symbol_kind::S_program: // program
-        value.template destroy< std::pair<Grammar, std::string> > ();
-        break;
-
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
         value.template destroy< std::string > ();
-        break;
-
-      case symbol_kind::S_productions: // productions
-        value.template destroy< std::vector<Production> > ();
         break;
 
       default:
@@ -797,7 +722,7 @@ switch (yykind)
     };
 
     /// Build a parser object.
-    Parser (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, application_order order_yyarg, bool classic_yyarg, bool debug_yyarg);
+    Parser (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg);
     virtual ~Parser ();
 
 #if 201103L <= YY_CPLUSPLUS
@@ -1271,9 +1196,6 @@ switch (yykind)
     Lexer& lexer;
     Grammar& grammar;
     std::string& initial_state;
-    application_order order;
-    bool classic;
-    bool debug;
 
   };
 
@@ -1334,21 +1256,9 @@ switch (yykind)
   {
     switch (this->kind ())
     {
-      case symbol_kind::S_production: // production
-        value.copy< Production > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_program: // program
-        value.copy< std::pair<Grammar, std::string> > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
         value.copy< std::string > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_productions: // productions
-        value.copy< std::vector<Production> > (YY_MOVE (that.value));
         break;
 
       default:
@@ -1382,21 +1292,9 @@ switch (yykind)
     super_type::move (s);
     switch (this->kind ())
     {
-      case symbol_kind::S_production: // production
-        value.move< Production > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_program: // program
-        value.move< std::pair<Grammar, std::string> > (YY_MOVE (s.value));
-        break;
-
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
         value.move< std::string > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_productions: // productions
-        value.move< std::vector<Production> > (YY_MOVE (s.value));
         break;
 
       default:
@@ -1466,7 +1364,7 @@ switch (yykind)
 
 #line 4 "/home/master/projects/thue/src/neothue.y"
 } // nthue
-#line 1470 "Parser.h"
+#line 1368 "Parser.h"
 
 
 

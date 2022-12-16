@@ -42,15 +42,13 @@
 
 
 // Unqualified %code blocks.
-#line 39 "/home/master/projects/thue/src/neothue.y"
+#line 33 "/home/master/projects/thue/src/neothue.y"
 
 #include "Lexer.h"
 #define yylex lexer.lex
-
-static std::vector<Production> productions;
  
 
-#line 54 "Parser.cpp"
+#line 52 "Parser.cpp"
 
 
 #ifndef YY_
@@ -143,10 +141,10 @@ static std::vector<Production> productions;
 
 #line 4 "/home/master/projects/thue/src/neothue.y"
 namespace nthue {
-#line 147 "Parser.cpp"
+#line 145 "Parser.cpp"
 
   /// Build a parser object.
-  Parser::Parser (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, application_order order_yyarg, bool classic_yyarg, bool debug_yyarg)
+  Parser::Parser (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg)
 #if YYDEBUG
     : yydebug_ (false),
       yycdebug_ (&std::cerr),
@@ -156,10 +154,7 @@ namespace nthue {
       yy_lac_established_ (false),
       lexer (lexer_yyarg),
       grammar (grammar_yyarg),
-      initial_state (initial_state_yyarg),
-      order (order_yyarg),
-      classic (classic_yyarg),
-      debug (debug_yyarg)
+      initial_state (initial_state_yyarg)
   {}
 
   Parser::~Parser ()
@@ -217,21 +212,9 @@ namespace nthue {
   {
     switch (that.kind ())
     {
-      case symbol_kind::S_production: // production
-        value.YY_MOVE_OR_COPY< Production > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_program: // program
-        value.YY_MOVE_OR_COPY< std::pair<Grammar, std::string> > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
         value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_productions: // productions
-        value.YY_MOVE_OR_COPY< std::vector<Production> > (YY_MOVE (that.value));
         break;
 
       default:
@@ -249,21 +232,9 @@ namespace nthue {
   {
     switch (that.kind ())
     {
-      case symbol_kind::S_production: // production
-        value.move< Production > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_program: // program
-        value.move< std::pair<Grammar, std::string> > (YY_MOVE (that.value));
-        break;
-
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
         value.move< std::string > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_productions: // productions
-        value.move< std::vector<Production> > (YY_MOVE (that.value));
         break;
 
       default:
@@ -281,21 +252,9 @@ namespace nthue {
     state = that.state;
     switch (that.kind ())
     {
-      case symbol_kind::S_production: // production
-        value.copy< Production > (that.value);
-        break;
-
-      case symbol_kind::S_program: // program
-        value.copy< std::pair<Grammar, std::string> > (that.value);
-        break;
-
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
         value.copy< std::string > (that.value);
-        break;
-
-      case symbol_kind::S_productions: // productions
-        value.copy< std::vector<Production> > (that.value);
         break;
 
       default:
@@ -312,21 +271,9 @@ namespace nthue {
     state = that.state;
     switch (that.kind ())
     {
-      case symbol_kind::S_production: // production
-        value.move< Production > (that.value);
-        break;
-
-      case symbol_kind::S_program: // program
-        value.move< std::pair<Grammar, std::string> > (that.value);
-        break;
-
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
         value.move< std::string > (that.value);
-        break;
-
-      case symbol_kind::S_productions: // productions
-        value.move< std::vector<Production> > (that.value);
         break;
 
       default:
@@ -598,21 +545,9 @@ namespace nthue {
          when using variants.  */
       switch (yyr1_[yyn])
     {
-      case symbol_kind::S_production: // production
-        yylhs.value.emplace< Production > ();
-        break;
-
-      case symbol_kind::S_program: // program
-        yylhs.value.emplace< std::pair<Grammar, std::string> > ();
-        break;
-
       case symbol_kind::S_STRING: // "string"
       case symbol_kind::S_initial_state: // initial_state
         yylhs.value.emplace< std::string > ();
-        break;
-
-      case symbol_kind::S_productions: // productions
-        yylhs.value.emplace< std::vector<Production> > ();
         break;
 
       default:
@@ -636,31 +571,25 @@ namespace nthue {
           switch (yyn)
             {
   case 2: // program: productions initial_state
-#line 48 "/home/master/projects/thue/src/neothue.y"
-                                   { grammar = Grammar(productions, order, classic, debug); grammar.sort(); initial_state = yystack_[0].value.as < std::string > (); }
-#line 642 "Parser.cpp"
-    break;
-
-  case 3: // productions: productions production
-#line 50 "/home/master/projects/thue/src/neothue.y"
-                                    { productions.push_back(yystack_[0].value.as < Production > ()); }
-#line 648 "Parser.cpp"
+#line 40 "/home/master/projects/thue/src/neothue.y"
+                                   { grammar.sort(); initial_state = yystack_[0].value.as < std::string > (); }
+#line 577 "Parser.cpp"
     break;
 
   case 5: // production: "string" "=" "string"
-#line 53 "/home/master/projects/thue/src/neothue.y"
-                                    { yylhs.value.as < Production > () = std::make_pair(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > ()); }
-#line 654 "Parser.cpp"
+#line 45 "/home/master/projects/thue/src/neothue.y"
+                                    { grammar.add_production(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > ()); }
+#line 583 "Parser.cpp"
     break;
 
   case 6: // initial_state: "string"
-#line 55 "/home/master/projects/thue/src/neothue.y"
+#line 47 "/home/master/projects/thue/src/neothue.y"
                { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
-#line 660 "Parser.cpp"
+#line 589 "Parser.cpp"
     break;
 
 
-#line 664 "Parser.cpp"
+#line 593 "Parser.cpp"
 
             default:
               break;
@@ -1179,7 +1108,7 @@ namespace nthue {
   const signed char
   Parser::yyrline_[] =
   {
-       0,    48,    48,    50,    51,    53,    55,    56
+       0,    40,    40,    42,    43,    45,    47,    48
   };
 
   void
@@ -1212,9 +1141,9 @@ namespace nthue {
 
 #line 4 "/home/master/projects/thue/src/neothue.y"
 } // nthue
-#line 1216 "Parser.cpp"
+#line 1145 "Parser.cpp"
 
-#line 58 "/home/master/projects/thue/src/neothue.y"
+#line 50 "/home/master/projects/thue/src/neothue.y"
 
 namespace nthue {
     // TODO get total number of errors?

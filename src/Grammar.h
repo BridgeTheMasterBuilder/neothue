@@ -40,13 +40,12 @@ enum class application_order
 class Grammar {
 public:
   // CONSTRUCTORS
-  Grammar() = default; // To make Grammar default constructible
-  Grammar(const std::vector<Production> productions,
-          const application_order order   = application_order::NONDETERMINISTIC,
+  Grammar(const application_order order   = application_order::NONDETERMINISTIC,
           const bool              classic = false,
           const bool              debug   = false);
 
   // PUBLIC MEMBER FUNCTIONS
+  void add_production(const std::string_view lhs, const std::string_view rhs);
   void apply_productions(std::string& initial_state);
   void sort();
 
@@ -78,6 +77,7 @@ private:
   // PRIVATE DATA
 public:
   std::vector<Production>  productions;
+private:
   std::vector<std::size_t> indices;
   std::mt19937             rng;
   application_order  order;

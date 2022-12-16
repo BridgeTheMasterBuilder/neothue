@@ -25,8 +25,8 @@
 /***************
  * CONSTRUCTORS *
  ***************/
-Grammar::Grammar(const std::vector<Production> productions, const application_order order, const bool classic, const bool debug)
-    : productions(productions), order(order), classic(classic), debug(debug)
+Grammar::Grammar(const application_order order, const bool classic, const bool debug)
+    : order(order), classic(classic), debug(debug)
 {
   if (order == application_order::NONDETERMINISTIC) {
     std::random_device rd;
@@ -37,6 +37,11 @@ Grammar::Grammar(const std::vector<Production> productions, const application_or
 /**************************
  * PUBLIC MEMBER FUNCTIONS *
  **************************/
+void Grammar::add_production(const std::string_view lhs, const std::string_view rhs)
+{
+  productions.emplace_back(lhs, rhs);
+}
+
 void Grammar::apply_productions(std::string& initial_state)
 {
   using enum application_order;
