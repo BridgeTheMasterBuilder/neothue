@@ -19,16 +19,18 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "Lexer.h"
 #include "Grammar.h"
-#include <string>
+#include "Lexer.h"
 #include "ParserImplementation.h"
+#include <string>
 
 namespace nthue {
   class Parser {
   public:
     // CONSTRUCTORS
-    Parser(Lexer& lexer);
+    Parser(Lexer& lexer, const std::string_view filename, const std::string& source_code)
+        : filename(filename.empty() ? "stdin" : filename), lexer(lexer), source_code(source_code)
+    { }
 
     // PUBLIC MEMBER FUNCTIONS
     std::pair<Grammar, std::string> parse(const application_order order, const bool classic, const bool debug);
@@ -42,9 +44,11 @@ namespace nthue {
 
   private:
     // PRIVATE DATA
-    int number_of_errors = 0;
-    Lexer lexer;
+    const std::string_view filename;
+    Lexer&                 lexer;
+    const std::string&     source_code;
+    int                    number_of_errors = 0;
   };
-}
+} // namespace nthue
 
 #endif

@@ -1,3 +1,21 @@
+/*
+    nthue, an interpreter for Neothue, a dialect of the Thue metalanguage
+    Copyright (C) 2022  masterbuilder
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 %require "3.8.2"
 %language "C++"
 
@@ -7,8 +25,7 @@
 %define api.token.constructor
 %define api.location.file "Token.h"
 %define parse.assert
-%define parse.error detailed
-%define parse.lac full
+%define parse.error custom
 
 %locations
 %header "ParserImplementation.h"
@@ -32,8 +49,12 @@
 %parse-param {Grammar& grammar}
 %parse-param {std::string& initial_state}
 %parse-param {int& number_of_errors}
+%parse-param {const std::string_view filename}
+%parse-param {const std::string& source_code}
 
 %code {
+#include <string>
+#include "util.h"
 #include "Lexer.h"
 #define yylex lexer.lex
  }
@@ -55,9 +76,19 @@ string: STRING
 
 %%
 namespace nthue {
-    // TODO look up error message
     void ParserImplementation::error(const location_type& loc, const std::string& msg) {
-        number_of_errors++;
         std::cerr << loc << msg << '\n';
+    }
+
+    void ParserImplementation::report_syntax_error(const ParserImplementation::context& ctx) const {
+      number_of_errors++;
+
+      const auto& location = ctx.location();
+      const auto& start_pos = location.begin;
+      const auto& end_pos = location.end;
+      const auto [_, line_num, col_num] = start_pos;
+      int length = (end_pos.column - start_pos.column) + (end_pos.line - start_pos.line);
+
+      report_error(filename, source_code, line_num, col_num, length);
     }
 }

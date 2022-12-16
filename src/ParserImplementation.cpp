@@ -42,13 +42,15 @@
 
 
 // Unqualified %code blocks.
-#line 36 "/home/master/projects/thue/src/neothue.y"
+#line 55 "/home/master/projects/thue/src/neothue.y"
 
+#include <string>
+#include "util.h"
 #include "Lexer.h"
 #define yylex lexer.lex
  
 
-#line 52 "ParserImplementation.cpp"
+#line 54 "ParserImplementation.cpp"
 
 
 #ifndef YY_
@@ -139,23 +141,24 @@
 #define YYERROR         goto yyerrorlab
 #define YYRECOVERING()  (!!yyerrstatus_)
 
-#line 4 "/home/master/projects/thue/src/neothue.y"
+#line 22 "/home/master/projects/thue/src/neothue.y"
 namespace nthue {
-#line 145 "ParserImplementation.cpp"
+#line 147 "ParserImplementation.cpp"
 
   /// Build a parser object.
-  ParserImplementation::ParserImplementation (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, int& number_of_errors_yyarg)
+  ParserImplementation::ParserImplementation (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, int& number_of_errors_yyarg, const std::string_view filename_yyarg, const std::string& source_code_yyarg)
 #if YYDEBUG
     : yydebug_ (false),
       yycdebug_ (&std::cerr),
 #else
     :
 #endif
-      yy_lac_established_ (false),
       lexer (lexer_yyarg),
       grammar (grammar_yyarg),
       initial_state (initial_state_yyarg),
-      number_of_errors (number_of_errors_yyarg)
+      number_of_errors (number_of_errors_yyarg),
+      filename (filename_yyarg),
+      source_code (source_code_yyarg)
   {}
 
   ParserImplementation::~ParserImplementation ()
@@ -421,10 +424,6 @@ namespace nthue {
     /// The return value of parse ().
     int yyresult;
 
-    // Discard the LAC context in case there still is one left from a
-    // previous invocation.
-    yy_lac_discard_ ("init");
-
 #if YY_EXCEPTIONS
     try
 #endif // YY_EXCEPTIONS
@@ -499,8 +498,6 @@ namespace nthue {
     yyn += yyla.kind ();
     if (yyn < 0 || yylast_ < yyn || yycheck_[yyn] != yyla.kind ())
       {
-        if (!yy_lac_establish_ (yyla.kind ()))
-          goto yyerrlab;
         goto yydefault;
       }
 
@@ -510,9 +507,6 @@ namespace nthue {
       {
         if (yy_table_value_is_error_ (yyn))
           goto yyerrlab;
-        if (!yy_lac_establish_ (yyla.kind ()))
-          goto yyerrlab;
-
         yyn = -yyn;
         goto yyreduce;
       }
@@ -523,7 +517,6 @@ namespace nthue {
 
     // Shift the lookahead token.
     yypush_ ("Shifting", state_type (yyn), YY_MOVE (yyla));
-    yy_lac_discard_ ("shift");
     goto yynewstate;
 
 
@@ -577,37 +570,37 @@ namespace nthue {
           switch (yyn)
             {
   case 2: // program: productions initial_state
-#line 43 "/home/master/projects/thue/src/neothue.y"
+#line 64 "/home/master/projects/thue/src/neothue.y"
                                    { grammar.sort(); initial_state = yystack_[0].value.as < std::string > (); }
-#line 583 "ParserImplementation.cpp"
+#line 576 "ParserImplementation.cpp"
     break;
 
   case 5: // production: string "=" string
-#line 48 "/home/master/projects/thue/src/neothue.y"
+#line 69 "/home/master/projects/thue/src/neothue.y"
                                     { grammar.add_production(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > ()); }
-#line 589 "ParserImplementation.cpp"
+#line 582 "ParserImplementation.cpp"
     break;
 
   case 7: // initial_state: string
-#line 51 "/home/master/projects/thue/src/neothue.y"
+#line 72 "/home/master/projects/thue/src/neothue.y"
                { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
-#line 595 "ParserImplementation.cpp"
+#line 588 "ParserImplementation.cpp"
     break;
 
   case 8: // string: "string"
-#line 53 "/home/master/projects/thue/src/neothue.y"
+#line 74 "/home/master/projects/thue/src/neothue.y"
         { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
-#line 601 "ParserImplementation.cpp"
+#line 594 "ParserImplementation.cpp"
     break;
 
   case 9: // string: %empty
-#line 54 "/home/master/projects/thue/src/neothue.y"
+#line 75 "/home/master/projects/thue/src/neothue.y"
          { yylhs.value.as < std::string > () = ""; }
-#line 607 "ParserImplementation.cpp"
+#line 600 "ParserImplementation.cpp"
     break;
 
 
-#line 611 "ParserImplementation.cpp"
+#line 604 "ParserImplementation.cpp"
 
             default:
               break;
@@ -640,8 +633,7 @@ namespace nthue {
       {
         ++yynerrs_;
         context yyctx (*this, yyla);
-        std::string msg = yysyntax_error_ (yyctx);
-        error (yyla.location, YY_MOVE (msg));
+        report_syntax_error (yyctx);
       }
 
 
@@ -719,7 +711,6 @@ namespace nthue {
       YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
 
       // Shift the error token.
-      yy_lac_discard_ ("error recovery");
       error_token.state = state_type (yyn);
       yypush_ ("Shifting", YY_MOVE (error_token));
     }
@@ -811,28 +802,29 @@ namespace nthue {
     // Actual number of expected tokens
     int yycount = 0;
 
-#if YYDEBUG
-    // Execute LAC once. We don't care if it is successful, we
-    // only do it for the sake of debugging output.
-    if (!yyparser_.yy_lac_established_)
-      yyparser_.yy_lac_check_ (yyla_.kind ());
-#endif
-
-    for (int yyx = 0; yyx < YYNTOKENS; ++yyx)
+    const int yyn = yypact_[+yyparser_.yystack_[0].state];
+    if (!yy_pact_value_is_default_ (yyn))
       {
-        symbol_kind_type yysym = YY_CAST (symbol_kind_type, yyx);
-        if (yysym != symbol_kind::S_YYerror
-            && yysym != symbol_kind::S_YYUNDEF
-            && yyparser_.yy_lac_check_ (yysym))
-          {
-            if (!yyarg)
-              ++yycount;
-            else if (yycount == yyargn)
-              return 0;
-            else
-              yyarg[yycount++] = yysym;
-          }
+        /* Start YYX at -YYN if negative to avoid negative indexes in
+           YYCHECK.  In other words, skip the first -YYN actions for
+           this state because they are default actions.  */
+        const int yyxbegin = yyn < 0 ? -yyn : 0;
+        // Stay within bounds of both yycheck and yytname.
+        const int yychecklim = yylast_ - yyn + 1;
+        const int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
+        for (int yyx = yyxbegin; yyx < yyxend; ++yyx)
+          if (yycheck_[yyx + yyn] == yyx && yyx != symbol_kind::S_YYerror
+              && !yy_table_value_is_error_ (yytable_[yyx + yyn]))
+            {
+              if (!yyarg)
+                ++yycount;
+              else if (yycount == yyargn)
+                return 0;
+              else
+                yyarg[yycount++] = YY_CAST (symbol_kind_type, yyx);
+            }
       }
+
     if (yyarg && yycount == 0 && 0 < yyargn)
       yyarg[0] = symbol_kind::S_YYEMPTY;
     return yycount;
@@ -841,224 +833,8 @@ namespace nthue {
 
 
 
-  bool
-  ParserImplementation::yy_lac_check_ (symbol_kind_type yytoken) const
-  {
-    // Logically, the yylac_stack's lifetime is confined to this function.
-    // Clear it, to get rid of potential left-overs from previous call.
-    yylac_stack_.clear ();
-    // Reduce until we encounter a shift and thereby accept the token.
-#if YYDEBUG
-    YYCDEBUG << "LAC: checking lookahead " << symbol_name (yytoken) << ':';
-#endif
-    std::ptrdiff_t lac_top = 0;
-    while (true)
-      {
-        state_type top_state = (yylac_stack_.empty ()
-                                ? yystack_[lac_top].state
-                                : yylac_stack_.back ());
-        int yyrule = yypact_[+top_state];
-        if (yy_pact_value_is_default_ (yyrule)
-            || (yyrule += yytoken) < 0 || yylast_ < yyrule
-            || yycheck_[yyrule] != yytoken)
-          {
-            // Use the default action.
-            yyrule = yydefact_[+top_state];
-            if (yyrule == 0)
-              {
-                YYCDEBUG << " Err\n";
-                return false;
-              }
-          }
-        else
-          {
-            // Use the action from yytable.
-            yyrule = yytable_[yyrule];
-            if (yy_table_value_is_error_ (yyrule))
-              {
-                YYCDEBUG << " Err\n";
-                return false;
-              }
-            if (0 < yyrule)
-              {
-                YYCDEBUG << " S" << yyrule << '\n';
-                return true;
-              }
-            yyrule = -yyrule;
-          }
-        // By now we know we have to simulate a reduce.
-        YYCDEBUG << " R" << yyrule - 1;
-        // Pop the corresponding number of values from the stack.
-        {
-          std::ptrdiff_t yylen = yyr2_[yyrule];
-          // First pop from the LAC stack as many tokens as possible.
-          std::ptrdiff_t lac_size = std::ptrdiff_t (yylac_stack_.size ());
-          if (yylen < lac_size)
-            {
-              yylac_stack_.resize (std::size_t (lac_size - yylen));
-              yylen = 0;
-            }
-          else if (lac_size)
-            {
-              yylac_stack_.clear ();
-              yylen -= lac_size;
-            }
-          // Only afterwards look at the main stack.
-          // We simulate popping elements by incrementing lac_top.
-          lac_top += yylen;
-        }
-        // Keep top_state in sync with the updated stack.
-        top_state = (yylac_stack_.empty ()
-                     ? yystack_[lac_top].state
-                     : yylac_stack_.back ());
-        // Push the resulting state of the reduction.
-        state_type state = yy_lr_goto_state_ (top_state, yyr1_[yyrule]);
-        YYCDEBUG << " G" << int (state);
-        yylac_stack_.push_back (state);
-      }
-  }
-
-  // Establish the initial context if no initial context currently exists.
-  bool
-  ParserImplementation::yy_lac_establish_ (symbol_kind_type yytoken)
-  {
-    /* Establish the initial context for the current lookahead if no initial
-       context is currently established.
-
-       We define a context as a snapshot of the parser stacks.  We define
-       the initial context for a lookahead as the context in which the
-       parser initially examines that lookahead in order to select a
-       syntactic action.  Thus, if the lookahead eventually proves
-       syntactically unacceptable (possibly in a later context reached via a
-       series of reductions), the initial context can be used to determine
-       the exact set of tokens that would be syntactically acceptable in the
-       lookahead's place.  Moreover, it is the context after which any
-       further semantic actions would be erroneous because they would be
-       determined by a syntactically unacceptable token.
-
-       yy_lac_establish_ should be invoked when a reduction is about to be
-       performed in an inconsistent state (which, for the purposes of LAC,
-       includes consistent states that don't know they're consistent because
-       their default reductions have been disabled).
-
-       For parse.lac=full, the implementation of yy_lac_establish_ is as
-       follows.  If no initial context is currently established for the
-       current lookahead, then check if that lookahead can eventually be
-       shifted if syntactic actions continue from the current context.  */
-    if (yy_lac_established_)
-      return true;
-    else
-      {
-#if YYDEBUG
-        YYCDEBUG << "LAC: initial context established for "
-                 << symbol_name (yytoken) << '\n';
-#endif
-        yy_lac_established_ = true;
-        return yy_lac_check_ (yytoken);
-      }
-  }
-
-  // Discard any previous initial lookahead context.
-  void
-  ParserImplementation::yy_lac_discard_ (const char* event)
-  {
-   /* Discard any previous initial lookahead context because of Event,
-      which may be a lookahead change or an invalidation of the currently
-      established initial context for the current lookahead.
-
-      The most common example of a lookahead change is a shift.  An example
-      of both cases is syntax error recovery.  That is, a syntax error
-      occurs when the lookahead is syntactically erroneous for the
-      currently established initial context, so error recovery manipulates
-      the parser stacks to try to find a new initial context in which the
-      current lookahead is syntactically acceptable.  If it fails to find
-      such a context, it discards the lookahead.  */
-    if (yy_lac_established_)
-      {
-        YYCDEBUG << "LAC: initial context discarded due to "
-                 << event << '\n';
-        yy_lac_established_ = false;
-      }
-  }
 
 
-  int
-  ParserImplementation::yy_syntax_error_arguments_ (const context& yyctx,
-                                                 symbol_kind_type yyarg[], int yyargn) const
-  {
-    /* There are many possibilities here to consider:
-       - If this state is a consistent state with a default action, then
-         the only way this function was invoked is if the default action
-         is an error action.  In that case, don't check for expected
-         tokens because there are none.
-       - The only way there can be no lookahead present (in yyla) is
-         if this state is a consistent state with a default action.
-         Thus, detecting the absence of a lookahead is sufficient to
-         determine that there is no unexpected or expected token to
-         report.  In that case, just report a simple "syntax error".
-       - Don't assume there isn't a lookahead just because this state is
-         a consistent state with a default action.  There might have
-         been a previous inconsistent state, consistent state with a
-         non-default action, or user semantic action that manipulated
-         yyla.  (However, yyla is currently not documented for users.)
-         In the first two cases, it might appear that the current syntax
-         error should have been detected in the previous state when
-         yy_lac_check was invoked.  However, at that time, there might
-         have been a different syntax error that discarded a different
-         initial context during error recovery, leaving behind the
-         current lookahead.
-    */
-
-    if (!yyctx.lookahead ().empty ())
-      {
-        if (yyarg)
-          yyarg[0] = yyctx.token ();
-        int yyn = yyctx.expected_tokens (yyarg ? yyarg + 1 : yyarg, yyargn - 1);
-        return yyn + 1;
-      }
-    return 0;
-  }
-
-  // Generate an error message.
-  std::string
-  ParserImplementation::yysyntax_error_ (const context& yyctx) const
-  {
-    // Its maximum.
-    enum { YYARGS_MAX = 5 };
-    // Arguments of yyformat.
-    symbol_kind_type yyarg[YYARGS_MAX];
-    int yycount = yy_syntax_error_arguments_ (yyctx, yyarg, YYARGS_MAX);
-
-    char const* yyformat = YY_NULLPTR;
-    switch (yycount)
-      {
-#define YYCASE_(N, S)                         \
-        case N:                               \
-          yyformat = S;                       \
-        break
-      default: // Avoid compiler warnings.
-        YYCASE_ (0, YY_("syntax error"));
-        YYCASE_ (1, YY_("syntax error, unexpected %s"));
-        YYCASE_ (2, YY_("syntax error, unexpected %s, expecting %s"));
-        YYCASE_ (3, YY_("syntax error, unexpected %s, expecting %s or %s"));
-        YYCASE_ (4, YY_("syntax error, unexpected %s, expecting %s or %s or %s"));
-        YYCASE_ (5, YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s"));
-#undef YYCASE_
-      }
-
-    std::string yyres;
-    // Argument number.
-    std::ptrdiff_t yyi = 0;
-    for (char const* yyp = yyformat; *yyp; ++yyp)
-      if (yyp[0] == '%' && yyp[1] == 's' && yyi < yycount)
-        {
-          yyres += symbol_name (yyarg[yyi++]);
-          ++yyp;
-        }
-      else
-        yyres += *yyp;
-    return yyres;
-  }
 
 
   const signed char ParserImplementation::yypact_ninf_ = -5;
@@ -1129,7 +905,7 @@ namespace nthue {
   const signed char
   ParserImplementation::yyrline_[] =
   {
-       0,    43,    43,    45,    46,    48,    49,    51,    53,    54
+       0,    64,    64,    66,    67,    69,    70,    72,    74,    75
   };
 
   void
@@ -1160,17 +936,26 @@ namespace nthue {
 #endif // YYDEBUG
 
 
-#line 4 "/home/master/projects/thue/src/neothue.y"
+#line 22 "/home/master/projects/thue/src/neothue.y"
 } // nthue
-#line 1166 "ParserImplementation.cpp"
+#line 942 "ParserImplementation.cpp"
 
-#line 56 "/home/master/projects/thue/src/neothue.y"
+#line 77 "/home/master/projects/thue/src/neothue.y"
 
 namespace nthue {
-    // TODO get total number of errors?
-    // TODO look up error message
     void ParserImplementation::error(const location_type& loc, const std::string& msg) {
-        number_of_errors++;
         std::cerr << loc << msg << '\n';
+    }
+
+    void ParserImplementation::report_syntax_error(const ParserImplementation::context& ctx) const {
+      number_of_errors++;
+
+      const auto& location = ctx.location();
+      const auto& start_pos = location.begin;
+      const auto& end_pos = location.end;
+      const auto [_, line_num, col_num] = start_pos;
+      int length = (end_pos.column - start_pos.column) + (end_pos.line - start_pos.line);
+
+      report_error(filename, source_code, line_num, col_num, length);
     }
 }

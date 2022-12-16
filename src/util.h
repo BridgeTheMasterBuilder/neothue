@@ -27,10 +27,10 @@
 
 // Command-line options class
 struct Config {
-  const bool classic;
-  const bool debug;
-  const std::string_view filename;
-  const bool print_usage;
+  const bool              classic;
+  const bool              debug;
+  const std::string_view  filename;
+  const bool              print_usage;
   const application_order order;
 };
 
@@ -38,6 +38,8 @@ struct Config {
 void        erase_empty_production(std::string& source_code, const std::size_t index);
 void        escape_quotes(std::string& source_code);
 std::string file_as_string(const std::string_view filename);
+std::size_t find_end_of_line(const std::string& source_code, const std::size_t start) noexcept;
+std::size_t find_start_of_line(const std::string& source_code, const int line_number) noexcept;
 bool        finished_preprocessing(std::string& source_code, const std::size_t index) noexcept;
 bool        maybe_erase_empty_production(std::string& source_code, const std::size_t index);
 Config      parse_command_line_options(int argc, char* argv[]);
@@ -45,6 +47,7 @@ void        preprocess(std::string& source_code);
 std::size_t quote_initial_state(std::string& source_code, std::size_t index);
 std::size_t quote_lhs(std::string& source_code, std::size_t index);
 std::size_t quote_rhs(std::string& source_code, std::size_t index);
+void        report_error(const std::string_view filename, const std::string& source_code, int line_num, int col_num, int length);
 std::size_t skip_blank_lines(std::string& source_code, std::size_t index) noexcept;
 void        usage() noexcept;
 

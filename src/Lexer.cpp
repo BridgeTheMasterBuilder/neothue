@@ -75,12 +75,14 @@ namespace nthue {
 
     line.append(underline(bold(red(" "))));
 
-    std::cerr << bold() << filename << ':' << line_number << ':' << column_number << ": " << bold(red("error: "))
+    const auto [_, line_num, col_num] = pos;
+
+    std::cerr << bold() << filename << ':' << line_num << ':' << col_num << ": " << bold(red("error: "))
               << reset();
 
     std::cerr << message << '\n';
 
-    std::cerr << '\t' << line_number << " | " << line << '\n';
+    std::cerr << '\t' << line_num << " | " << line << '\n';
   }
 
   std::size_t Lexer::find_end_of_line() const noexcept
@@ -138,7 +140,6 @@ namespace nthue {
 
   int Lexer::get() noexcept
   {
-    column_number++;
     pos += 1;
     return !finished_scanning() ? source_code[index++] : EOF;
   }
@@ -167,9 +168,7 @@ namespace nthue {
     while (!finished_scanning()) {
       switch (peek()) {
         case '\n':
-          line_number++;
           pos.lines();
-          column_number = 0;
           index++;
           break;
         case '\t':
@@ -211,9 +210,7 @@ namespace nthue {
 
     index                             = end_of_string;
     auto start = pos;
-    column_number += length;
     pos += length;
-    line_number += number_of_newlines;
     pos.lines(number_of_newlines);
     auto end = pos;
 

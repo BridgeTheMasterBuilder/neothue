@@ -53,7 +53,7 @@
 #  endif
 # endif
 
-#line 4 "/home/master/projects/thue/src/neothue.y"
+#line 22 "/home/master/projects/thue/src/neothue.y"
 namespace nthue {
 #line 59 "Token.h"
 
@@ -299,7 +299,7 @@ namespace nthue {
     return ostr;
   }
 
-#line 4 "/home/master/projects/thue/src/neothue.y"
+#line 22 "/home/master/projects/thue/src/neothue.y"
 } // nthue
 #line 305 "Token.h"
 

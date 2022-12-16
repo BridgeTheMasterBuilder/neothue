@@ -45,7 +45,7 @@
 #ifndef YY_YY_PARSERIMPLEMENTATION_H_INCLUDED
 # define YY_YY_PARSERIMPLEMENTATION_H_INCLUDED
 // "%code requires" blocks.
-#line 23 "/home/master/projects/thue/src/neothue.y"
+#line 40 "/home/master/projects/thue/src/neothue.y"
 
     #include "Grammar.h"
 
@@ -193,7 +193,7 @@
 # define YYDEBUG 0
 #endif
 
-#line 4 "/home/master/projects/thue/src/neothue.y"
+#line 22 "/home/master/projects/thue/src/neothue.y"
 namespace nthue {
 #line 199 "ParserImplementation.h"
 
@@ -726,7 +726,7 @@ switch (yykind)
     };
 
     /// Build a parser object.
-    ParserImplementation (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, int& number_of_errors_yyarg);
+    ParserImplementation (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, int& number_of_errors_yyarg, const std::string_view filename_yyarg, const std::string& source_code_yyarg);
     virtual ~ParserImplementation ();
 
 #if 201103L <= YY_CPLUSPLUS
@@ -874,27 +874,13 @@ switch (yykind)
     ParserImplementation& operator= (const ParserImplementation&);
 #endif
 
-    /// Check the lookahead yytoken.
-    /// \returns  true iff the token will be eventually shifted.
-    bool yy_lac_check_ (symbol_kind_type yytoken) const;
-    /// Establish the initial context if no initial context currently exists.
-    /// \returns  true iff the token will be eventually shifted.
-    bool yy_lac_establish_ (symbol_kind_type yytoken);
-    /// Discard any previous initial lookahead context because of event.
-    /// \param event  the event which caused the lookahead to be discarded.
-    ///               Only used for debbuging output.
-    void yy_lac_discard_ (const char* event);
 
     /// Stored state numbers (used for stacks).
     typedef signed char state_type;
 
-    /// The arguments of the error message.
-    int yy_syntax_error_arguments_ (const context& yyctx,
-                                    symbol_kind_type yyarg[], int yyargn) const;
-
-    /// Generate an error message.
+    /// Report a syntax error
     /// \param yyctx     the context in which the error occurred.
-    virtual std::string yysyntax_error_ (const context& yyctx) const;
+    void report_syntax_error (const context& yyctx) const;
     /// Compute post-reduction state.
     /// \param yystate   the current state
     /// \param yysym     the nonterminal to push on the stack
@@ -1159,15 +1145,6 @@ switch (yykind)
 
     /// The stack.
     stack_type yystack_;
-    /// The stack for LAC.
-    /// Logically, the yy_lac_stack's lifetime is confined to the function
-    /// yy_lac_check_. We just store it as a member of this class to hold
-    /// on to the memory and to avoid frequent reallocations.
-    /// Since yy_lac_check_ is const, this member must be mutable.
-    mutable std::vector<state_type> yylac_stack_;
-    /// Whether an initial LAC context was established.
-    bool yy_lac_established_;
-
 
     /// Push a new state on the stack.
     /// \param m    a debug message to display
@@ -1201,6 +1178,8 @@ switch (yykind)
     Grammar& grammar;
     std::string& initial_state;
     int& number_of_errors;
+    const std::string_view filename;
+    const std::string& source_code;
 
   };
 
@@ -1369,9 +1348,9 @@ switch (yykind)
   }
 
 
-#line 4 "/home/master/projects/thue/src/neothue.y"
+#line 22 "/home/master/projects/thue/src/neothue.y"
 } // nthue
-#line 1375 "ParserImplementation.h"
+#line 1354 "ParserImplementation.h"
 
 
 

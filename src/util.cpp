@@ -20,6 +20,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include "terminal.h"
 
 // ...⍺'β'::=γ... → ...⍺\'β\'::=γ...
 void escape_quotes(std::string& source_code)
@@ -47,6 +48,25 @@ std::string file_as_string(const std::string_view filename)
   buffer << source_file.rdbuf();
 
   return buffer.str();
+}
+
+std::size_t find_end_of_line(const std::string& source_code, const std::size_t start) noexcept
+{
+  std::size_t end_of_line = source_code.find('\n', start);
+
+  if (end_of_line == std::string::npos) end_of_line = source_code.size();
+
+  return end_of_line;
+}
+
+std::size_t find_start_of_line(const std::string& source_code, const int line_number) noexcept
+{
+  std::size_t start_of_line = 0;
+
+  for (int i = 1; i < line_number; i++)
+    start_of_line = source_code.find('\n', start_of_line) + 1;
+
+  return start_of_line;
 }
 
 // The standard doesn't say that this overload of std::string::find doesn't throw but AFAICT it never does
@@ -197,6 +217,24 @@ std::size_t quote_rhs(std::string& source_code, std::size_t index)
   // ...⍺::='β'\nγ... → ...⍺::='β'\nγ...
   //          ^                     ^
   return index + 2;
+}
+
+void report_error(const std::string_view filename, const std::string& source_code, int line_num, int col_num, int length) {
+
+  const std::size_t start  = find_start_of_line(source_code, line_num);
+  const std::size_t end    = find_end_of_line(source_code, start);
+
+  std::string line         = source_code.substr(start, end - start);
+
+  std::cerr << bold() << filename << ':' << line_num << ':' << col_num << ": " << bold(red("error: ")) << reset();
+
+  std::cerr
+      << "Expected to find \x1B[1m=\x1B[0m but instead found a string. Note that productions must be separated by "
+         "\x1B[1m=\x1B[0m\n";
+
+  line.replace(col_num - 1, length, underline(bold(red(line.substr(col_num - 1, length)))));
+
+  std::cerr << '\t' << line_num << " | " << line << '\n';
 }
 
 // ...⍺...\n\n\n...β... → ...⍺...\n\n\n...β...

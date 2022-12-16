@@ -17,27 +17,22 @@
 */
 
 #include "Parser.h"
+#include "terminal.h"
+#include <iostream>
 
 namespace nthue {
-  /***************
- * CONSTRUCTORS *
- ***************/
-  Parser::Parser(Lexer& lexer)
-  : lexer(lexer)
-  {}
-
   /**************************
- * PUBLIC MEMBER FUNCTIONS *
- **************************/
-    std::pair<Grammar, std::string> Parser::parse(const application_order order, const bool classic, const bool debug)
-    {
-      Grammar grammar(order, classic, debug);
-      std::string initial_state;
+   * PUBLIC MEMBER FUNCTIONS *
+   **************************/
+  std::pair<Grammar, std::string> Parser::parse(const application_order order, const bool classic, const bool debug)
+  {
+    Grammar     grammar(order, classic, debug);
+    std::string initial_state;
 
-      ParserImplementation parser(lexer, grammar, initial_state, number_of_errors);
+    ParserImplementation parser(lexer, grammar, initial_state, number_of_errors, filename, source_code);
 
-      if (parser.parse() != 0 || number_of_errors > 0) throw Syntax_error(number_of_errors);
+    if (parser.parse() != 0 || number_of_errors > 0) throw Syntax_error(number_of_errors);
 
-      return { grammar, initial_state };
-    }
-}
+    return { grammar, initial_state };
+  }
+} // namespace nthue

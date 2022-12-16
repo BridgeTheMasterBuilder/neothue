@@ -23,6 +23,7 @@
 #include <string>
 #include "Lexer.h"
 #include "Parser.h"
+#include "ParserImplementation.h"
 
 using nthue::Lexer;
 using nthue::Parser;
@@ -42,7 +43,7 @@ int main(int argc, char* argv[])
     if (config.classic) preprocess(source_code);
 
     Lexer  lexer(source_code, config.filename.data());
-    Parser parser(lexer);
+    Parser parser(lexer, config.filename.data(), source_code);
 
     auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
 
@@ -60,6 +61,7 @@ int main(int argc, char* argv[])
     std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
     return EXIT_FAILURE;
   }
+
   catch (...) {
     std::cerr << "Unknown exception occurred.\n";
     return EXIT_FAILURE;

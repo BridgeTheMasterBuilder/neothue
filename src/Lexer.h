@@ -19,11 +19,11 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include "Token.h"
+#include "ParserImplementation.h"
 #include <deque>
 #include <string>
 #include <string_view>
-#include "ParserImplementation.h"
-#include "Token.h"
 
 namespace nthue {
   using Token = ParserImplementation::symbol_type;
@@ -43,7 +43,7 @@ namespace nthue {
     struct Unterminated_string { };
 
     // PUBLIC MEMBER FUNCTIONS
-    Token        lex();
+    Token lex();
 
   private:
     // PRIVATE MEMBER FUNCTIONS
@@ -63,20 +63,17 @@ namespace nthue {
 
     // TOKENIZERS
     Token separator();
-    Token  string();
+    Token string();
 
-    // TODO don't forget to remove column_number and line_number
     // PRIVATE DATA
-    int                          column_number = 0;
     const std::string_view       filename;
     std::size_t                  index            = 0;
-    int                          line_number      = 1;
     mutable bool                 malformed        = false;
     mutable int                  number_of_errors = 0;
     const std::string&           source_code;
     position                     pos;
     static constexpr const char* delimiters = "\t\n\r ;=}";
   };
-}
+} // namespace nthue
 
 #endif
