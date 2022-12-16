@@ -1,5 +1,6 @@
 bison = find_program('bison')
 
+# TODO if bison is not found, just don't run this command
 run_command(bison, join_paths(meson.source_root(), 'src/neothue.y'), check: true)
 
 sources = files('main.cpp',

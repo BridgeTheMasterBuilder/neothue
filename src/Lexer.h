@@ -65,6 +65,7 @@ namespace nthue {
     Token separator();
     Token  string();
 
+    // TODO don't forget to remove column_number and line_number
     // PRIVATE DATA
     int                          column_number = 0;
     const std::string_view       filename;

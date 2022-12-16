@@ -101,6 +101,7 @@ namespace nthue {
     if (quote == '\'' || quote == '\"') {
       end_of_string = source_code.find(quote, start_of_string);
 
+      // TODO expand escapes
       while (end_of_string != std::string::npos && source_code[end_of_string - 1] == '\\')
         end_of_string = source_code.find(quote, end_of_string + 1);
 
