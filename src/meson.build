@@ -12,6 +12,6 @@ sources = files('main.cpp',
            'Parser.cpp',
            'ParserImplementation.cpp')
 
-lexer_test_sources = files('Lexer.cpp', 'terminal.cpp', '../tests/lexer_tests.cpp')
+lexer_test_sources = files('Lexer.cpp', 'terminal.cpp', 'ParserImplementation.cpp', '../tests/lexer_tests.cpp')
 
-parser_test_sources = files('Grammar.cpp', 'Lexer.cpp', 'Parser.cpp', 'terminal.cpp', '../tests/parser_tests.cpp')
+parser_test_sources = files('Grammar.cpp', 'Lexer.cpp', 'Parser.cpp', 'terminal.cpp', 'ParserImplementation.cpp', 'util.cpp', '../tests/parser_tests.cpp')

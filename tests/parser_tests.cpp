@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+using nthue::Lexer;
+using nthue::Parser;
+
 /*
   program = { production }, [ initial state ] ;
   production = string, "=", string ;

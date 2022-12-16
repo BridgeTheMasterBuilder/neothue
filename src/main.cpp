@@ -16,14 +16,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "Lexer.h"
+#include "Parser.h"
 #include "terminal.h"
 #include "util.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include "Lexer.h"
-#include "Parser.h"
-#include "ParserImplementation.h"
 
 using nthue::Lexer;
 using nthue::Parser;
@@ -61,7 +60,6 @@ int main(int argc, char* argv[])
     std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
     return EXIT_FAILURE;
   }
-
   catch (...) {
     std::cerr << "Unknown exception occurred.\n";
     return EXIT_FAILURE;
