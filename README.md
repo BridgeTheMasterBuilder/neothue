@@ -24,6 +24,8 @@ The `examples` directory contains Thue programs distributed by the original auth
 # Build instructions
 Neothue depends on `GNU getopt` as it uses `getopt_long` (but non-GNU implementations of `getopt` that have `getopt_long` may also work - for instance FreeBSD). In addition, a C++ compiler that supports C++20 is required (this program compiles with both GCC 12.2.1 and Clang 15.0.6).
 
+Since version 1.1.1 Neothue uses Bison for parsing, but Bison is only required if you want to hack at the parser as the generated parser is included. 
+
 Enclosed is a Meson build description which can be used to build the interpreter. To use Meson to build the program simply run the commands
 
 ```

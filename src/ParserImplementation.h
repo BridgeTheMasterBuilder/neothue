@@ -45,7 +45,7 @@
 #ifndef YY_YY_PARSERIMPLEMENTATION_H_INCLUDED
 # define YY_YY_PARSERIMPLEMENTATION_H_INCLUDED
 // "%code requires" blocks.
-#line 40 "/home/master/projects/thue/src/neothue.y"
+#line 39 "/home/master/projects/thue/src/neothue.y"
 
     #include "Grammar.h"
 
@@ -56,7 +56,7 @@
 
 #line 58 "ParserImplementation.h"
 
-# include <cassert>
+
 # include <cstdlib> // std::abort
 # include <iostream>
 # include <stdexcept>
@@ -100,11 +100,6 @@
 # define YY_CONSTEXPR
 #endif
 # include "Token.h"
-#include <typeinfo>
-#ifndef YY_ASSERT
-# include <cassert>
-# define YY_ASSERT assert
-#endif
 
 
 #ifndef YY_ATTRIBUTE_PURE
@@ -195,7 +190,7 @@
 
 #line 22 "/home/master/projects/thue/src/neothue.y"
 namespace nthue {
-#line 199 "ParserImplementation.h"
+#line 194 "ParserImplementation.h"
 
 
 
@@ -224,15 +219,12 @@ namespace nthue {
     /// Empty construction.
     value_type () YY_NOEXCEPT
       : yyraw_ ()
-      , yytypeid_ (YY_NULLPTR)
     {}
 
     /// Construct and fill.
     template <typename T>
     value_type (YY_RVREF (T) t)
-      : yytypeid_ (&typeid (T))
     {
-      YY_ASSERT (sizeof (T) <= size);
       new (yyas_<T> ()) T (YY_MOVE (t));
     }
 
@@ -245,9 +237,7 @@ namespace nthue {
 
     /// Destruction, allowed only if empty.
     ~value_type () YY_NOEXCEPT
-    {
-      YY_ASSERT (!yytypeid_);
-    }
+    {}
 
 # if 201103L <= YY_CPLUSPLUS
     /// Instantiate a \a T in here from \a t.
@@ -255,9 +245,6 @@ namespace nthue {
     T&
     emplace (U&&... u)
     {
-      YY_ASSERT (!yytypeid_);
-      YY_ASSERT (sizeof (T) <= size);
-      yytypeid_ = & typeid (T);
       return *new (yyas_<T> ()) T (std::forward <U>(u)...);
     }
 # else
@@ -266,9 +253,6 @@ namespace nthue {
     T&
     emplace ()
     {
-      YY_ASSERT (!yytypeid_);
-      YY_ASSERT (sizeof (T) <= size);
-      yytypeid_ = & typeid (T);
       return *new (yyas_<T> ()) T ();
     }
 
@@ -277,9 +261,6 @@ namespace nthue {
     T&
     emplace (const T& t)
     {
-      YY_ASSERT (!yytypeid_);
-      YY_ASSERT (sizeof (T) <= size);
-      yytypeid_ = & typeid (T);
       return *new (yyas_<T> ()) T (t);
     }
 # endif
@@ -307,9 +288,6 @@ namespace nthue {
     T&
     as () YY_NOEXCEPT
     {
-      YY_ASSERT (yytypeid_);
-      YY_ASSERT (*yytypeid_ == typeid (T));
-      YY_ASSERT (sizeof (T) <= size);
       return *yyas_<T> ();
     }
 
@@ -318,9 +296,6 @@ namespace nthue {
     const T&
     as () const YY_NOEXCEPT
     {
-      YY_ASSERT (yytypeid_);
-      YY_ASSERT (*yytypeid_ == typeid (T));
-      YY_ASSERT (sizeof (T) <= size);
       return *yyas_<T> ();
     }
 
@@ -336,8 +311,6 @@ namespace nthue {
     void
     swap (self_type& that) YY_NOEXCEPT
     {
-      YY_ASSERT (yytypeid_);
-      YY_ASSERT (*yytypeid_ == *that.yytypeid_);
       std::swap (as<T> (), that.as<T> ());
     }
 
@@ -382,7 +355,6 @@ namespace nthue {
     destroy ()
     {
       as<T> ().~T ();
-      yytypeid_ = YY_NULLPTR;
     }
 
   private:
@@ -431,9 +403,6 @@ namespace nthue {
       /// A buffer large enough to store any of the semantic values.
       char yyraw_[size];
     };
-
-    /// Whether the content is built: if defined, the name of the stored type.
-    const std::type_info *yytypeid_;
   };
 
 #endif
@@ -705,12 +674,7 @@ switch (yykind)
       symbol_type (int tok, const location_type& l)
         : super_type (token_kind_type (tok), l)
 #endif
-      {
-#if !defined _MSC_VER || defined __clang__
-        YY_ASSERT (tok == token::YYEOF
-                   || (token::YYerror <= tok && tok <= token::SEPARATOR));
-#endif
-      }
+      {}
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, std::string v, location_type l)
         : super_type (token_kind_type (tok), std::move (v), std::move (l))
@@ -718,11 +682,7 @@ switch (yykind)
       symbol_type (int tok, const std::string& v, const location_type& l)
         : super_type (token_kind_type (tok), v, l)
 #endif
-      {
-#if !defined _MSC_VER || defined __clang__
-        YY_ASSERT (tok == token::STRING);
-#endif
-      }
+      {}
     };
 
     /// Build a parser object.
@@ -1350,7 +1310,7 @@ switch (yykind)
 
 #line 22 "/home/master/projects/thue/src/neothue.y"
 } // nthue
-#line 1354 "ParserImplementation.h"
+#line 1314 "ParserImplementation.h"
 
 
 

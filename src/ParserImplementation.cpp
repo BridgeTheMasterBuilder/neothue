@@ -42,7 +42,7 @@
 
 
 // Unqualified %code blocks.
-#line 55 "/home/master/projects/thue/src/neothue.y"
+#line 54 "/home/master/projects/thue/src/neothue.y"
 
 #include <string>
 #include "util.h"
@@ -570,31 +570,31 @@ namespace nthue {
           switch (yyn)
             {
   case 2: // program: productions initial_state
-#line 64 "/home/master/projects/thue/src/neothue.y"
+#line 63 "/home/master/projects/thue/src/neothue.y"
                                    { grammar.sort(); initial_state = yystack_[0].value.as < std::string > (); }
 #line 576 "ParserImplementation.cpp"
     break;
 
   case 5: // production: string "=" string
-#line 69 "/home/master/projects/thue/src/neothue.y"
+#line 68 "/home/master/projects/thue/src/neothue.y"
                                     { grammar.add_production(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > ()); }
 #line 582 "ParserImplementation.cpp"
     break;
 
   case 7: // initial_state: string
-#line 72 "/home/master/projects/thue/src/neothue.y"
+#line 71 "/home/master/projects/thue/src/neothue.y"
                { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
 #line 588 "ParserImplementation.cpp"
     break;
 
   case 8: // string: "string"
-#line 74 "/home/master/projects/thue/src/neothue.y"
+#line 73 "/home/master/projects/thue/src/neothue.y"
         { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
 #line 594 "ParserImplementation.cpp"
     break;
 
   case 9: // string: %empty
-#line 75 "/home/master/projects/thue/src/neothue.y"
+#line 74 "/home/master/projects/thue/src/neothue.y"
          { yylhs.value.as < std::string > () = ""; }
 #line 600 "ParserImplementation.cpp"
     break;
@@ -905,7 +905,7 @@ namespace nthue {
   const signed char
   ParserImplementation::yyrline_[] =
   {
-       0,    64,    64,    66,    67,    69,    70,    72,    74,    75
+       0,    63,    63,    65,    66,    68,    69,    71,    73,    74
   };
 
   void
@@ -940,7 +940,7 @@ namespace nthue {
 } // nthue
 #line 942 "ParserImplementation.cpp"
 
-#line 77 "/home/master/projects/thue/src/neothue.y"
+#line 76 "/home/master/projects/thue/src/neothue.y"
 
 namespace nthue {
     void ParserImplementation::error(const location_type& loc, const std::string& msg) {

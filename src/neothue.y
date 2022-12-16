@@ -24,7 +24,6 @@
 %define api.value.type variant
 %define api.token.constructor
 %define api.location.file "Token.h"
-%define parse.assert
 %define parse.error custom
 
 %locations
