@@ -16,28 +16,41 @@
 
 %token SEPARATOR "="
 %token <std::string> STRING "string"
+%type <std::pair<Grammar, std::string>> program
+%type <std::vector<Production>> productions
+%type <std::string> initial_state
+%type <Production> production
 
 %code requires {
+    #include "Grammar.h"
+
     namespace nthue {
         class Lexer;
     }
  }
 
 %parse-param {Lexer& lexer}
+%parse-param {Grammar& grammar}
+%parse-param {std::string& initial_state}
+%parse-param {application_order order}
+%parse-param {bool classic}
+%parse-param {bool debug}
 
 %code {
 #include "Lexer.h"
 #define yylex lexer.lex
+
+static std::vector<Production> productions;
  }
 
 %%
 
-program: productions initial_state ;
+program: productions initial_state { grammar = Grammar(productions, order, classic, debug); grammar.sort(); initial_state = $2; }
 
-productions: productions production
+productions: productions production { productions.push_back($2); }
 | ;
 
-production: STRING SEPARATOR STRING ;
+production: STRING SEPARATOR STRING { $$ = std::make_pair($1, $3); }
 
 initial_state: STRING
 | ;

@@ -41,14 +41,14 @@ int main(int argc, char* argv[])
     if (config.classic) preprocess(source_code);
 
     Lexer  lexer(source_code, config.filename.data());
-    Parser parser(lexer);
-//
-//    auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
-//
-//    grammar.apply_productions(initial_state);
+    Grammar grammar;
+    std::string initial_state;
+    Parser parser(lexer, grammar, initial_state, config.order, config.classic, config.debug);
 
     // TODO get total number of errors?
     if (parser.parse() != 0) throw 0;
+
+    grammar.apply_productions(initial_state);
   }
   catch (const File_not_found& fnf) {
     std::cerr << bold(red("error: ")) << "File not found: " << bold(fnf.file) << '\n';
