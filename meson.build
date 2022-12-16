@@ -4,6 +4,7 @@ project('nthue', 'cpp',
 
 subdir('src')
 
+#executable('nthue', sources, cpp_args: '-Wno-unused-but-set-variable')
 executable('nthue', sources)
 
 if get_option('test')

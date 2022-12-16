@@ -1,7 +1,8 @@
 bison = find_program('bison')
 
-# TODO if bison is not found, just don't run this command
-run_command(bison, join_paths(meson.source_root(), 'src/neothue.y'), check: true)
+if bison.found()
+    run_command(bison, join_paths(meson.source_root(), 'src/neothue.y'), check: true)
+endif
 
 sources = files('main.cpp',
            'Grammar.cpp',
