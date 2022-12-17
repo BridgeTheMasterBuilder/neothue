@@ -1,7 +1,12 @@
 bison = find_program('bison')
+reflex = find_program('reflex')
 
 if bison.found()
     run_command(bison, join_paths(meson.source_root(), 'src/neothue.y'), check: true)
+endif
+
+if reflex.found()
+    run_command(reflex, join_paths(meson.source_root(), 'src/neothue.l'), check: true)
 endif
 
 sources = files('main.cpp',

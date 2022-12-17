@@ -1,5 +1,4 @@
 #include "../src/util.h"
-#include "Lexer.h"
 #include "Parser.h"
 #include <boost/ut.hpp>
 #include <fstream>
@@ -9,24 +8,12 @@
 using nthue::Lexer;
 using nthue::Parser;
 
-/*
-  program = { production }, [ initial state ] ;
-  production = string, "=", string ;
-  initial state = { symbol } ;
-  string = "'", { symbol - "'" }, "'"
-         | "\"", { symbol - "\"" }, "\"" ;
-  symbol = ? any character ? ;
-
-  syntax using unary strings:
-  (( |\n|\t)*('1*'|"1*"|1*)( |\n|\t)*=( |\n|\t)*('1*'|"1*"|1*)( |\n|\t)*)*( |\n|\t)*('1*'|"1*"|1*)( |\n|\t)*)*
- */
-
 void test(const std::string item, const std::string message, const bool expected_result)
 {
   bool successful = true;
 
   try {
-    Lexer  l(item, "test");
+    Lexer  l(item);
     Parser p(l, "test", item);
     p.parse();
   }

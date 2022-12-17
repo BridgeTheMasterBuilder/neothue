@@ -1,15 +1,16 @@
-#include "Lexer.h"
 #include <boost/ut.hpp>
 #include <strings.h>
 #include "ParserImplementation.h"
-#include "Token.h"
+#include "Lexer.h"
 
 using nthue::Lexer;
 using nthue::ParserImplementation;
 using nthue::location;
 
+using Token = nthue::ParserImplementation::symbol_type;
+
 void test(const std::string item,
-          const nthue::Token type,
+          const Token type,
           const std::string message,
           const bool        expected_result,
           const bool        compare_external = true)
@@ -20,7 +21,7 @@ void test(const std::string item,
   bool        representations_match = true;
 
   try {
-    const nthue::Token t = Lexer(item, "test").lex();
+    const Token t = Lexer(item).lex();
     if (t.kind() != type.kind()) types_match = false;
     if (compare_external && strcasecmp(t.name(), item.c_str()) != 0) {
       representation        = t.name();

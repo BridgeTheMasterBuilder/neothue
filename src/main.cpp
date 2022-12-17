@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 
     if (config.classic) preprocess(source_code);
 
-    Lexer  lexer(source_code, config.filename.data());
+    Lexer  lexer(source_code);
     Parser parser(lexer, config.filename.data(), source_code);
 
     auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
@@ -52,10 +52,10 @@ int main(int argc, char* argv[])
     std::cerr << bold(red("error: ")) << "File not found: " << bold(fnf.file) << '\n';
     return EXIT_FAILURE;
   }
-  catch (const Lexer::Syntax_error& se) {
-    std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
-    return EXIT_FAILURE;
-  }
+  //  catch (const Lexer::Syntax_error& se) {
+  //    std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() <<
+  //    '\n'; return EXIT_FAILURE;
+  //  }
   catch (const Parser::Syntax_error& se) {
     std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
     return EXIT_FAILURE;
