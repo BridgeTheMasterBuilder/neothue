@@ -53,15 +53,19 @@ private:
   // PRIVATE MEMBER FUNCTIONS
   void apply_production(Production& production, std::string& string, const std::size_t index_of_match);
   template<typename T>
-  std::size_t match(const T lhs, const std::string_view string) requires(any_of<T, const char*, std::string_view, char>)
+  std::size_t match(const T lhs, const std::string_view string)
+    requires(any_of<T, const char*, std::string_view, char>)
   {
     using enum application_order;
 
     std::size_t index_of_match;
 
-    if (order == LEFT_TO_RIGHT) index_of_match = string.find(lhs);
-    else if (order == RIGHT_TO_LEFT) index_of_match = string.rfind(lhs);
-    else index_of_match = (rng() < rng.max() / 2) ? string.find(lhs) : string.rfind(lhs);
+    if (order == LEFT_TO_RIGHT)
+      index_of_match = string.find(lhs);
+    else if (order == RIGHT_TO_LEFT)
+      index_of_match = string.rfind(lhs);
+    else
+      index_of_match = (rng() < rng.max() / 2) ? string.find(lhs) : string.rfind(lhs);
 
     return index_of_match;
   }
@@ -75,14 +79,16 @@ private:
   void sort_right_to_left();
 
   // PRIVATE DATA
+  // TODO don't forget to make private
 public:
-  std::vector<Production>  productions;
+  std::vector<Production> productions;
+
 private:
   std::vector<std::size_t> indices;
   std::mt19937             rng;
-  application_order  order;
-  bool               classic;
-  bool               debug;
+  application_order        order;
+  bool                     classic;
+  bool                     debug;
 };
 
 #endif

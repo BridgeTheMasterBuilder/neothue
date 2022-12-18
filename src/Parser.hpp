@@ -25,13 +25,13 @@
 #include "generated/ThueLexer.h"
 #include "generated/ThueParserImplementation.h"
 #include "terminal.h"
+#include <concepts>
 #include <iostream>
 #include <string>
-#include <concepts>
 
 using neothue::NeothueLexer;
-using neothue::ThueLexer;
 using neothue::NeothueParserImplementation;
+using neothue::ThueLexer;
 using neothue::ThueParserImplementation;
 
 struct Parse_error {
@@ -41,7 +41,8 @@ struct Parse_error {
 };
 
 template<class Lexer, class ParserImplementation>
-requires (std::same_as<Lexer, ThueLexer> && std::same_as<ParserImplementation, ThueParserImplementation> || std::same_as<Lexer, NeothueLexer> && std::same_as<ParserImplementation, NeothueParserImplementation>)
+  requires((std::same_as<Lexer, ThueLexer> && std::same_as<ParserImplementation, ThueParserImplementation>)
+           || (std::same_as<Lexer, NeothueLexer> && std::same_as<ParserImplementation, NeothueParserImplementation>) )
 class Parser {
 public:
   // CONSTRUCTORS
@@ -50,7 +51,9 @@ public:
   { }
 
   // PUBLIC MEMBER FUNCTIONS
-  std::pair<Grammar, std::string> parse(const application_order order = application_order::NONDETERMINISTIC, const bool classic = false, const bool debug = false)
+  std::pair<Grammar, std::string> parse(const application_order order   = application_order::NONDETERMINISTIC,
+                                        const bool              classic = false,
+                                        const bool              debug   = false)
   {
     Grammar     grammar(order, classic, debug);
     std::string initial_state;
@@ -65,7 +68,7 @@ public:
 private:
   // PRIVATE DATA
   const std::string_view filename;
-  Lexer&          lexer;
+  Lexer&                 lexer;
   const std::string&     source_code;
   int                    number_of_errors = 0;
 };
