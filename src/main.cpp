@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "Lexer.h"
 #include "Parser.hpp"
 #include "generated/NeothueLexer.h"
 #include "generated/ThueLexer.h"
@@ -43,7 +44,9 @@ int main(int argc, char* argv[])
     if (config.classic) {
       preprocess(source_code);
 
-      ThueLexer                                   lexer(source_code);
+      std::string src = source_code;
+
+      ThueLexer                                   lexer(config.filename.data(), src, source_code);
       Parser<ThueLexer, ThueParserImplementation> parser(lexer, config.filename.data(), source_code);
 
       auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
@@ -51,7 +54,9 @@ int main(int argc, char* argv[])
       grammar.apply_productions(initial_state);
     }
     else {
-      NeothueLexer                                      lexer(source_code);
+      std::string src = source_code;
+
+      NeothueLexer                                      lexer(config.filename.data(), src, source_code);
       Parser<NeothueLexer, NeothueParserImplementation> parser(lexer, config.filename.data(), source_code);
 
       auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
@@ -63,10 +68,10 @@ int main(int argc, char* argv[])
     std::cerr << bold(red("error: ")) << "File not found: " << bold(fnf.file) << '\n';
     return EXIT_FAILURE;
   }
-  //  catch (const Lexer::Syntax_error& se) {
-  //    std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() <<
-  //    '\n'; return EXIT_FAILURE;
-  //  }
+  catch (const Unterminated_string&) {
+    std::cerr << underline() << "1 error in total" << reset() << '\n';
+    return EXIT_FAILURE;
+  }
   catch (const Parse_error& se) {
     std::cerr << underline() << se.number << (se.number > 1 ? " errors" : " error") << " in total" << reset() << '\n';
     return EXIT_FAILURE;

@@ -18,6 +18,8 @@
 #undef REFLEX_OPTION_bison_cc_parser
 #undef REFLEX_OPTION_bison_complete
 #undef REFLEX_OPTION_bison_locations
+#undef REFLEX_OPTION_ctorarg
+#undef REFLEX_OPTION_ctorinit
 #undef REFLEX_OPTION_header_file
 #undef REFLEX_OPTION_lex
 #undef REFLEX_OPTION_lexer
@@ -34,6 +36,8 @@
 #define REFLEX_OPTION_bison_cc_parser     NeothueParserImplementation
 #define REFLEX_OPTION_bison_complete      true
 #define REFLEX_OPTION_bison_locations     true
+#define REFLEX_OPTION_ctorarg             const std::string_view neothue_source_filename, const std::string& neothue_source_code
+#define REFLEX_OPTION_ctorinit            neothue_source_filename(neothue_source_filename), neothue_source_code(neothue_source_code)
 #define REFLEX_OPTION_header_file         "generated/NeothueLexer.h"
 #define REFLEX_OPTION_lex                 lex
 #define REFLEX_OPTION_lexer               NeothueLexer
@@ -54,7 +58,7 @@
     #include "Token.h"
     #include "NeothueParserImplementation.h"
 
-#line 35 "/home/master/projects/thue/src/generated/neothue.l"
+#line 66 "/home/master/projects/thue/src/generated/neothue.l"
 
     #include <iostream>
     #include <algorithm>
@@ -85,15 +89,22 @@
 namespace neothue {
 
 class NeothueLexer : public reflex::AbstractLexer<reflex::Matcher> {
+#line 35 "/home/master/projects/thue/src/generated/neothue.l"
+
+    const std::string_view neothue_source_filename;
+    const std::string& neothue_source_code;
+
  public:
   typedef reflex::AbstractLexer<reflex::Matcher> AbstractBaseLexer;
   NeothueLexer(
+      const std::string_view neothue_source_filename, const std::string& neothue_source_code,
       // a persistent source of input, empty by default
       const reflex::Input& input = reflex::Input(),
       // optional output stream, std::cout by default
       std::ostream& os = std::cout)
     :
-      AbstractBaseLexer(input, os)
+      AbstractBaseLexer(input, os),
+      neothue_source_filename(neothue_source_filename), neothue_source_code(neothue_source_code)
   {
   }
   static const int INITIAL = 0;

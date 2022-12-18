@@ -15,6 +15,8 @@
 #undef REFLEX_OPTION_bison_cc_parser
 #undef REFLEX_OPTION_bison_complete
 #undef REFLEX_OPTION_bison_locations
+#undef REFLEX_OPTION_ctorarg
+#undef REFLEX_OPTION_ctorinit
 #undef REFLEX_OPTION_header_file
 #undef REFLEX_OPTION_lex
 #undef REFLEX_OPTION_lexer
@@ -31,6 +33,8 @@
 #define REFLEX_OPTION_bison_cc_parser     NeothueParserImplementation
 #define REFLEX_OPTION_bison_complete      true
 #define REFLEX_OPTION_bison_locations     true
+#define REFLEX_OPTION_ctorarg             const std::string_view neothue_source_filename, const std::string& neothue_source_code
+#define REFLEX_OPTION_ctorinit            neothue_source_filename(neothue_source_filename), neothue_source_code(neothue_source_code)
 #define REFLEX_OPTION_header_file         "generated/NeothueLexer.h"
 #define REFLEX_OPTION_lex                 lex
 #define REFLEX_OPTION_lexer               NeothueLexer
@@ -51,7 +55,7 @@
     #include "Token.h"
     #include "NeothueParserImplementation.h"
 
-#line 35 "/home/master/projects/thue/src/generated/neothue.l"
+#line 66 "/home/master/projects/thue/src/generated/neothue.l"
 
     #include <iostream>
     #include <algorithm>
@@ -82,15 +86,22 @@
 namespace neothue {
 
 class NeothueLexer : public reflex::AbstractLexer<reflex::Matcher> {
+#line 35 "/home/master/projects/thue/src/generated/neothue.l"
+
+    const std::string_view neothue_source_filename;
+    const std::string& neothue_source_code;
+
  public:
   typedef reflex::AbstractLexer<reflex::Matcher> AbstractBaseLexer;
   NeothueLexer(
+      const std::string_view neothue_source_filename, const std::string& neothue_source_code,
       // a persistent source of input, empty by default
       const reflex::Input& input = reflex::Input(),
       // optional output stream, std::cout by default
       std::ostream& os = std::cout)
     :
-      AbstractBaseLexer(input, os)
+      AbstractBaseLexer(input, os),
+      neothue_source_filename(neothue_source_filename), neothue_source_code(neothue_source_code)
   {
   }
   static const int INITIAL = 0;
@@ -141,13 +152,38 @@ class NeothueLexer : public reflex::AbstractLexer<reflex::Matcher> {
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#line 40 "/home/master/projects/thue/src/generated/neothue.l"
+#line 43 "/home/master/projects/thue/src/generated/neothue.l"
+
+    #include "../util.h"
+    #include "../terminal.h"
+
+    static void report_syntax_error(const std::string_view neothue_source_filename, const std::string& neothue_source_code, const neothue::location& location) {
+        const auto [_, line_num, col_num] = location.begin;
+
+        const std::size_t start = find_start_of_line(neothue_source_code, line_num);
+        const std::size_t end   = find_end_of_line(neothue_source_code, start);
+
+        std::string line        = neothue_source_code.substr(start, end - start);
+
+        line.append(underline(bold(red(" "))));
+
+        std::cerr << bold() << neothue_source_filename << ':' << line_num << ':' << col_num << ": " << bold(red("error: "))
+                  << reset();
+
+        std::cerr << "Unterminated_string\n";
+
+        std::cerr << '\t' << line_num << " | " << line << '\n';
+    }
+
+#line 71 "/home/master/projects/thue/src/generated/neothue.l"
+
+    #include "../Lexer.h"
 
     using neothue::position;
 
-    static position yypos;
     static position yytemp;
     static std::string yybuf;
+    static bool in_string = false;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -188,33 +224,54 @@ neothue::NeothueParserImplementation::symbol_type neothue::NeothueLexer::lex(voi
           case 0:
             if (matcher().at_end())
             {
-              return neothue::NeothueParserImplementation::symbol_type(0, location());
+#line 131 "/home/master/projects/thue/src/generated/neothue.l"
+{
+    if(in_string) {
+        neothue::location loc = location();
+
+        const std::size_t size = neothue_source_code.size()-1;
+
+        if(neothue_source_code[size] == '\n') {
+            std::size_t start_of_line = neothue_source_code.rfind('\n', size-1);
+
+            const std::size_t length = size - (start_of_line == std::string::npos ? 1 : start_of_line);
+
+            loc.begin.line -= 1;
+            loc.begin.column += length;
+            loc.end.line -= 1;
+            loc.end.column += length;
+        }
+
+        report_syntax_error(neothue_source_filename, neothue_source_code, loc);
+        throw Unterminated_string();
+    }
+}
             }
             else
             {
               out().put(matcher().input());
             }
             break;
-          case 1: // rule /home/master/projects/thue/src/generated/neothue.l:58: ['] :
-#line 58 "/home/master/projects/thue/src/generated/neothue.l"
-start(SQSTR); yytemp = location().begin;
+          case 1: // rule /home/master/projects/thue/src/generated/neothue.l:91: ['] :
+#line 91 "/home/master/projects/thue/src/generated/neothue.l"
+in_string = true; start(SQSTR); yytemp = location().begin;
             break;
-          case 2: // rule /home/master/projects/thue/src/generated/neothue.l:72: ["] :
-#line 72 "/home/master/projects/thue/src/generated/neothue.l"
-start(DQSTR); yytemp = location().begin;
+          case 2: // rule /home/master/projects/thue/src/generated/neothue.l:106: ["] :
+#line 106 "/home/master/projects/thue/src/generated/neothue.l"
+in_string = true; start(DQSTR); yytemp = location().begin;
             break;
-          case 3: // rule /home/master/projects/thue/src/generated/neothue.l:92: {comment} :
-#line 92 "/home/master/projects/thue/src/generated/neothue.l"
+          case 3: // rule /home/master/projects/thue/src/generated/neothue.l:127: {comment} :
+#line 127 "/home/master/projects/thue/src/generated/neothue.l"
             break;
-          case 4: // rule /home/master/projects/thue/src/generated/neothue.l:93: {ws}+ :
-#line 93 "/home/master/projects/thue/src/generated/neothue.l"
+          case 4: // rule /home/master/projects/thue/src/generated/neothue.l:128: {ws}+ :
+#line 128 "/home/master/projects/thue/src/generated/neothue.l"
             break;
-          case 5: // rule /home/master/projects/thue/src/generated/neothue.l:94: [=] :
-#line 94 "/home/master/projects/thue/src/generated/neothue.l"
+          case 5: // rule /home/master/projects/thue/src/generated/neothue.l:129: [=] :
+#line 129 "/home/master/projects/thue/src/generated/neothue.l"
 return NeothueParserImplementation::make_SEPARATOR(location());
             break;
-          case 6: // rule /home/master/projects/thue/src/generated/neothue.l:95: . :
-#line 95 "/home/master/projects/thue/src/generated/neothue.l"
+          case 6: // rule /home/master/projects/thue/src/generated/neothue.l:130: . :
+#line 130 "/home/master/projects/thue/src/generated/neothue.l"
 start(UNQSTR); matcher().unput(chr());
             break;
         }
@@ -226,15 +283,36 @@ start(UNQSTR); matcher().unput(chr());
           case 0:
             if (matcher().at_end())
             {
-              return neothue::NeothueParserImplementation::symbol_type(0, location());
+#line 131 "/home/master/projects/thue/src/generated/neothue.l"
+{
+    if(in_string) {
+        neothue::location loc = location();
+
+        const std::size_t size = neothue_source_code.size()-1;
+
+        if(neothue_source_code[size] == '\n') {
+            std::size_t start_of_line = neothue_source_code.rfind('\n', size-1);
+
+            const std::size_t length = size - (start_of_line == std::string::npos ? 1 : start_of_line);
+
+            loc.begin.line -= 1;
+            loc.begin.column += length;
+            loc.end.line -= 1;
+            loc.end.column += length;
+        }
+
+        report_syntax_error(neothue_source_filename, neothue_source_code, loc);
+        throw Unterminated_string();
+    }
+}
             }
             else
             {
               out().put(matcher().input());
             }
             break;
-          case 1: // rule /home/master/projects/thue/src/generated/neothue.l:86: {unquoted_str} :
-#line 86 "/home/master/projects/thue/src/generated/neothue.l"
+          case 1: // rule /home/master/projects/thue/src/generated/neothue.l:121: {unquoted_str} :
+#line 121 "/home/master/projects/thue/src/generated/neothue.l"
 {
     start(INITIAL);
 
@@ -251,28 +329,50 @@ start(UNQSTR); matcher().unput(chr());
           case 0:
             if (matcher().at_end())
             {
-              return neothue::NeothueParserImplementation::symbol_type(0, location());
+#line 131 "/home/master/projects/thue/src/generated/neothue.l"
+{
+    if(in_string) {
+        neothue::location loc = location();
+
+        const std::size_t size = neothue_source_code.size()-1;
+
+        if(neothue_source_code[size] == '\n') {
+            std::size_t start_of_line = neothue_source_code.rfind('\n', size-1);
+
+            const std::size_t length = size - (start_of_line == std::string::npos ? 1 : start_of_line);
+
+            loc.begin.line -= 1;
+            loc.begin.column += length;
+            loc.end.line -= 1;
+            loc.end.column += length;
+        }
+
+        report_syntax_error(neothue_source_filename, neothue_source_code, loc);
+        throw Unterminated_string();
+    }
+}
             }
             else
             {
               out().put(matcher().input());
             }
             break;
-          case 1: // rule /home/master/projects/thue/src/generated/neothue.l:59: {sq_str} :
-#line 59 "/home/master/projects/thue/src/generated/neothue.l"
+          case 1: // rule /home/master/projects/thue/src/generated/neothue.l:92: {sq_str} :
+#line 92 "/home/master/projects/thue/src/generated/neothue.l"
 yybuf += str();
             break;
-          case 2: // rule /home/master/projects/thue/src/generated/neothue.l:60: [\\]['] :
-#line 60 "/home/master/projects/thue/src/generated/neothue.l"
+          case 2: // rule /home/master/projects/thue/src/generated/neothue.l:93: [\\]['] :
+#line 93 "/home/master/projects/thue/src/generated/neothue.l"
 yybuf += '\'';
             break;
-          case 3: // rule /home/master/projects/thue/src/generated/neothue.l:61: [\\]. :
-#line 61 "/home/master/projects/thue/src/generated/neothue.l"
+          case 3: // rule /home/master/projects/thue/src/generated/neothue.l:94: [\\]. :
+#line 94 "/home/master/projects/thue/src/generated/neothue.l"
 yybuf += text();
             break;
-          case 4: // rule /home/master/projects/thue/src/generated/neothue.l:62: ['] :
-#line 62 "/home/master/projects/thue/src/generated/neothue.l"
+          case 4: // rule /home/master/projects/thue/src/generated/neothue.l:95: ['] :
+#line 95 "/home/master/projects/thue/src/generated/neothue.l"
 {
+    in_string = false;
     yybuf.clear();
     start(INITIAL);
 
@@ -292,28 +392,50 @@ yybuf += text();
           case 0:
             if (matcher().at_end())
             {
-              return neothue::NeothueParserImplementation::symbol_type(0, location());
+#line 131 "/home/master/projects/thue/src/generated/neothue.l"
+{
+    if(in_string) {
+        neothue::location loc = location();
+
+        const std::size_t size = neothue_source_code.size()-1;
+
+        if(neothue_source_code[size] == '\n') {
+            std::size_t start_of_line = neothue_source_code.rfind('\n', size-1);
+
+            const std::size_t length = size - (start_of_line == std::string::npos ? 1 : start_of_line);
+
+            loc.begin.line -= 1;
+            loc.begin.column += length;
+            loc.end.line -= 1;
+            loc.end.column += length;
+        }
+
+        report_syntax_error(neothue_source_filename, neothue_source_code, loc);
+        throw Unterminated_string();
+    }
+}
             }
             else
             {
               out().put(matcher().input());
             }
             break;
-          case 1: // rule /home/master/projects/thue/src/generated/neothue.l:73: {dq_str} :
-#line 73 "/home/master/projects/thue/src/generated/neothue.l"
+          case 1: // rule /home/master/projects/thue/src/generated/neothue.l:107: {dq_str} :
+#line 107 "/home/master/projects/thue/src/generated/neothue.l"
 yybuf += str();
             break;
-          case 2: // rule /home/master/projects/thue/src/generated/neothue.l:74: [\\]["] :
-#line 74 "/home/master/projects/thue/src/generated/neothue.l"
+          case 2: // rule /home/master/projects/thue/src/generated/neothue.l:108: [\\]["] :
+#line 108 "/home/master/projects/thue/src/generated/neothue.l"
 yybuf += '"';
             break;
-          case 3: // rule /home/master/projects/thue/src/generated/neothue.l:75: [\\]. :
-#line 75 "/home/master/projects/thue/src/generated/neothue.l"
+          case 3: // rule /home/master/projects/thue/src/generated/neothue.l:109: [\\]. :
+#line 109 "/home/master/projects/thue/src/generated/neothue.l"
 yybuf += text();
             break;
-          case 4: // rule /home/master/projects/thue/src/generated/neothue.l:76: ["] :
-#line 76 "/home/master/projects/thue/src/generated/neothue.l"
+          case 4: // rule /home/master/projects/thue/src/generated/neothue.l:110: ["] :
+#line 110 "/home/master/projects/thue/src/generated/neothue.l"
 {
+    in_string = false;
     yybuf.clear();
     start(INITIAL);
 

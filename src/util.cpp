@@ -17,10 +17,10 @@
 */
 
 #include "util.h"
+#include "terminal.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "terminal.h"
 
 // ...⍺'β'::=γ... → ...⍺\'β\'::=γ...
 void escape_quotes(std::string& source_code)
@@ -96,7 +96,8 @@ bool maybe_erase_empty_production(std::string& source_code, const std::size_t in
     source_code.erase(start, length);
     return true;
   }
-  else return false;
+  else
+    return false;
 }
 
 Config parse_command_line_options(int argc, char* argv[])
@@ -219,12 +220,17 @@ std::size_t quote_rhs(std::string& source_code, std::size_t index)
   return index + 2;
 }
 
-void report_error(const std::string_view filename, const std::string& source_code, int line_num, int col_num, int length) {
+void report_error(const std::string_view filename,
+                  const std::string&     source_code,
+                  int                    line_num,
+                  int                    col_num,
+                  int                    length)
+{
+  const int         size  = source_code.size();
+  const std::size_t start = find_start_of_line(source_code, line_num >= size ? size - 1 : line_num);
+  const std::size_t end   = find_end_of_line(source_code, start);
 
-  const std::size_t start  = find_start_of_line(source_code, line_num);
-  const std::size_t end    = find_end_of_line(source_code, start);
-
-  std::string line         = source_code.substr(start, end - start);
+  std::string line        = source_code.substr(start, end - start);
 
   std::cerr << bold() << filename << ':' << line_num << ':' << col_num << ": " << bold(red("error: ")) << reset();
 

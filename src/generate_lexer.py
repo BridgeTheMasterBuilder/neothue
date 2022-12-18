@@ -44,7 +44,39 @@ lexer = fr"""/*
 %option outfile="generated/{language}Lexer.cpp"
 %option noyywrap
 
-{grammar}"""
+%class{{
+    const std::string_view neothue_source_filename; 
+    const std::string& neothue_source_code;
+}}
+
+%option ctorarg="const std::string_view neothue_source_filename, const std::string& neothue_source_code"
+%option ctorinit="neothue_source_filename(neothue_source_filename), neothue_source_code(neothue_source_code)"
+
+%{{
+    #include "../util.h"
+    #include "../terminal.h"
+    
+    static void report_syntax_error(const std::string_view neothue_source_filename, const std::string& neothue_source_code, const neothue::location& location) {{
+        const auto [_, line_num, col_num] = location.begin;
+
+        const std::size_t start = find_start_of_line(neothue_source_code, line_num);
+        const std::size_t end   = find_end_of_line(neothue_source_code, start);
+
+        std::string line        = neothue_source_code.substr(start, end - start);
+
+        line.append(underline(bold(red(" "))));
+
+        std::cerr << bold() << neothue_source_filename << ':' << line_num << ':' << col_num << ": " << bold(red("error: "))
+                  << reset();
+
+        std::cerr << "Unterminated_string\n";
+
+        std::cerr << '\t' << line_num << " | " << line << '\n';    
+    }}
+%}}
+
+{grammar}
+"""
 
 generated_lexer = open(f'generated/{language.lower()}.l', 'w')
 generated_lexer.write(lexer)
