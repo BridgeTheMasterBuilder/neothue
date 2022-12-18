@@ -35,7 +35,7 @@ comment [;][^\n]*
     neothue::location pos = location();
     pos.begin = yytemp;
 
-    return NeothueParserImplementation::make_STRING(yybuf, pos);
+    return ThueParserImplementation::make_STRING(yybuf, pos);
 }
 
 <INITIAL>["] in_string = true; start(DQSTR); yytemp = location().begin;
@@ -50,18 +50,18 @@ comment [;][^\n]*
     neothue::location pos = location();
     pos.begin = yytemp;
 
-    return NeothueParserImplementation::make_STRING(yybuf, pos);
+    return ThueParserImplementation::make_STRING(yybuf, pos);
 }
 
 <UNQSTR>{unquoted_str}  {
     start(INITIAL);
 
-    return NeothueParserImplementation::make_STRING(str(), location());
+    return ThueParserImplementation::make_STRING(str(), location());
 }
 
 <INITIAL>{comment}
 <INITIAL>{ws}+
-<INITIAL>[=] return NeothueParserImplementation::make_SEPARATOR(location());
+<INITIAL>[=] return ThueParserImplementation::make_SEPARATOR(location());
 <INITIAL>. start(UNQSTR); matcher().unput(chr());
 <<EOF>> {
     if(in_string) {

@@ -21,7 +21,7 @@ void test(const std::string item,
   bool        representations_match = true;
 
   try {
-    const Token t = NeothueLexer(item).lex();
+    const Token t = NeothueLexer("test", item, item).lex();
     if (t.kind() != type.kind()) types_match = false;
     if (compare_external && strcasecmp(t.name(), item.c_str()) != 0) {
       representation        = t.name();

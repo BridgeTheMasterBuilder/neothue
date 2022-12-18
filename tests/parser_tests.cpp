@@ -10,7 +10,7 @@ void test(const std::string item, const std::string message, const bool expected
   bool successful = true;
 
   try {
-    NeothueLexer  l(item);
+    NeothueLexer  l("test", item, item);
     Parser<NeothueLexer, NeothueParserImplementation> p(l, "test", item);
     p.parse();
   }

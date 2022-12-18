@@ -44,9 +44,7 @@ int main(int argc, char* argv[])
     if (config.classic) {
       preprocess(source_code);
 
-      std::string src = source_code;
-
-      ThueLexer                                   lexer(config.filename.data(), src, source_code);
+      ThueLexer                                   lexer(config.filename.data(), source_code, source_code);
       Parser<ThueLexer, ThueParserImplementation> parser(lexer, config.filename.data(), source_code);
 
       auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);
@@ -54,9 +52,7 @@ int main(int argc, char* argv[])
       grammar.apply_productions(initial_state);
     }
     else {
-      std::string src = source_code;
-
-      NeothueLexer                                      lexer(config.filename.data(), src, source_code);
+      NeothueLexer                                      lexer(config.filename.data(), source_code, source_code);
       Parser<NeothueLexer, NeothueParserImplementation> parser(lexer, config.filename.data(), source_code);
 
       auto [grammar, initial_state] = parser.parse(config.order, config.classic, config.debug);

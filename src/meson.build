@@ -28,6 +28,6 @@ sources = files('main.cpp',
            'generated/NeothueParserImplementation.cpp',
            'generated/ThueParserImplementation.cpp')
 
-lexer_test_sources = files('generated/ThueLexer.cpp', 'generated/NeothueLexer.cpp', 'terminal.cpp', 'generated/NeothueParserImplementation.cpp', 'generated/ThueParserImplementation.cpp', '../tests/lexer_tests.cpp')
+lexer_test_sources = files('generated/ThueLexer.cpp', 'generated/NeothueLexer.cpp', 'util.cpp', 'terminal.cpp', 'generated/NeothueParserImplementation.cpp', 'generated/ThueParserImplementation.cpp', '../tests/lexer_tests.cpp')
 
-parser_test_sources = files('Grammar.cpp', 'generated/ThueLexer.cpp', 'generated/NeothueLexer.cpp', 'terminal.cpp', 'generated/NeothueParserImplementation.cpp', 'generated/ThueParserImplementation.cpp', 'util.cpp', '../tests/parser_tests.cpp')
+parser_test_sources = files('Grammar.cpp', 'generated/ThueLexer.cpp', 'generated/NeothueLexer.cpp', 'util.cpp', 'terminal.cpp', 'generated/NeothueParserImplementation.cpp', 'generated/ThueParserImplementation.cpp', 'util.cpp', '../tests/parser_tests.cpp')
