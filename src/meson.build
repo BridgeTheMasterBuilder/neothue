@@ -6,7 +6,7 @@ if python.found()
     run_command(python, join_paths(meson.source_root(), 'src/generate_lexer.py'), 'neothue', join_paths(meson.source_root(), 'src/neothue.syntax'), check: true)
     run_command(python, join_paths(meson.source_root(), 'src/generate_lexer.py'), 'thue', join_paths(meson.source_root(), 'src/thue.syntax'), check: true)
     run_command(python, join_paths(meson.source_root(), 'src/generate_parser.py'), 'neothue', join_paths(meson.source_root(), 'src/neothue.grammar'), check: true)
-    run_command(python, join_paths(meson.source_root(), 'src/generate_parser.py'), 'thue', join_paths(meson.source_root(), 'src/thue.grammar'), check: true)
+    run_command(python, join_paths(meson.source_root(), 'src/generate_parser.py'), 'thue', join_paths(meson.source_root(), 'src/neothue.grammar'), check: true)
 
     if reflex.found()
         run_command(reflex, join_paths(meson.source_root(), 'src/generated/neothue.l'), check: true)

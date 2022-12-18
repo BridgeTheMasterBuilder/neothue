@@ -60,8 +60,10 @@ void Grammar::apply_productions(std::string& initial_state)
 
       const std::size_t index_of_match = match(lhs, initial_state);
 
-      if (index_of_match == std::string::npos) continue;
-      else match_found = true;
+      if (index_of_match == std::string::npos)
+        continue;
+      else
+        match_found = true;
 
       apply_production(production, initial_state, index_of_match);
 
@@ -107,9 +109,12 @@ void Grammar::sort()
   indices = std::vector<std::size_t>(productions.size());
   std::iota(indices.begin(), indices.end(), 0);
 
-  if (order == LEFT_TO_RIGHT) sort_left_to_right();
-  else if (order == RIGHT_TO_LEFT) sort_right_to_left();
-  else shuffle();
+  if (order == LEFT_TO_RIGHT)
+    sort_left_to_right();
+  else if (order == RIGHT_TO_LEFT)
+    sort_right_to_left();
+  else
+    shuffle();
 }
 
 /***************************
@@ -135,10 +140,12 @@ void Grammar::apply_production(Production& production, std::string& string, cons
   }
   else if ((index = rhs.find("~")) != std::string::npos) {
     std::cout << rhs.substr(index + 1);
+    if(classic) std::cout << '\n';
 
     string.replace(index_of_match, lhs.size(), "");
   }
-  else string.replace(index_of_match, lhs.size(), rhs);
+  else
+    string.replace(index_of_match, lhs.size(), rhs);
 }
 
 void Grammar::rewrite_production(Production& production, const std::string_view rhs) { production.second = rhs; }

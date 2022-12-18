@@ -24,6 +24,7 @@
 #undef REFLEX_OPTION_lex
 #undef REFLEX_OPTION_lexer
 #undef REFLEX_OPTION_namespace
+#undef REFLEX_OPTION_nodefault
 #undef REFLEX_OPTION_noyywrap
 #undef REFLEX_OPTION_outfile
 #undef REFLEX_OPTION_token_eof
@@ -42,6 +43,7 @@
 #define REFLEX_OPTION_lex                 lex
 #define REFLEX_OPTION_lexer               ThueLexer
 #define REFLEX_OPTION_namespace           neothue
+#define REFLEX_OPTION_nodefault           true
 #define REFLEX_OPTION_noyywrap            true
 #define REFLEX_OPTION_outfile             "generated/ThueLexer.cpp"
 #define REFLEX_OPTION_token_eof           neothue::ThueParserImplementation::symbol_type(0, location())
@@ -58,7 +60,7 @@
     #include "Token.h"
     #include "ThueParserImplementation.h"
 
-#line 66 "/home/master/projects/thue/src/generated/thue.l"
+#line 46 "/home/master/projects/thue/src/generated/thue.l"
 
     #include <iostream>
     #include <algorithm>
@@ -89,10 +91,10 @@
 namespace neothue {
 
 class ThueLexer : public reflex::AbstractLexer<reflex::Matcher> {
-#line 35 "/home/master/projects/thue/src/generated/thue.l"
+#line 36 "/home/master/projects/thue/src/generated/thue.l"
 
-    const std::string_view neothue_source_filename;
-    const std::string& neothue_source_code;
+    [[maybe_unused]] const std::string_view neothue_source_filename;
+    [[maybe_unused]] const std::string& neothue_source_code;
 
  public:
   typedef reflex::AbstractLexer<reflex::Matcher> AbstractBaseLexer;
@@ -108,9 +110,10 @@ class ThueLexer : public reflex::AbstractLexer<reflex::Matcher> {
   {
   }
   static const int INITIAL = 0;
-  static const int UNQSTR = 1;
-  static const int SQSTR = 2;
-  static const int DQSTR = 3;
+  static const int LHS = 1;
+  static const int SEP = 2;
+  static const int RHS = 3;
+  static const int STATE = 4;
   std::string filename;
   // bison-complete bison-locations: location() returns lexeme location
   virtual neothue::location location(void)

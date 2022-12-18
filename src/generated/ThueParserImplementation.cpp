@@ -581,20 +581,20 @@ namespace neothue {
 #line 582 "generated/ThueParserImplementation.cpp"
     break;
 
-  case 7: // initial_state: string
-#line 72 "/home/master/projects/thue/src/generated/thue.y"
+  case 6: // initial_state: string
+#line 71 "/home/master/projects/thue/src/generated/thue.y"
                { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
 #line 588 "generated/ThueParserImplementation.cpp"
     break;
 
-  case 8: // string: "string"
-#line 74 "/home/master/projects/thue/src/generated/thue.y"
+  case 7: // string: "string"
+#line 73 "/home/master/projects/thue/src/generated/thue.y"
         { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
 #line 594 "generated/ThueParserImplementation.cpp"
     break;
 
-  case 9: // string: %empty
-#line 75 "/home/master/projects/thue/src/generated/thue.y"
+  case 8: // string: %empty
+#line 74 "/home/master/projects/thue/src/generated/thue.y"
          { yylhs.value.as < std::string > () = ""; }
 #line 600 "generated/ThueParserImplementation.cpp"
     break;
@@ -839,7 +839,7 @@ namespace neothue {
 
   const signed char ThueParserImplementation::yypact_ninf_ = -5;
 
-  const signed char ThueParserImplementation::yytable_ninf_ = -8;
+  const signed char ThueParserImplementation::yytable_ninf_ = -7;
 
   const signed char
   ThueParserImplementation::yypact_[] =
@@ -851,8 +851,8 @@ namespace neothue {
   const signed char
   ThueParserImplementation::yydefact_[] =
   {
-       4,     0,     9,     1,     8,     3,     2,     0,     9,     9,
-       6,     5
+       4,     0,     8,     1,     7,     3,     2,     0,     8,     8,
+       9,     5
   };
 
   const signed char
@@ -870,7 +870,7 @@ namespace neothue {
   const signed char
   ThueParserImplementation::yytable_[] =
   {
-      -7,     8,     3,     9,    10,    11,     0,     4
+      -6,     8,     3,     9,    10,    11,     0,     4
   };
 
   const signed char
@@ -889,13 +889,13 @@ namespace neothue {
   const signed char
   ThueParserImplementation::yyr1_[] =
   {
-       0,     5,     6,     7,     7,     8,     8,     9,    10,    10
+       0,     5,     6,     7,     7,     8,     9,    10,    10,     8
   };
 
   const signed char
   ThueParserImplementation::yyr2_[] =
   {
-       0,     2,     2,     2,     0,     3,     3,     1,     1,     0
+       0,     2,     2,     2,     0,     3,     1,     1,     0,     3
   };
 
 
@@ -905,7 +905,7 @@ namespace neothue {
   const signed char
   ThueParserImplementation::yyrline_[] =
   {
-       0,    64,    64,    66,    67,    69,    70,    72,    74,    75
+       0,    64,    64,    66,    67,    69,    71,    73,    74,    77
   };
 
   void
@@ -940,7 +940,7 @@ namespace neothue {
 } // neothue
 #line 942 "generated/ThueParserImplementation.cpp"
 
-#line 77 "/home/master/projects/thue/src/generated/thue.y"
+#line 79 "/home/master/projects/thue/src/generated/thue.y"
 
 namespace neothue {
     void ThueParserImplementation::error(const location_type& loc, const std::string& msg) {

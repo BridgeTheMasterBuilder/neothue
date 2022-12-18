@@ -31,14 +31,16 @@
 %option namespace=neothue
 %option outfile="generated/NeothueLexer.cpp"
 %option noyywrap
+%option nodefault
 
 %class{
-    const std::string_view neothue_source_filename; 
-    const std::string& neothue_source_code;
+    [[maybe_unused]] const std::string_view neothue_source_filename; 
+    [[maybe_unused]] const std::string& neothue_source_code;
 }
 
 %option ctorarg="const std::string_view neothue_source_filename, const std::string& neothue_source_code"
-%option ctorinit="neothue_source_filename(neothue_source_filename), neothue_source_code(neothue_source_code)"
+%option ctorinit="neothue_source_filename(neothue_source_filename), neothue_source_code(neothue_source_code)" 
+
 
 %{
     #include "../util.h"
@@ -63,6 +65,7 @@
     }
 %}
 
+
 %top {
     #include <iostream>
     #include <algorithm>
@@ -73,8 +76,8 @@
 
     using neothue::position;
 
-    static position yytemp;
-    static std::string yybuf;
+    static position marker;
+    static std::string string_buffer;
     static bool in_string = false;
 %}
 
@@ -90,40 +93,40 @@ comment [;][^\n]*
 
 <INITIAL>['] {
     in_string = true;
-    yytemp = location().begin;
-    yybuf.clear();
+    marker = location().begin;
+    string_buffer.clear();
     start(SQSTR);
 }
-<SQSTR>{sq_str} yybuf += str();
-<SQSTR>[\\]['] yybuf += '\'';
-<SQSTR>[\\]. yybuf += text();
+<SQSTR>{sq_str} string_buffer += str();
+<SQSTR>[\\]['] string_buffer += '\'';
+<SQSTR>[\\]. string_buffer += text();
 <SQSTR>[']  {
     in_string = false;
     start(INITIAL);
 
     neothue::location pos = location();
-    pos.begin = yytemp;
+    pos.begin = marker;
 
-    return NeothueParserImplementation::make_STRING(yybuf, pos);
+    return NeothueParserImplementation::make_STRING(string_buffer, pos);
 }
 
 <INITIAL>["] {
     in_string = true;
-    yytemp = location().begin;
-    yybuf.clear();
+    marker = location().begin;
+    string_buffer.clear();
     start(DQSTR);
 }
-<DQSTR>{dq_str} yybuf += str();
-<DQSTR>[\\]["] yybuf += '"';
-<DQSTR>[\\]. yybuf += text();
+<DQSTR>{dq_str} string_buffer += str();
+<DQSTR>[\\]["] string_buffer += '"';
+<DQSTR>[\\]. string_buffer += text();
 <DQSTR>["]  {
     in_string = false;
     start(INITIAL);
 
     neothue::location pos = location();
-    pos.begin = yytemp;
+    pos.begin = marker;
 
-    return NeothueParserImplementation::make_STRING(yybuf, pos);
+    return NeothueParserImplementation::make_STRING(string_buffer, pos);
 }
 
 <UNQSTR>{unquoted_str}  {

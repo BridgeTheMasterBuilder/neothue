@@ -18,8 +18,6 @@
 
 #include "Lexer.h"
 #include "Parser.hpp"
-#include "generated/NeothueLexer.h"
-#include "generated/ThueLexer.h"
 #include "terminal.h"
 #include "util.h"
 #include <cstdlib>
@@ -27,7 +25,6 @@
 #include <string>
 
 using neothue::NeothueParserImplementation;
-using neothue::ThueParserImplementation;
 
 int main(int argc, char* argv[])
 {
@@ -42,8 +39,6 @@ int main(int argc, char* argv[])
     std::string source_code = file_as_string(config.filename);
 
     if (config.classic) {
-      preprocess(source_code);
-
       ThueLexer                                   lexer(config.filename.data(), source_code, source_code);
       Parser<ThueLexer, ThueParserImplementation> parser(lexer, config.filename.data(), source_code);
 

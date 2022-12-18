@@ -24,6 +24,7 @@
 #undef REFLEX_OPTION_lex
 #undef REFLEX_OPTION_lexer
 #undef REFLEX_OPTION_namespace
+#undef REFLEX_OPTION_nodefault
 #undef REFLEX_OPTION_noyywrap
 #undef REFLEX_OPTION_outfile
 #undef REFLEX_OPTION_token_eof
@@ -42,6 +43,7 @@
 #define REFLEX_OPTION_lex                 lex
 #define REFLEX_OPTION_lexer               NeothueLexer
 #define REFLEX_OPTION_namespace           neothue
+#define REFLEX_OPTION_nodefault           true
 #define REFLEX_OPTION_noyywrap            true
 #define REFLEX_OPTION_outfile             "generated/NeothueLexer.cpp"
 #define REFLEX_OPTION_token_eof           neothue::NeothueParserImplementation::symbol_type(0, location())
@@ -58,7 +60,7 @@
     #include "Token.h"
     #include "NeothueParserImplementation.h"
 
-#line 66 "/home/master/projects/thue/src/generated/neothue.l"
+#line 69 "/home/master/projects/thue/src/generated/neothue.l"
 
     #include <iostream>
     #include <algorithm>
@@ -89,10 +91,10 @@
 namespace neothue {
 
 class NeothueLexer : public reflex::AbstractLexer<reflex::Matcher> {
-#line 35 "/home/master/projects/thue/src/generated/neothue.l"
+#line 36 "/home/master/projects/thue/src/generated/neothue.l"
 
-    const std::string_view neothue_source_filename;
-    const std::string& neothue_source_code;
+    [[maybe_unused]] const std::string_view neothue_source_filename;
+    [[maybe_unused]] const std::string& neothue_source_code;
 
  public:
   typedef reflex::AbstractLexer<reflex::Matcher> AbstractBaseLexer;

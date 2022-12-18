@@ -1,6 +1,6 @@
 project('nthue', 'cpp',
   version : '1.1.0',
-  default_options : ['buildtype=release', 'debug=false', 'optimization=3', 'strip=true', 'werror=true', 'b_lto=true', 'cpp_rtti=false', 'warning_level=3', 'cpp_std=c++20'])
+  default_options : ['buildtype=release', 'debug=false', 'optimization=3', 'strip=true', 'werror=false', 'b_lto=true', 'cpp_rtti=false', 'warning_level=3', 'cpp_std=c++20'])
 
 subdir('src')
 

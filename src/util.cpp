@@ -22,23 +22,6 @@
 #include <iostream>
 #include <sstream>
 
-// ...⍺'β'::=γ... → ...⍺\'β\'::=γ...
-void escape_quotes(std::string& source_code)
-{
-  std::size_t index = 0;
-
-  // ...⍺'β'::=γ... → ...⍺'β'::=γ...
-  // ^                    ^
-  while ((index = source_code.find('\'', index)) != std::string::npos) {
-    // ...⍺'β'::=γ... → ...⍺\'β'::=γ...
-    //     ^                ^
-    source_code.insert(index, "\\");
-    // ...⍺\'β'::=γ... → ...⍺\'β'::=γ...
-    //     ^                   ^
-    index += 2;
-  }
-}
-
 std::string file_as_string(const std::string_view filename)
 {
   const std::ifstream source_file(filename.data());
@@ -67,37 +50,6 @@ std::size_t find_start_of_line(const std::string& source_code, const int line_nu
     start_of_line = source_code.find('\n', start_of_line) + 1;
 
   return start_of_line;
-}
-
-// The standard doesn't say that this overload of std::string::find doesn't throw but AFAICT it never does
-bool finished_preprocessing(std::string& source_code, const std::size_t index) noexcept
-{
-  return source_code.find("::=", index) == std::string::npos;
-}
-
-// ...\n...::=...\n⍺... → ...\n⍺...
-bool maybe_erase_empty_production(std::string& source_code, const std::size_t index)
-{
-  // ...\n...::=...\n⍺... → ...\n...::=...\n⍺...
-  //                 ^         ^
-  std::size_t start = source_code.rfind('\n', index) + 1;
-  if (start == std::string::npos) start = 0;
-
-  // ...\n...::=...\n⍺... → ...\n...::=...\n⍺...
-  //    ^                      ~~~~~~~~~~~^
-  std::size_t end = source_code.find('\n', start + 1);
-  if (end == std::string::npos) end = source_code.size();
-
-  std::size_t length = end - start;
-
-  // ...\n...::=...\n⍺... → ...\n⍺...
-  //    ~~~~~~~~~~~^           ^
-  if (source_code.find_first_not_of("\t\n\r :=", start) > end) {
-    source_code.erase(start, length);
-    return true;
-  }
-  else
-    return false;
 }
 
 Config parse_command_line_options(int argc, char* argv[])
@@ -144,82 +96,6 @@ Config parse_command_line_options(int argc, char* argv[])
   return Config { classic, debug, filename, print_usage, order };
 }
 
-// ⍺ → '⍺'
-std::size_t quote_initial_state(std::string& source_code, std::size_t index)
-{
-  // ...⍺\n... → ...'⍺\n...
-  //    ^         ^
-  source_code.insert(index, "\'");
-
-  // ...'⍺\n... → ...'⍺\n...
-  //    ^              ^
-  index = source_code.find('\n', index);
-  if (index == std::string::npos) index = source_code.size();
-
-  // ...'⍺\n... → ...'⍺'\n...
-  //      ^            ^
-  source_code.insert(index, "\'");
-
-  // ...'⍺'\n... → ...'⍺'\n...
-  //      ^                ^
-  return index + 2;
-}
-
-// ⍺::=β → '⍺'::=β
-std::size_t quote_lhs(std::string& source_code, std::size_t index)
-{
-  // ...⍺::=β... → ...'⍺::=β...
-  //    ^             ^
-  source_code.insert(index, "\'");
-
-  // ...'⍺::=β... → ...'⍺::=β...
-  //    ^                ^
-  index = source_code.find("::=", index);
-
-  // ...'⍺::=β... → ...'⍺=β...
-  //      ^              ^
-  source_code.replace(index, 3, "=");
-
-  // ...'⍺::=β... → ...'⍺'=β...
-  //      ^              ^
-  source_code.insert(index, "\'");
-
-  // ...'⍺'=β... → ...'⍺'=β...
-  //      ^               ^
-  return index + 2;
-}
-
-// ⍺::=β → ⍺::='β'
-std::size_t quote_rhs(std::string& source_code, std::size_t index)
-{
-  // ...⍺::=β\nγ... → ...⍺::='β\nγ...
-  //        ^                ^
-  source_code.insert(index, "\'");
-
-  // ...⍺::='β\nγ... → ...⍺::='β\nγ...
-  //        ^                   ^
-  std::size_t end = source_code.find('\n', index);
-  if (end == std::string::npos) end = source_code.size();
-
-  // ...⍺::='...~...\nγ... → ...⍺::='...~...\n'\nγ...
-  //        ^                                 ^
-  if (source_code.find('~', index) < end) {
-    source_code.insert(end, "\n");
-    index = end + 1;
-  }
-  // ...⍺::='β\nγ... → ...⍺::='β'\nγ...
-  //          ^                 ^
-  else {
-    index = end;
-  }
-
-  source_code.insert(index, "\'");
-
-  // ...⍺::='β'\nγ... → ...⍺::='β'\nγ...
-  //          ^                     ^
-  return index + 2;
-}
-
 void report_error(const std::string_view filename,
                   const std::string&     source_code,
                   int                    line_num,
@@ -241,41 +117,6 @@ void report_error(const std::string_view filename,
   line.replace(col_num - 1, length, underline(bold(red(line.substr(col_num - 1, length)))));
 
   std::cerr << '\t' << line_num << " | " << line << '\n';
-}
-
-// ...⍺...\n\n\n...β... → ...⍺...\n\n\n...β...
-//        ^                            ^
-std::size_t skip_blank_lines(std::string& source_code, std::size_t index) noexcept
-{
-  // ...⍺...\n\n\n...β... → ...⍺...\n\n\n...β...
-  //        ^                               ^
-  index = source_code.find_first_not_of("\t\n\r ", index);
-  if (index == std::string::npos) index = source_code.size() - 1;
-
-  // ...⍺...\n\n\n...β... → ...⍺...\n\n\n...β...
-  //                 ^                   ^
-  index = source_code.rfind('\n', index) + 1;
-  if (index == std::string::npos) index = 0;
-
-  return index;
-}
-
-void preprocess(std::string& source_code)
-{
-  std::size_t index = 0;
-
-  escape_quotes(source_code);
-
-  while (!finished_preprocessing(source_code, index)) {
-    if (maybe_erase_empty_production(source_code, index)) break;
-
-    index = skip_blank_lines(source_code, index);
-    index = quote_lhs(source_code, index);
-    index = quote_rhs(source_code, index);
-  }
-
-  index = skip_blank_lines(source_code, index);
-  quote_initial_state(source_code, index);
 }
 
 void usage() noexcept

@@ -1,5 +1,6 @@
 * Features [/]
- - [ ] Pattern matching 
+ - [ ] Pattern matching
+ - [ ] Improve error messages and add warnings
 
 * Bugs [/]
 

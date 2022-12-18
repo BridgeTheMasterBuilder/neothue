@@ -67,12 +67,14 @@ productions: productions production
 | %empty
 
 production: string SEPARATOR string { grammar.add_production($1, $3); }
-| string error string
 
 initial_state: string
 
 string: STRING
 | %empty { $$ = ""; } %expect 2
+
+/* Error productions */
+production: string error string
 
 %%
 namespace neothue {
