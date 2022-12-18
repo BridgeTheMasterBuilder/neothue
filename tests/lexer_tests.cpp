@@ -1,13 +1,13 @@
 #include <boost/ut.hpp>
 #include <strings.h>
-#include "ParserImplementation.h"
-#include "Lexer.h"
+#include "generated/NeothueParserImplementation.h"
+#include "generated/NeothueLexer.h"
 
-using nthue::Lexer;
-using nthue::ParserImplementation;
-using nthue::location;
+using neothue::NeothueLexer;
+using neothue::NeothueParserImplementation;
+using neothue::location;
 
-using Token = nthue::ParserImplementation::symbol_type;
+using Token = neothue::NeothueParserImplementation::symbol_type;
 
 void test(const std::string item,
           const Token type,
@@ -21,7 +21,7 @@ void test(const std::string item,
   bool        representations_match = true;
 
   try {
-    const Token t = Lexer(item).lex();
+    const Token t = NeothueLexer(item).lex();
     if (t.kind() != type.kind()) types_match = false;
     if (compare_external && strcasecmp(t.name(), item.c_str()) != 0) {
       representation        = t.name();
@@ -43,19 +43,19 @@ int main()
                                                    "111",  "1111",  "'~'",    "':::'", "\"~\"", "\":::\"", "~", ":::" };
 
   for (const auto& item : legal_strings) {
-    test(item, ParserImplementation::make_STRING("", location()), "Lexer did not recognize " + item + " as a string.", true, false);
+    test(item, NeothueParserImplementation::make_STRING("", location()), "Lexer did not recognize " + item + " as a string.", true, false);
   }
 
   const std::vector<std::string> illegal_strings = { "\"", "\"'", "\"1", "\"1'", "\"11", "\"11'",
                                                      "'",  "'\"", "'1",  "'1\"", "'11",  "'11\"" };
 
   for (const auto& item : illegal_strings) {
-    test(item, ParserImplementation::make_STRING("", location()), "Lexer incorrectly recognized " + item + " as a string.", false, false);
+    test(item, NeothueParserImplementation::make_STRING("", location()), "Lexer incorrectly recognized " + item + " as a string.", false, false);
   }
 
   /***************
    * MISC. TOKENS *
    ***************/
-  test("=", ParserImplementation::make_SEPARATOR(location()), "Lexer did not recognize = as a separator.", true);
-  test("; foo bar baz", ParserImplementation::make_STRING("", location()), "Lexer did not recognize ; foo bar baz as a comment.", false, false);
+  test("=", NeothueParserImplementation::make_SEPARATOR(location()), "Lexer did not recognize = as a separator.", true);
+  test("; foo bar baz", NeothueParserImplementation::make_STRING("", location()), "Lexer did not recognize ; foo bar baz as a comment.", false, false);
 }

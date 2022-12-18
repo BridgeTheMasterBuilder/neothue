@@ -1,20 +1,17 @@
 #include "../src/util.h"
-#include "Parser.h"
+#include "Parser.hpp"
 #include <boost/ut.hpp>
 #include <fstream>
 #include <string>
 #include <vector>
-
-using nthue::Lexer;
-using nthue::Parser;
 
 void test(const std::string item, const std::string message, const bool expected_result)
 {
   bool successful = true;
 
   try {
-    Lexer  l(item);
-    Parser p(l, "test", item);
+    NeothueLexer  l(item);
+    Parser<NeothueLexer, NeothueParserImplementation> p(l, "test", item);
     p.parse();
   }
   catch (...) {

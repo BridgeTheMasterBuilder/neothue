@@ -38,19 +38,19 @@
 
 
 
-#include "ParserImplementation.h"
+#include "ThueParserImplementation.h"
 
 
 // Unqualified %code blocks.
-#line 54 "/home/master/projects/thue/src/neothue.y"
+#line 48 "/home/master/projects/thue/src/generated/thue.y"
 
 #include <string>
-#include "util.h"
-#include "Lexer.h"
+#include "../util.h"
+#include "ThueLexer.h"
 #define yylex lexer.lex
  
 
-#line 54 "ParserImplementation.cpp"
+#line 54 "generated/ThueParserImplementation.cpp"
 
 
 #ifndef YY_
@@ -141,12 +141,12 @@
 #define YYERROR         goto yyerrorlab
 #define YYRECOVERING()  (!!yyerrstatus_)
 
-#line 22 "/home/master/projects/thue/src/neothue.y"
-namespace nthue {
-#line 147 "ParserImplementation.cpp"
+#line 22 "/home/master/projects/thue/src/generated/thue.y"
+namespace neothue {
+#line 147 "generated/ThueParserImplementation.cpp"
 
   /// Build a parser object.
-  ParserImplementation::ParserImplementation (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, int& number_of_errors_yyarg, const std::string_view filename_yyarg, const std::string& source_code_yyarg)
+  ThueParserImplementation::ThueParserImplementation (ThueLexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, int& number_of_errors_yyarg, const std::string_view filename_yyarg, const std::string& source_code_yyarg)
 #if YYDEBUG
     : yydebug_ (false),
       yycdebug_ (&std::cerr),
@@ -161,10 +161,10 @@ namespace nthue {
       source_code (source_code_yyarg)
   {}
 
-  ParserImplementation::~ParserImplementation ()
+  ThueParserImplementation::~ThueParserImplementation ()
   {}
 
-  ParserImplementation::syntax_error::~syntax_error () YY_NOEXCEPT YY_NOTHROW
+  ThueParserImplementation::syntax_error::~syntax_error () YY_NOEXCEPT YY_NOTHROW
   {}
 
   /*---------.
@@ -174,33 +174,33 @@ namespace nthue {
 
 
   // by_state.
-  ParserImplementation::by_state::by_state () YY_NOEXCEPT
+  ThueParserImplementation::by_state::by_state () YY_NOEXCEPT
     : state (empty_state)
   {}
 
-  ParserImplementation::by_state::by_state (const by_state& that) YY_NOEXCEPT
+  ThueParserImplementation::by_state::by_state (const by_state& that) YY_NOEXCEPT
     : state (that.state)
   {}
 
   void
-  ParserImplementation::by_state::clear () YY_NOEXCEPT
+  ThueParserImplementation::by_state::clear () YY_NOEXCEPT
   {
     state = empty_state;
   }
 
   void
-  ParserImplementation::by_state::move (by_state& that)
+  ThueParserImplementation::by_state::move (by_state& that)
   {
     state = that.state;
     that.clear ();
   }
 
-  ParserImplementation::by_state::by_state (state_type s) YY_NOEXCEPT
+  ThueParserImplementation::by_state::by_state (state_type s) YY_NOEXCEPT
     : state (s)
   {}
 
-  ParserImplementation::symbol_kind_type
-  ParserImplementation::by_state::kind () const YY_NOEXCEPT
+  ThueParserImplementation::symbol_kind_type
+  ThueParserImplementation::by_state::kind () const YY_NOEXCEPT
   {
     if (state == empty_state)
       return symbol_kind::S_YYEMPTY;
@@ -208,10 +208,10 @@ namespace nthue {
       return YY_CAST (symbol_kind_type, yystos_[+state]);
   }
 
-  ParserImplementation::stack_symbol_type::stack_symbol_type ()
+  ThueParserImplementation::stack_symbol_type::stack_symbol_type ()
   {}
 
-  ParserImplementation::stack_symbol_type::stack_symbol_type (YY_RVREF (stack_symbol_type) that)
+  ThueParserImplementation::stack_symbol_type::stack_symbol_type (YY_RVREF (stack_symbol_type) that)
     : super_type (YY_MOVE (that.state), YY_MOVE (that.location))
   {
     switch (that.kind ())
@@ -232,7 +232,7 @@ namespace nthue {
 #endif
   }
 
-  ParserImplementation::stack_symbol_type::stack_symbol_type (state_type s, YY_MOVE_REF (symbol_type) that)
+  ThueParserImplementation::stack_symbol_type::stack_symbol_type (state_type s, YY_MOVE_REF (symbol_type) that)
     : super_type (s, YY_MOVE (that.location))
   {
     switch (that.kind ())
@@ -252,8 +252,8 @@ namespace nthue {
   }
 
 #if YY_CPLUSPLUS < 201103L
-  ParserImplementation::stack_symbol_type&
-  ParserImplementation::stack_symbol_type::operator= (const stack_symbol_type& that)
+  ThueParserImplementation::stack_symbol_type&
+  ThueParserImplementation::stack_symbol_type::operator= (const stack_symbol_type& that)
   {
     state = that.state;
     switch (that.kind ())
@@ -272,8 +272,8 @@ namespace nthue {
     return *this;
   }
 
-  ParserImplementation::stack_symbol_type&
-  ParserImplementation::stack_symbol_type::operator= (stack_symbol_type& that)
+  ThueParserImplementation::stack_symbol_type&
+  ThueParserImplementation::stack_symbol_type::operator= (stack_symbol_type& that)
   {
     state = that.state;
     switch (that.kind ())
@@ -297,7 +297,7 @@ namespace nthue {
 
   template <typename Base>
   void
-  ParserImplementation::yy_destroy_ (const char* yymsg, basic_symbol<Base>& yysym) const
+  ThueParserImplementation::yy_destroy_ (const char* yymsg, basic_symbol<Base>& yysym) const
   {
     if (yymsg)
       YY_SYMBOL_PRINT (yymsg, yysym);
@@ -306,7 +306,7 @@ namespace nthue {
 #if YYDEBUG
   template <typename Base>
   void
-  ParserImplementation::yy_print_ (std::ostream& yyo, const basic_symbol<Base>& yysym) const
+  ThueParserImplementation::yy_print_ (std::ostream& yyo, const basic_symbol<Base>& yysym) const
   {
     std::ostream& yyoutput = yyo;
     YY_USE (yyoutput);
@@ -325,7 +325,7 @@ namespace nthue {
 #endif
 
   void
-  ParserImplementation::yypush_ (const char* m, YY_MOVE_REF (stack_symbol_type) sym)
+  ThueParserImplementation::yypush_ (const char* m, YY_MOVE_REF (stack_symbol_type) sym)
   {
     if (m)
       YY_SYMBOL_PRINT (m, sym);
@@ -333,7 +333,7 @@ namespace nthue {
   }
 
   void
-  ParserImplementation::yypush_ (const char* m, state_type s, YY_MOVE_REF (symbol_type) sym)
+  ThueParserImplementation::yypush_ (const char* m, state_type s, YY_MOVE_REF (symbol_type) sym)
   {
 #if 201103L <= YY_CPLUSPLUS
     yypush_ (m, stack_symbol_type (s, std::move (sym)));
@@ -344,40 +344,40 @@ namespace nthue {
   }
 
   void
-  ParserImplementation::yypop_ (int n) YY_NOEXCEPT
+  ThueParserImplementation::yypop_ (int n) YY_NOEXCEPT
   {
     yystack_.pop (n);
   }
 
 #if YYDEBUG
   std::ostream&
-  ParserImplementation::debug_stream () const
+  ThueParserImplementation::debug_stream () const
   {
     return *yycdebug_;
   }
 
   void
-  ParserImplementation::set_debug_stream (std::ostream& o)
+  ThueParserImplementation::set_debug_stream (std::ostream& o)
   {
     yycdebug_ = &o;
   }
 
 
-  ParserImplementation::debug_level_type
-  ParserImplementation::debug_level () const
+  ThueParserImplementation::debug_level_type
+  ThueParserImplementation::debug_level () const
   {
     return yydebug_;
   }
 
   void
-  ParserImplementation::set_debug_level (debug_level_type l)
+  ThueParserImplementation::set_debug_level (debug_level_type l)
   {
     yydebug_ = l;
   }
 #endif // YYDEBUG
 
-  ParserImplementation::state_type
-  ParserImplementation::yy_lr_goto_state_ (state_type yystate, int yysym)
+  ThueParserImplementation::state_type
+  ThueParserImplementation::yy_lr_goto_state_ (state_type yystate, int yysym)
   {
     int yyr = yypgoto_[yysym - YYNTOKENS] + yystate;
     if (0 <= yyr && yyr <= yylast_ && yycheck_[yyr] == yystate)
@@ -387,25 +387,25 @@ namespace nthue {
   }
 
   bool
-  ParserImplementation::yy_pact_value_is_default_ (int yyvalue) YY_NOEXCEPT
+  ThueParserImplementation::yy_pact_value_is_default_ (int yyvalue) YY_NOEXCEPT
   {
     return yyvalue == yypact_ninf_;
   }
 
   bool
-  ParserImplementation::yy_table_value_is_error_ (int yyvalue) YY_NOEXCEPT
+  ThueParserImplementation::yy_table_value_is_error_ (int yyvalue) YY_NOEXCEPT
   {
     return yyvalue == yytable_ninf_;
   }
 
   int
-  ParserImplementation::operator() ()
+  ThueParserImplementation::operator() ()
   {
     return parse ();
   }
 
   int
-  ParserImplementation::parse ()
+  ThueParserImplementation::parse ()
   {
     int yyn;
     /// Length of the RHS of the rule being reduced.
@@ -570,37 +570,37 @@ namespace nthue {
           switch (yyn)
             {
   case 2: // program: productions initial_state
-#line 63 "/home/master/projects/thue/src/neothue.y"
+#line 64 "/home/master/projects/thue/src/generated/thue.y"
                                    { grammar.sort(); initial_state = yystack_[0].value.as < std::string > (); }
-#line 576 "ParserImplementation.cpp"
+#line 576 "generated/ThueParserImplementation.cpp"
     break;
 
   case 5: // production: string "=" string
-#line 68 "/home/master/projects/thue/src/neothue.y"
+#line 69 "/home/master/projects/thue/src/generated/thue.y"
                                     { grammar.add_production(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > ()); }
-#line 582 "ParserImplementation.cpp"
+#line 582 "generated/ThueParserImplementation.cpp"
     break;
 
   case 7: // initial_state: string
-#line 71 "/home/master/projects/thue/src/neothue.y"
+#line 72 "/home/master/projects/thue/src/generated/thue.y"
                { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
-#line 588 "ParserImplementation.cpp"
+#line 588 "generated/ThueParserImplementation.cpp"
     break;
 
   case 8: // string: "string"
-#line 73 "/home/master/projects/thue/src/neothue.y"
+#line 74 "/home/master/projects/thue/src/generated/thue.y"
         { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
-#line 594 "ParserImplementation.cpp"
+#line 594 "generated/ThueParserImplementation.cpp"
     break;
 
   case 9: // string: %empty
-#line 74 "/home/master/projects/thue/src/neothue.y"
+#line 75 "/home/master/projects/thue/src/generated/thue.y"
          { yylhs.value.as < std::string > () = ""; }
-#line 600 "ParserImplementation.cpp"
+#line 600 "generated/ThueParserImplementation.cpp"
     break;
 
 
-#line 604 "ParserImplementation.cpp"
+#line 604 "generated/ThueParserImplementation.cpp"
 
             default:
               break;
@@ -772,13 +772,13 @@ namespace nthue {
   }
 
   void
-  ParserImplementation::error (const syntax_error& yyexc)
+  ThueParserImplementation::error (const syntax_error& yyexc)
   {
     error (yyexc.location, yyexc.what ());
   }
 
   const char *
-  ParserImplementation::symbol_name (symbol_kind_type yysymbol)
+  ThueParserImplementation::symbol_name (symbol_kind_type yysymbol)
   {
     static const char *const yy_sname[] =
     {
@@ -790,14 +790,14 @@ namespace nthue {
 
 
 
-  // ParserImplementation::context.
-  ParserImplementation::context::context (const ParserImplementation& yyparser, const symbol_type& yyla)
+  // ThueParserImplementation::context.
+  ThueParserImplementation::context::context (const ThueParserImplementation& yyparser, const symbol_type& yyla)
     : yyparser_ (yyparser)
     , yyla_ (yyla)
   {}
 
   int
-  ParserImplementation::context::expected_tokens (symbol_kind_type yyarg[], int yyargn) const
+  ThueParserImplementation::context::expected_tokens (symbol_kind_type yyarg[], int yyargn) const
   {
     // Actual number of expected tokens
     int yycount = 0;
@@ -837,63 +837,63 @@ namespace nthue {
 
 
 
-  const signed char ParserImplementation::yypact_ninf_ = -5;
+  const signed char ThueParserImplementation::yypact_ninf_ = -5;
 
-  const signed char ParserImplementation::yytable_ninf_ = -8;
+  const signed char ThueParserImplementation::yytable_ninf_ = -8;
 
   const signed char
-  ParserImplementation::yypact_[] =
+  ThueParserImplementation::yypact_[] =
   {
       -5,     2,     3,    -5,    -5,    -5,    -5,     0,     3,     3,
       -5,    -5
   };
 
   const signed char
-  ParserImplementation::yydefact_[] =
+  ThueParserImplementation::yydefact_[] =
   {
        4,     0,     9,     1,     8,     3,     2,     0,     9,     9,
        6,     5
   };
 
   const signed char
-  ParserImplementation::yypgoto_[] =
+  ThueParserImplementation::yypgoto_[] =
   {
       -5,    -5,    -5,    -5,    -5,    -4
   };
 
   const signed char
-  ParserImplementation::yydefgoto_[] =
+  ThueParserImplementation::yydefgoto_[] =
   {
        0,     1,     2,     5,     6,     7
   };
 
   const signed char
-  ParserImplementation::yytable_[] =
+  ThueParserImplementation::yytable_[] =
   {
       -7,     8,     3,     9,    10,    11,     0,     4
   };
 
   const signed char
-  ParserImplementation::yycheck_[] =
+  ThueParserImplementation::yycheck_[] =
   {
        0,     1,     0,     3,     8,     9,    -1,     4
   };
 
   const signed char
-  ParserImplementation::yystos_[] =
+  ThueParserImplementation::yystos_[] =
   {
        0,     6,     7,     0,     4,     8,     9,    10,     1,     3,
       10,    10
   };
 
   const signed char
-  ParserImplementation::yyr1_[] =
+  ThueParserImplementation::yyr1_[] =
   {
        0,     5,     6,     7,     7,     8,     8,     9,    10,    10
   };
 
   const signed char
-  ParserImplementation::yyr2_[] =
+  ThueParserImplementation::yyr2_[] =
   {
        0,     2,     2,     2,     0,     3,     3,     1,     1,     0
   };
@@ -903,13 +903,13 @@ namespace nthue {
 
 #if YYDEBUG
   const signed char
-  ParserImplementation::yyrline_[] =
+  ThueParserImplementation::yyrline_[] =
   {
-       0,    63,    63,    65,    66,    68,    69,    71,    73,    74
+       0,    64,    64,    66,    67,    69,    70,    72,    74,    75
   };
 
   void
-  ParserImplementation::yy_stack_print_ () const
+  ThueParserImplementation::yy_stack_print_ () const
   {
     *yycdebug_ << "Stack now";
     for (stack_type::const_iterator
@@ -921,7 +921,7 @@ namespace nthue {
   }
 
   void
-  ParserImplementation::yy_reduce_print_ (int yyrule) const
+  ThueParserImplementation::yy_reduce_print_ (int yyrule) const
   {
     int yylno = yyrline_[yyrule];
     int yynrhs = yyr2_[yyrule];
@@ -936,18 +936,18 @@ namespace nthue {
 #endif // YYDEBUG
 
 
-#line 22 "/home/master/projects/thue/src/neothue.y"
-} // nthue
-#line 942 "ParserImplementation.cpp"
+#line 22 "/home/master/projects/thue/src/generated/thue.y"
+} // neothue
+#line 942 "generated/ThueParserImplementation.cpp"
 
-#line 76 "/home/master/projects/thue/src/neothue.y"
+#line 77 "/home/master/projects/thue/src/generated/thue.y"
 
-namespace nthue {
-    void ParserImplementation::error(const location_type& loc, const std::string& msg) {
+namespace neothue {
+    void ThueParserImplementation::error(const location_type& loc, const std::string& msg) {
         std::cerr << loc << msg << '\n';
     }
 
-    void ParserImplementation::report_syntax_error(const ParserImplementation::context& ctx) const {
+    void ThueParserImplementation::report_syntax_error(const ThueParserImplementation::context& ctx) const {
       number_of_errors++;
 
       const auto& location = ctx.location();

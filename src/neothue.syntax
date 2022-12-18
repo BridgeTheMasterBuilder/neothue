@@ -1,0 +1,61 @@
+%top {
+    #include <iostream>
+    #include <algorithm>
+%}
+
+%{
+    using neothue::position;
+
+    static position yypos;
+    static position yytemp;
+    static std::string yybuf;
+%}
+
+ws [ \t\n\r\f\v]
+unquoted_str [^=; \t\n\r\f\v]+
+sq_str [^\\']*
+dq_str [^\\"]*
+comment [;][^\n]*
+
+%x UNQSTR SQSTR DQSTR
+
+%%
+
+<INITIAL>['] start(SQSTR); yytemp = location().begin;
+<SQSTR>{sq_str} yybuf += str();
+<SQSTR>[\\]['] yybuf += '\'';
+<SQSTR>[\\]. yybuf += text();
+<SQSTR>[']  {
+    yybuf.clear();
+    start(INITIAL);
+
+    neothue::location pos = location();
+    pos.begin = yytemp;
+
+    return NeothueParserImplementation::make_STRING(yybuf, pos);
+}
+
+<INITIAL>["] start(DQSTR); yytemp = location().begin;
+<DQSTR>{dq_str} yybuf += str();
+<DQSTR>[\\]["] yybuf += '"';
+<DQSTR>[\\]. yybuf += text();
+<DQSTR>["]  {
+    yybuf.clear();
+    start(INITIAL);
+
+    neothue::location pos = location();
+    pos.begin = yytemp;
+
+    return NeothueParserImplementation::make_STRING(yybuf, pos);
+}
+
+<UNQSTR>{unquoted_str}  {
+    start(INITIAL);
+
+    return NeothueParserImplementation::make_STRING(str(), location());
+}
+
+<INITIAL>{comment}
+<INITIAL>{ws}+
+<INITIAL>[=] return NeothueParserImplementation::make_SEPARATOR(location());
+<INITIAL>. start(UNQSTR); matcher().unput(chr());

@@ -1,0 +1,21 @@
+%expect 2
+
+%token SEPARATOR "="
+%token <std::string> STRING "string"
+%type <std::string> initial_state
+%type <std::string> string
+
+%%
+
+program: productions initial_state { grammar.sort(); initial_state = $2; }
+
+productions: productions production
+| %empty
+
+production: string SEPARATOR string { grammar.add_production($1, $3); }
+| string error string
+
+initial_state: string
+
+string: STRING
+| %empty { $$ = ""; } %expect 2

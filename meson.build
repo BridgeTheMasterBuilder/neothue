@@ -10,7 +10,7 @@ executable('nthue', sources, cpp_args: '-Wno-unused-but-set-variable', dependenc
 
 if get_option('test')
 lexer_tests = executable('lexertest', lexer_test_sources, include_directories : 'src', dependencies : [reflex])
-                            #
+
 parser_tests = executable('parsertest', parser_test_sources, include_directories : 'src', dependencies : [reflex])
 
 test('lexer tests', lexer_tests)

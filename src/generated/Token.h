@@ -31,12 +31,12 @@
 // version 2.2 of Bison.
 
 /**
- ** \file Token.h
- ** Define the nthue::location class.
+ ** \file generated/Token.h
+ ** Define the neothue::location class.
  */
 
-#ifndef YY_YY_TOKEN_H_INCLUDED
-# define YY_YY_TOKEN_H_INCLUDED
+#ifndef YY_YY_GENERATED_TOKEN_H_INCLUDED
+# define YY_YY_GENERATED_TOKEN_H_INCLUDED
 
 # include <iostream>
 # include <string>
@@ -53,9 +53,9 @@
 #  endif
 # endif
 
-#line 22 "/home/master/projects/thue/src/neothue.y"
-namespace nthue {
-#line 59 "Token.h"
+#line 22 "/home/master/projects/thue/src/generated/thue.y"
+namespace neothue {
+#line 59 "generated/Token.h"
 
   /// A point in a source file.
   class position
@@ -299,8 +299,8 @@ namespace nthue {
     return ostr;
   }
 
-#line 22 "/home/master/projects/thue/src/neothue.y"
-} // nthue
-#line 305 "Token.h"
+#line 22 "/home/master/projects/thue/src/generated/thue.y"
+} // neothue
+#line 305 "generated/Token.h"
 
-#endif // !YY_YY_TOKEN_H_INCLUDED
+#endif // !YY_YY_GENERATED_TOKEN_H_INCLUDED

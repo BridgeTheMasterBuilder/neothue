@@ -32,8 +32,8 @@
 
 
 /**
- ** \file ParserImplementation.h
- ** Define the nthue::parser class.
+ ** \file generated/ThueParserImplementation.h
+ ** Define the neothue::parser class.
  */
 
 // C++ LALR(1) parser skeleton written by Akim Demaille.
@@ -42,19 +42,19 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
-#ifndef YY_YY_PARSERIMPLEMENTATION_H_INCLUDED
-# define YY_YY_PARSERIMPLEMENTATION_H_INCLUDED
+#ifndef YY_YY_GENERATED_THUEPARSERIMPLEMENTATION_H_INCLUDED
+# define YY_YY_GENERATED_THUEPARSERIMPLEMENTATION_H_INCLUDED
 // "%code requires" blocks.
-#line 39 "/home/master/projects/thue/src/neothue.y"
+#line 33 "/home/master/projects/thue/src/generated/thue.y"
 
-    #include "Grammar.h"
+    #include "../Grammar.h"
 
-    namespace nthue {
-        class Lexer;
+    namespace neothue {
+        class ThueLexer;
     }
  
 
-#line 58 "ParserImplementation.h"
+#line 58 "generated/ThueParserImplementation.h"
 
 
 # include <cstdlib> // std::abort
@@ -188,15 +188,15 @@
 # define YYDEBUG 0
 #endif
 
-#line 22 "/home/master/projects/thue/src/neothue.y"
-namespace nthue {
-#line 194 "ParserImplementation.h"
+#line 22 "/home/master/projects/thue/src/generated/thue.y"
+namespace neothue {
+#line 194 "generated/ThueParserImplementation.h"
 
 
 
 
   /// A Bison parser.
-  class ParserImplementation
+  class ThueParserImplementation
   {
   public:
 #ifdef YYSTYPE
@@ -589,7 +589,7 @@ switch (yykind)
       /// The user-facing name of this symbol.
       const char *name () const YY_NOEXCEPT
       {
-        return ParserImplementation::symbol_name (this->kind ());
+        return ThueParserImplementation::symbol_name (this->kind ());
       }
 
       /// Backward compatibility (Bison 3.6).
@@ -686,14 +686,14 @@ switch (yykind)
     };
 
     /// Build a parser object.
-    ParserImplementation (Lexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, int& number_of_errors_yyarg, const std::string_view filename_yyarg, const std::string& source_code_yyarg);
-    virtual ~ParserImplementation ();
+    ThueParserImplementation (ThueLexer& lexer_yyarg, Grammar& grammar_yyarg, std::string& initial_state_yyarg, int& number_of_errors_yyarg, const std::string_view filename_yyarg, const std::string& source_code_yyarg);
+    virtual ~ThueParserImplementation ();
 
 #if 201103L <= YY_CPLUSPLUS
     /// Non copyable.
-    ParserImplementation (const ParserImplementation&) = delete;
+    ThueParserImplementation (const ThueParserImplementation&) = delete;
     /// Non copyable.
-    ParserImplementation& operator= (const ParserImplementation&) = delete;
+    ThueParserImplementation& operator= (const ThueParserImplementation&) = delete;
 #endif
 
     /// Parse.  An alias for parse ().
@@ -811,7 +811,7 @@ switch (yykind)
     class context
     {
     public:
-      context (const ParserImplementation& yyparser, const symbol_type& yyla);
+      context (const ThueParserImplementation& yyparser, const symbol_type& yyla);
       const symbol_type& lookahead () const YY_NOEXCEPT { return yyla_; }
       symbol_kind_type token () const YY_NOEXCEPT { return yyla_.kind (); }
       const location_type& location () const YY_NOEXCEPT { return yyla_.location; }
@@ -822,16 +822,16 @@ switch (yykind)
       int expected_tokens (symbol_kind_type yyarg[], int yyargn) const;
 
     private:
-      const ParserImplementation& yyparser_;
+      const ThueParserImplementation& yyparser_;
       const symbol_type& yyla_;
     };
 
   private:
 #if YY_CPLUSPLUS < 201103L
     /// Non copyable.
-    ParserImplementation (const ParserImplementation&);
+    ThueParserImplementation (const ThueParserImplementation&);
     /// Non copyable.
-    ParserImplementation& operator= (const ParserImplementation&);
+    ThueParserImplementation& operator= (const ThueParserImplementation&);
 #endif
 
 
@@ -1134,7 +1134,7 @@ switch (yykind)
 
 
     // User arguments.
-    Lexer& lexer;
+    ThueLexer& lexer;
     Grammar& grammar;
     std::string& initial_state;
     int& number_of_errors;
@@ -1144,8 +1144,8 @@ switch (yykind)
   };
 
   inline
-  ParserImplementation::symbol_kind_type
-  ParserImplementation::yytranslate_ (int t) YY_NOEXCEPT
+  ThueParserImplementation::symbol_kind_type
+  ThueParserImplementation::yytranslate_ (int t) YY_NOEXCEPT
   {
     // YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to
     // TOKEN-NUM as returned by yylex.
@@ -1193,7 +1193,7 @@ switch (yykind)
 
   // basic_symbol.
   template <typename Base>
-  ParserImplementation::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
+  ThueParserImplementation::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
     : Base (that)
     , value ()
     , location (that.location)
@@ -1216,8 +1216,8 @@ switch (yykind)
 
 
   template <typename Base>
-  ParserImplementation::symbol_kind_type
-  ParserImplementation::basic_symbol<Base>::type_get () const YY_NOEXCEPT
+  ThueParserImplementation::symbol_kind_type
+  ThueParserImplementation::basic_symbol<Base>::type_get () const YY_NOEXCEPT
   {
     return this->kind ();
   }
@@ -1225,14 +1225,14 @@ switch (yykind)
 
   template <typename Base>
   bool
-  ParserImplementation::basic_symbol<Base>::empty () const YY_NOEXCEPT
+  ThueParserImplementation::basic_symbol<Base>::empty () const YY_NOEXCEPT
   {
     return this->kind () == symbol_kind::S_YYEMPTY;
   }
 
   template <typename Base>
   void
-  ParserImplementation::basic_symbol<Base>::move (basic_symbol& s)
+  ThueParserImplementation::basic_symbol<Base>::move (basic_symbol& s)
   {
     super_type::move (s);
     switch (this->kind ())
@@ -1252,13 +1252,13 @@ switch (yykind)
 
   // by_kind.
   inline
-  ParserImplementation::by_kind::by_kind () YY_NOEXCEPT
+  ThueParserImplementation::by_kind::by_kind () YY_NOEXCEPT
     : kind_ (symbol_kind::S_YYEMPTY)
   {}
 
 #if 201103L <= YY_CPLUSPLUS
   inline
-  ParserImplementation::by_kind::by_kind (by_kind&& that) YY_NOEXCEPT
+  ThueParserImplementation::by_kind::by_kind (by_kind&& that) YY_NOEXCEPT
     : kind_ (that.kind_)
   {
     that.clear ();
@@ -1266,12 +1266,12 @@ switch (yykind)
 #endif
 
   inline
-  ParserImplementation::by_kind::by_kind (const by_kind& that) YY_NOEXCEPT
+  ThueParserImplementation::by_kind::by_kind (const by_kind& that) YY_NOEXCEPT
     : kind_ (that.kind_)
   {}
 
   inline
-  ParserImplementation::by_kind::by_kind (token_kind_type t) YY_NOEXCEPT
+  ThueParserImplementation::by_kind::by_kind (token_kind_type t) YY_NOEXCEPT
     : kind_ (yytranslate_ (t))
   {}
 
@@ -1279,40 +1279,40 @@ switch (yykind)
 
   inline
   void
-  ParserImplementation::by_kind::clear () YY_NOEXCEPT
+  ThueParserImplementation::by_kind::clear () YY_NOEXCEPT
   {
     kind_ = symbol_kind::S_YYEMPTY;
   }
 
   inline
   void
-  ParserImplementation::by_kind::move (by_kind& that)
+  ThueParserImplementation::by_kind::move (by_kind& that)
   {
     kind_ = that.kind_;
     that.clear ();
   }
 
   inline
-  ParserImplementation::symbol_kind_type
-  ParserImplementation::by_kind::kind () const YY_NOEXCEPT
+  ThueParserImplementation::symbol_kind_type
+  ThueParserImplementation::by_kind::kind () const YY_NOEXCEPT
   {
     return kind_;
   }
 
 
   inline
-  ParserImplementation::symbol_kind_type
-  ParserImplementation::by_kind::type_get () const YY_NOEXCEPT
+  ThueParserImplementation::symbol_kind_type
+  ThueParserImplementation::by_kind::type_get () const YY_NOEXCEPT
   {
     return this->kind ();
   }
 
 
-#line 22 "/home/master/projects/thue/src/neothue.y"
-} // nthue
-#line 1314 "ParserImplementation.h"
+#line 22 "/home/master/projects/thue/src/generated/thue.y"
+} // neothue
+#line 1314 "generated/ThueParserImplementation.h"
 
 
 
 
-#endif // !YY_YY_PARSERIMPLEMENTATION_H_INCLUDED
+#endif // !YY_YY_GENERATED_THUEPARSERIMPLEMENTATION_H_INCLUDED

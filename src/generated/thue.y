@@ -19,32 +19,26 @@
 %require "3.8.2"
 %language "C++"
 
-%define api.namespace {nthue}
-%define api.parser.class {ParserImplementation}
+%define api.namespace {neothue}
+%define api.parser.class {ThueParserImplementation}
 %define api.value.type variant
 %define api.token.constructor
 %define api.location.file "Token.h"
 %define parse.error custom
 
 %locations
-%header "ParserImplementation.h"
-%output "ParserImplementation.cpp"
-%expect 2
-
-%token SEPARATOR "="
-%token <std::string> STRING "string"
-%type <std::string> initial_state
-%type <std::string> string
+%header "generated/ThueParserImplementation.h"
+%output "generated/ThueParserImplementation.cpp"
 
 %code requires {
-    #include "Grammar.h"
+    #include "../Grammar.h"
 
-    namespace nthue {
-        class Lexer;
+    namespace neothue {
+        class ThueLexer;
     }
  }
 
-%parse-param {Lexer& lexer}
+%parse-param {ThueLexer& lexer}
 %parse-param {Grammar& grammar}
 %parse-param {std::string& initial_state}
 %parse-param {int& number_of_errors}
@@ -53,10 +47,17 @@
 
 %code {
 #include <string>
-#include "util.h"
-#include "Lexer.h"
+#include "../util.h"
+#include "ThueLexer.h"
 #define yylex lexer.lex
  }
+
+%expect 2
+
+%token SEPARATOR "="
+%token <std::string> STRING "string"
+%type <std::string> initial_state
+%type <std::string> string
 
 %%
 
@@ -74,12 +75,12 @@ string: STRING
 | %empty { $$ = ""; } %expect 2
 
 %%
-namespace nthue {
-    void ParserImplementation::error(const location_type& loc, const std::string& msg) {
+namespace neothue {
+    void ThueParserImplementation::error(const location_type& loc, const std::string& msg) {
         std::cerr << loc << msg << '\n';
     }
 
-    void ParserImplementation::report_syntax_error(const ParserImplementation::context& ctx) const {
+    void ThueParserImplementation::report_syntax_error(const ThueParserImplementation::context& ctx) const {
       number_of_errors++;
 
       const auto& location = ctx.location();
