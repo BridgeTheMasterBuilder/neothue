@@ -134,6 +134,7 @@ comment [;][^\n]*
 <INITIAL>{comment}
 <INITIAL>{ws}+
 <INITIAL>[=] return NeothueParserImplementation::make_SEPARATOR(location());
+<INITIAL>[\\]/(["]|[']) start(UNQSTR);
 <INITIAL>. start(UNQSTR); matcher().unput(chr());
 <<EOF>> {
     if(in_string) {

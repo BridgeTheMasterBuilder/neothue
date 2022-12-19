@@ -199,7 +199,7 @@ class NeothueLexer : public reflex::AbstractLexer<reflex::Matcher> {
 
 neothue::NeothueParserImplementation::symbol_type neothue::NeothueLexer::lex(void)
 {
-  static const char *REGEX_INITIAL = "(?m)(['])|([\"])|((?:[;][^\\x0a]*))|((?:[\\x09-\\x0d\\x20])+)|([=])|(.)";
+  static const char *REGEX_INITIAL = "(?m)(['])|([\"])|((?:[;][^\\x0a]*))|((?:[\\x09-\\x0d\\x20])+)|([=])|([\\x5c](?=(?:[\"]|['])))|(.)";
   static const reflex::Pattern PATTERN_INITIAL(REGEX_INITIAL);
   static const char *REGEX_UNQSTR = "(?m)((?:[^\\x09-\\x0d\\x20;=]+))";
   static const reflex::Pattern PATTERN_UNQSTR(REGEX_UNQSTR);
@@ -222,7 +222,7 @@ neothue::NeothueParserImplementation::symbol_type neothue::NeothueLexer::lex(voi
           case 0:
             if (matcher().at_end())
             {
-#line 138 "/home/master/projects/thue/src/generated/neothue.l"
+#line 139 "/home/master/projects/thue/src/generated/neothue.l"
 {
     if(in_string) {
         neothue::location loc = location();
@@ -282,8 +282,12 @@ neothue::NeothueParserImplementation::symbol_type neothue::NeothueLexer::lex(voi
 #line 136 "/home/master/projects/thue/src/generated/neothue.l"
 return NeothueParserImplementation::make_SEPARATOR(location());
             break;
-          case 6: // rule /home/master/projects/thue/src/generated/neothue.l:137: . :
+          case 6: // rule /home/master/projects/thue/src/generated/neothue.l:137: [\\]/(["]|[']) :
 #line 137 "/home/master/projects/thue/src/generated/neothue.l"
+start(UNQSTR);
+            break;
+          case 7: // rule /home/master/projects/thue/src/generated/neothue.l:138: . :
+#line 138 "/home/master/projects/thue/src/generated/neothue.l"
 start(UNQSTR); matcher().unput(chr());
             break;
         }
@@ -295,7 +299,7 @@ start(UNQSTR); matcher().unput(chr());
           case 0:
             if (matcher().at_end())
             {
-#line 138 "/home/master/projects/thue/src/generated/neothue.l"
+#line 139 "/home/master/projects/thue/src/generated/neothue.l"
 {
     if(in_string) {
         neothue::location loc = location();
@@ -345,7 +349,7 @@ start(UNQSTR); matcher().unput(chr());
           case 0:
             if (matcher().at_end())
             {
-#line 138 "/home/master/projects/thue/src/generated/neothue.l"
+#line 139 "/home/master/projects/thue/src/generated/neothue.l"
 {
     if(in_string) {
         neothue::location loc = location();
@@ -411,7 +415,7 @@ string_buffer += text();
           case 0:
             if (matcher().at_end())
             {
-#line 138 "/home/master/projects/thue/src/generated/neothue.l"
+#line 139 "/home/master/projects/thue/src/generated/neothue.l"
 {
     if(in_string) {
         neothue::location loc = location();
