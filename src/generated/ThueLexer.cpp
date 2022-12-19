@@ -57,11 +57,6 @@
     #include "Token.h"
     #include "ThueParserImplementation.h"
 
-#line 46 "/home/master/projects/thue/src/generated/thue.l"
-
-    #include <iostream>
-    #include <algorithm>
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -155,7 +150,7 @@ class ThueLexer : public reflex::AbstractLexer<reflex::Matcher> {
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#line 51 "/home/master/projects/thue/src/generated/thue.l"
+#line 46 "/home/master/projects/thue/src/generated/thue.l"
 
     #include "../Lexer.h"
 
@@ -181,13 +176,13 @@ neothue::ThueParserImplementation::symbol_type neothue::ThueLexer::lex(void)
 {
   static const char *REGEX_INITIAL = "(?m)(.)";
   static const reflex::Pattern PATTERN_INITIAL(REGEX_INITIAL);
-  static const char *REGEX_LHS = "(?m)(\\n)|((?:[\\x09-\\x0d\\x20])*(?:[:][:][=])(?:[\\x09-\\x0d\\x20])*)|([^\\x0a:]*(?=(?:[:][:][=])))";
+  static const char *REGEX_LHS = "(?m)([\\x0a])|((?:(?:[\\x09-\\x0d\\x20])*(?:[:][:][=])(?:[\\x09-\\x0d\\x20])*))|((?:[^\\x0a:]*)(?=(?:[:][:][=])))";
   static const reflex::Pattern PATTERN_LHS(REGEX_LHS);
   static const char *REGEX_SEP = "(?m)((?:[:][:][=]))";
   static const reflex::Pattern PATTERN_SEP(REGEX_SEP);
-  static const char *REGEX_RHS = "(?m)([^\\x0a]*)|([\\x0a])";
+  static const char *REGEX_RHS = "(?m)((?:[^\\x0a]*))|([\\x0a])";
   static const reflex::Pattern PATTERN_RHS(REGEX_RHS);
-  static const char *REGEX_STATE = "(?m)([^\\x0a](?:.|\\n)*(?=[\\x0a]?))|(\\n)";
+  static const char *REGEX_STATE = "(?m)([^\\x0a](?:.|\\n)*(?=[\\x0a]?))";
   static const reflex::Pattern PATTERN_STATE(REGEX_STATE);
   if (!has_matcher())
   {
@@ -212,8 +207,8 @@ neothue::ThueParserImplementation::symbol_type neothue::ThueLexer::lex(void)
               return neothue::ThueParserImplementation::symbol_type();
             }
             break;
-          case 1: // rule /home/master/projects/thue/src/generated/thue.l:66: . :
-#line 66 "/home/master/projects/thue/src/generated/thue.l"
+          case 1: // rule /home/master/projects/thue/src/generated/thue.l:64: . :
+#line 64 "/home/master/projects/thue/src/generated/thue.l"
 start(LHS); matcher().unput(chr());
             break;
         }
@@ -233,15 +228,15 @@ start(LHS); matcher().unput(chr());
               return neothue::ThueParserImplementation::symbol_type();
             }
             break;
-          case 1: // rule /home/master/projects/thue/src/generated/thue.l:67: \n :
-#line 67 "/home/master/projects/thue/src/generated/thue.l"
+          case 1: // rule /home/master/projects/thue/src/generated/thue.l:65: [\n] :
+#line 65 "/home/master/projects/thue/src/generated/thue.l"
             break;
-          case 2: // rule /home/master/projects/thue/src/generated/thue.l:68: {ws}*{sep}{ws}* :
-#line 68 "/home/master/projects/thue/src/generated/thue.l"
+          case 2: // rule /home/master/projects/thue/src/generated/thue.l:66: {empty_production} :
+#line 66 "/home/master/projects/thue/src/generated/thue.l"
 start(STATE);
             break;
-          case 3: // rule /home/master/projects/thue/src/generated/thue.l:69: [^:\n]*/{sep} :
-#line 69 "/home/master/projects/thue/src/generated/thue.l"
+          case 3: // rule /home/master/projects/thue/src/generated/thue.l:67: {lhs}/{sep} :
+#line 67 "/home/master/projects/thue/src/generated/thue.l"
 start(SEP); return ThueParserImplementation::make_STRING(str(), location());
             break;
         }
@@ -261,8 +256,8 @@ start(SEP); return ThueParserImplementation::make_STRING(str(), location());
               return neothue::ThueParserImplementation::symbol_type();
             }
             break;
-          case 1: // rule /home/master/projects/thue/src/generated/thue.l:70: {sep} :
-#line 70 "/home/master/projects/thue/src/generated/thue.l"
+          case 1: // rule /home/master/projects/thue/src/generated/thue.l:68: {sep} :
+#line 68 "/home/master/projects/thue/src/generated/thue.l"
 start(RHS); return ThueParserImplementation::make_SEPARATOR(location());
             break;
         }
@@ -282,12 +277,12 @@ start(RHS); return ThueParserImplementation::make_SEPARATOR(location());
               return neothue::ThueParserImplementation::symbol_type();
             }
             break;
-          case 1: // rule /home/master/projects/thue/src/generated/thue.l:71: [^\n]* :
-#line 71 "/home/master/projects/thue/src/generated/thue.l"
+          case 1: // rule /home/master/projects/thue/src/generated/thue.l:69: {rhs} :
+#line 69 "/home/master/projects/thue/src/generated/thue.l"
 start(LHS); return ThueParserImplementation::make_STRING(str(), location());
             break;
-          case 2: // rule /home/master/projects/thue/src/generated/thue.l:72: [\n] :
-#line 72 "/home/master/projects/thue/src/generated/thue.l"
+          case 2: // rule /home/master/projects/thue/src/generated/thue.l:70: [\n] :
+#line 70 "/home/master/projects/thue/src/generated/thue.l"
 start(LHS); return ThueParserImplementation::make_STRING("", location());
             break;
         }
@@ -307,12 +302,9 @@ start(LHS); return ThueParserImplementation::make_STRING("", location());
               return neothue::ThueParserImplementation::symbol_type();
             }
             break;
-          case 1: // rule /home/master/projects/thue/src/generated/thue.l:73: [^\n](.|\n)*/[\n]? :
-#line 73 "/home/master/projects/thue/src/generated/thue.l"
-return ThueParserImplementation::make_STRING(str(), location());
-            break;
-          case 2: // rule /home/master/projects/thue/src/generated/thue.l:74: \n :
-#line 74 "/home/master/projects/thue/src/generated/thue.l"
+          case 1: // rule /home/master/projects/thue/src/generated/thue.l:71: [^\n](.|\n)*/[\n]? :
+#line 71 "/home/master/projects/thue/src/generated/thue.l"
+start(LHS); return ThueParserImplementation::make_STRING(str(), location());
             break;
         }
         break;

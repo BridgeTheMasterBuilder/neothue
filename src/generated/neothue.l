@@ -66,12 +66,8 @@
 %}
 
 
-%top {
-    #include <iostream>
-    #include <algorithm>
-%}
-
 %{
+    #include <algorithm>
     #include "../Lexer.h"
 
     using neothue::position;

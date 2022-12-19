@@ -60,11 +60,6 @@
     #include "Token.h"
     #include "NeothueParserImplementation.h"
 
-#line 69 "/home/master/projects/thue/src/generated/neothue.l"
-
-    #include <iostream>
-    #include <algorithm>
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //

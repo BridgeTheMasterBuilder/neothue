@@ -43,11 +43,6 @@
 
 
 
-%top {
-    #include <iostream>
-    #include <algorithm>
-%}
-
 %{
     #include "../Lexer.h"
 
@@ -57,18 +52,20 @@
 %}
 
 ws [ \t\n\r\f\v]
+lhs [^:\n]*
+rhs [^\n]*
 sep [:][:][=]
+empty_production {ws}*{sep}{ws}*
 
 %x LHS SEP RHS STATE
 
 %%
 
 <INITIAL>. start(LHS); matcher().unput(chr());
-<LHS>\n
-<LHS>{ws}*{sep}{ws}* start(STATE);
-<LHS>[^:\n]*/{sep} start(SEP); return ThueParserImplementation::make_STRING(str(), location());
+<LHS>[\n]
+<LHS>{empty_production} start(STATE);
+<LHS>{lhs}/{sep} start(SEP); return ThueParserImplementation::make_STRING(str(), location());
 <SEP>{sep} start(RHS); return ThueParserImplementation::make_SEPARATOR(location());
-<RHS>[^\n]* start(LHS); return ThueParserImplementation::make_STRING(str(), location());
+<RHS>{rhs} start(LHS); return ThueParserImplementation::make_STRING(str(), location());
 <RHS>[\n] start(LHS); return ThueParserImplementation::make_STRING("", location());
-<STATE>[^\n](.|\n)*/[\n]? return ThueParserImplementation::make_STRING(str(), location());
-<STATE>\n
+<STATE>[^\n](.|\n)*/[\n]? start(LHS); return ThueParserImplementation::make_STRING(str(), location());

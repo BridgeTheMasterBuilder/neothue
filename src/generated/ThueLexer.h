@@ -60,11 +60,6 @@
     #include "Token.h"
     #include "ThueParserImplementation.h"
 
-#line 46 "/home/master/projects/thue/src/generated/thue.l"
-
-    #include <iostream>
-    #include <algorithm>
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
