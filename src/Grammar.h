@@ -58,16 +58,23 @@ private:
   {
     using enum application_order;
 
-    std::size_t index_of_match;
+    std::size_t              index_of_match = 0;
+    std::vector<std::size_t> indices;
 
-    if (order == LEFT_TO_RIGHT)
-      index_of_match = string.find(lhs);
-    else if (order == RIGHT_TO_LEFT)
-      index_of_match = string.rfind(lhs);
-    else
-      index_of_match = (rng() < rng.max() / 2) ? string.find(lhs) : string.rfind(lhs);
+    while (true) {
+      index_of_match = string.find(lhs, index_of_match);
 
-    return index_of_match;
+      if (index_of_match == std::string::npos) break;
+
+      indices.push_back(index_of_match);
+      index_of_match++;
+    }
+
+    if (indices.empty()) return std::string::npos;
+
+    std::size_t random_index = rng() % indices.size();
+
+    return indices[random_index];
   }
   std::size_t match(const std::string& lhs, const std::string_view string)
   {
